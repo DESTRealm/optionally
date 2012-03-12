@@ -1,11 +1,13 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 
+namespace org\destrealm\utilities;
+
 /* !!! WARNING !!!
  *
  * This file has been modified from its original version. PEAR dependencies have
  * been removed and PEAR error conditions have been replaced with raised
- * OptionallyException exceptions.
+ * OptionallyGetoptException exceptions.
  * 
  * GetOptWrapper will include this file if and only if the PEAR version is not
  * installed.
@@ -198,7 +200,7 @@ class Console_Getopt
                     break;
                 }
 
-                throw new OptionallyException('Unrecognized option: '.$opt,
+                throw new OptionallyGetoptException('Unrecognized option: '.$opt,
                     OptionallyException::UNRECOGNIZED_OPTION
                 );
             }
@@ -221,12 +223,12 @@ class Console_Getopt
                         /* Else use the next argument. */;
                         if (Console_Getopt::_isShortOpt($opt_arg)
                             || Console_Getopt::_isLongOpt($opt_arg)) {
-                            throw new OptionallyException('Option requires argument: '.
+                            throw new OptionallyGetoptException('Option requires argument: '.
                                 $opt, OptionallyException::REQUIRES_ARGUMENT
                             );
                         }
                     } else {
-                        throw new OptionallyException('Optiona requires argument: '.
+                        throw new OptionallyGetoptException('Optiona requires argument: '.
                             $opt, OptionallyException::REQUIRES_ARGUMENT
                         );
                     }
@@ -309,7 +311,7 @@ class Console_Getopt
                 $next_option_rest != '' &&
                 $next_option_rest{0} != '=') {
 
-                throw new OptionallyException('Ambiguous option: '.$opt,
+                throw new OptionallyGetoptException('Ambiguous option: '.$opt,
                     OptionallyException::AMBIGUOUS_OPTION
                 );
             }
@@ -320,18 +322,18 @@ class Console_Getopt
                        Take the next argument if one wasn't specified. */;
                     if (!strlen($opt_arg) && !(list(, $opt_arg) = each($args))) {
                         $msg = "Console_Getopt: option requires an argument --$opt";
-                        throw new OptionallyException($msg);
+                        throw new OptionallyGetoptException($msg);
                     }
 
                     if (Console_Getopt::_isShortOpt($opt_arg)
                         || Console_Getopt::_isLongOpt($opt_arg)) {
-                        throw new OptionallyException('Option requires argument: '.
+                        throw new OptionallyGetoptException('Option requires argument: '.
                             $opt, OptionallyException::REQUIRES_ARGUMENT
                         );
                     }
                 }
             } else if ($opt_arg) {
-                throw new OptionallyException('Argument not allowed: '.$opt_arg,
+                throw new OptionallyGetoptException('Argument not allowed: '.$opt_arg,
                     OptionallyException::ARGUMENT_NOT_ALLOWED
                 );
             }
@@ -344,7 +346,7 @@ class Console_Getopt
             return;
         }
 
-        throw new OptionallyException('Unrecognized option: '.$opt,
+        throw new OptionallyGetoptException('Unrecognized option: '.$opt,
             OptionallyException::UNRECOGNIZED_OPTION
         );
     }
@@ -362,7 +364,7 @@ class Console_Getopt
         if (!is_array($argv)) {
             if (!@is_array($_SERVER['argv'])) {
                 if (!@is_array($GLOBALS['HTTP_SERVER_VARS']['argv'])) {
-                    throw new OptionallyException('argc/argv error',
+                    throw new OptionallyGetoptException('argc/argv error',
                         OptionallyException::ARGC_ARGV_ERROR
                     );
                 }

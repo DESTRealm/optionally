@@ -2,8 +2,6 @@
 
 namespace org\destrealm\utilities;
 
-use Console_Getopt;
-
 $__path = dirname(__FILE__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.
     'Getopt.php';
 
@@ -15,6 +13,12 @@ if (file_exists($__path)) {
 
 class Optionally
 {
+
+    /**
+     * Array of arguments passed in addition to our options.
+     * @var array
+     */
+    private $_args = array();
 
     /**
      * argv array passed into our script via PHP.
@@ -56,11 +60,19 @@ class Optionally
         'optionalValue' => false,   /* Value is optional. */
     );
 
-    private $optsShort = '';
-
-    private $optsLong = array();
-
     private $parsedOptions = array();
+
+    /**
+     * Factory method to create a new Optioanlly instance. Useful for method
+     * chaining without creating intermediate variables.
+     * @return [type]
+     */
+    public static function factory ($args=array())
+    {
+        $optionally = new self($args);
+
+        return $optionally;
+    } // end factory ()
 
     public function __construct ($args=array())
     {
@@ -85,9 +97,10 @@ class Optionally
 
     } // end argc ()
 
-    public function args ($name)
+    public function args ()
     {
-
+        $this->prepareOptionCache();
+        return $this->_args;
     } // end args ()
 
     public function argv ($offset)
@@ -95,10 +108,13 @@ class Optionally
 
     } // end argv ()
 
-    public function boolean ($args)
+    public function boolean ()
     {
         $option =& $this->getLastOption();
         $option['boolean'] = true;
+
+        // Boolean options cannot be required options.
+        $option['required'] = false;
 
         return $this;
     } // end boolean ()
@@ -142,12 +158,6 @@ class Optionally
 
     public function option ($option, $settings=array())
     {
-        if (strlen(str_replace(':', '', $option)) === 1) {
-            $this->optsShort .= $option;
-        } else if (strlen($option) > 1) {
-            $this->optsLong[] = $option;
-        }
-
         $this->lastOption = $option;
 
         if (!array_key_exists($option, $this->options)) {
@@ -179,6 +189,9 @@ class Optionally
         $option =& $this->getLastOption();
         $option['required'] = true;
 
+        // Required options cannot be boolean options.
+        $option['boolean'] = false;
+
         return $this;
     } // end required ()
 
@@ -202,7 +215,7 @@ class Optionally
     public function usage ($usage)
     {
         $option =& $this->getLastOption();
-        $option['uaage'] = $usage;
+        $option['usage'] = $usage;
 
         return $this;
     } // end usage ()
@@ -226,35 +239,246 @@ class Optionally
             return $this->optionCache[$value];
         }
 
-        $this->parsedOptions = $this->getopt->getopt2(
-            $this->args,
-            $this->optsShort,
-            $this->optsLong
-        );
+        $this->prepareOptionCache();
 
-        if (array_key_exists($value, $this->options)) {
-            $option = $this->options[$value];
-
+        if (array_key_exists($value, $this->optionCache)) {
+            return $this->optionCache[$value];
         }
 
         if (!property_exists($this, $value)) {
             return null;
         }
-
-        return $this->$value;
     } // end getter
 
     private function &getLastOption ()
     {
-        // Clear the option cache since accessing this method typically means
-        // that the option data is being changed.
-
-        if (array_key_exists($this->lastOption, $this->optionCache)) {
-            unset($this->optionCache[$this->lastOption]);
-        }
-
+        $this->optionCache = array();
         return $this->options[ $this->lastOption ];
     } // end getLastOption ()
+
+    /**
+     * Retrieves a Getopt suffix for the option $option. Single letter options
+     * will return a suffix of ":" while word options will return a suffix of
+     * "=". Suffixes are returned only if $hasValue is true; double-suffixes
+     * will be returned if both $hasValue is true and $optional is true.
+     * @param  string  $option         Option.
+     * @param  boolean $hasValue=false Option requests a value.
+     * @param  boolean $optional=false Option requests an optional value.
+     * @return string Empty string, ":", "::", "=", or "==".
+     */
+    private function getSuffixForOption ($option, $hasValue=false, $optional=false)
+    {
+        $suffix = '';
+
+        if (strlen($option) === 1) {
+
+            // Option requires a value.
+            if ($hasValue) {
+                $suffix = ':';
+            }
+
+            // Option value is optional. ->optional() has no effect unless
+            // ->value() is also specified.
+            if ($hasValue && $optional) {
+                $suffix = '::';
+            }
+
+        } else {
+
+            if ($hasValue) {
+                $suffix = '=';
+            }
+
+            if ($hasValue && $optional) {
+                $suffix = '==';
+            }
+
+        }
+
+        return $suffix;
+    } // end getSuffixForOption ()
+
+    /**
+     * Mangles an option name so that it's safe to use as a PHP object property.
+     * @param  string $option Option.
+     * @return string Mangled option.
+     */
+    private function mangle ($option)
+    {
+        $aliases = array();
+        if (strpos($option, '-') !== false) {
+            $parts = explode('-', $option);
+            $aliases[] = implode('_', $parts);
+
+            $first = array_shift($parts);
+            $rest = array_map('ucfirst', $parts);
+            $aliases[] = implode('', array_merge((array)$first, $rest));
+        }
+
+        return $aliases;
+    } // end mangle ()
+
+    /**
+     * Mangles all aliases for the option $option, including the option's name.
+     * @param  string $option Option to mangle.
+     */
+    private function mangleAll ($option)
+    {
+        $mangled = array();
+        if (!empty($this->options[$option]['aliases'])) {
+            foreach ($this->options[$option]['aliases'] as $alias) {
+                $mangled = array_merge($this->mangle($alias), $mangled);
+            }
+
+            $mangled = array_merge($this->mangle($option), $mangled);
+        }
+
+        $this->options[$option]['aliases'] = array_merge(
+            $this->options[$option]['aliases'],
+            $this->mangle($option)
+        );
+    } // end mangleAll ()
+
+    /**
+     * Parses $options, compares the values contained within against
+     * $this->options, and returns an array containing the option names as keys
+     * and their checked values as values.
+     * @param  [type] $options [description]
+     * @return [type]
+     */
+    private function parseOptions ($options, $optionMap)
+    {
+        $values = array();
+
+        foreach ($options as $option) {
+
+            $opt = $option[0]; // Option name.
+            $val = $option[1]; // Option value. Might be empty.
+
+            // Filter long options.
+            $opt = str_replace('--', '', $opt);
+
+            // Preemptively set the option to our captured value.
+            $values[$opt] = $val;
+
+            $settings = null;
+
+            // Find which option we're honoring; this is one of the master
+            // $this->options key-value store or something in the $optionMap
+            // which will lead us there.
+            if (array_key_exists($opt, $this->options)) {
+                $settings = $this->options[ $opt ];
+            } else if (in_array($opt, $optionMap)) {
+                $settings = $this->options[ $optionMap[$opt] ];
+            } else {
+                continue;
+            }
+
+            // If the value is empty and we're expecting a value, and this value
+            // is *not* optional, throw an error.
+            if ($settings['value'] && !$settings['optionalValue'] &&
+                empty($val)) {
+                throw new OptionallyParserException(
+                    'Value is required for option.',
+                    $opt,
+                    OptionallyException::REQUIRES_ARGUMENT
+                );
+            }
+
+            // Boolean true. False is handled elsewhere.
+            if ($settings['boolean'] === true && empty($val)) {
+                $values[$opt] = true;
+            }
+
+            // Assign all aliases to the same value.
+            foreach ($settings['aliases'] as $alias) {
+                $values[$alias] = $values[$opt];
+            }
+        }
+
+        return $values;
+    } // end parseOptions ()
+
+    private function prepareOptionCache ()
+    {
+        $shortOpts = '';
+        $longOpts = array();
+
+        $optionMap = array();
+
+        if (!empty($this->optionCache)) {
+            return;
+        }
+
+        /**
+         * Appends the appropriate suffix to either $shortOpts or $longOpts.
+         */
+        $appendOpts = function ($option, $suffix) use (&$shortOpts, &$longOpts) {
+
+            if (strlen($option) === 1) {
+                $shortOpts .= $option.$suffix;
+            } else {
+                $longOpts[] = $option.$suffix;
+            }
+
+        };
+
+        foreach ($this->options as $option => $prefs) {
+
+            // Mangles option names.
+            $this->mangleAll($option);
+
+            $appendOpts($option,
+                $this->getSuffixForOption(
+                    $option,
+                    $prefs['value'],
+                    $prefs['optionalValue']
+                )
+            );
+
+            $optionMap[$option] = $option;
+
+            if (!empty($prefs['aliases'])) {
+                foreach ($prefs['aliases'] as $alias) {
+
+                    $optionMap[$alias] = $option;
+
+                    $appendOpts($alias,
+                        $this->getSuffixForOption(
+                            $alias,
+                            $prefs['value'],
+                            $prefs['optionalValue']
+                        )
+                    );
+
+                }
+            }
+
+        }
+
+        $options = $this->getopt->getopt2(
+            $this->args,
+            $shortOpts,
+            $longOpts
+        );
+
+        // Parse the options we were given.
+        $this->optionCache = $this->parseOptions($options[0], $optionMap);
+
+        // Handle boolean false options.
+        foreach ($optionMap as $option => $master) {
+            if (!array_key_exists($option, $this->optionCache) &&
+                $this->options[$master]['boolean'] === true) {
+                foreach ($this->options[$option]['aliases'] as $alias) {
+                    $this->optionCache[$alias] = false;
+                }
+                $this->optionCache[$master] = false;
+            }
+        }
+
+        // Add the arguments to our tracker.
+        $this->_args = $options[1];
+    } // end prepareOptionCache ()
 
 } // end Optionally
 
