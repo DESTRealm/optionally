@@ -11,6 +11,13 @@ if (file_exists($__path)) {
     require_once 'Getopt.php';
 }
 
+/**
+ * Optionally is an Optimist- (NodeJS) like API and getopt wrapper for PHP.
+ * Although Optionally isn't a direct decendent of Optimist for reasons mostly
+ * related to quirks in both PHP and its author, it does adhere to many of the
+ * same principles first introduced in popular usage by Optimist for handling
+ * command line arguments.
+ */
 class Optionally
 {
 
@@ -52,15 +59,14 @@ class Optionally
         'aliases' => array(),   /* Aliases for a given option. */
         'description' => null,  /* Option description. Shown by help(). */
         'required' => false,    /* Option is required. */
+        'ifNull' => '',         /* Option is required if ifNull is absent. */
         'boolean' => false,     /* Option is boolean. */
         'callback' => null,     /* Option callbacks. See Optionally::callback(). */
         'defaults' => null,     /* Option default value(s). */
-        'usage' => null,        /* Example usage. */
+        'examples' => null,     /* Usage example(s). */
         'value' => false,       /* Value is required. */
         'optionalValue' => false,   /* Value is optional. */
     );
-
-    private $parsedOptions = array();
 
     /**
      * Factory method to create a new Optioanlly instance. Useful for method
@@ -74,6 +80,12 @@ class Optionally
         return $optionally;
     } // end factory ()
 
+    /**
+     * Constructor.
+     * @param array $args=array() Arguments. Pass an argv-like array of
+     * arguments to override what Optionally believes it's supposed to handle.
+     * This is mostly useful for unit testing.
+     */
     public function __construct ($args=array())
     {
         if (empty($args)) {
@@ -84,6 +96,11 @@ class Optionally
         $this->getopt = new Console_Getopt();
     } // end constructor
 
+    /**
+     * Attach an alias to the current option.
+     * @param  string $alias Option alias.
+     * @return Optionally Instance ($this).
+     */
     public function alias ($alias)
     {
         $option =& $this->getLastOption();
@@ -92,22 +109,33 @@ class Optionally
         return $this;
     } // end alias ()
 
+    /**
+     * [argc description]
+     * @return [type]
+     */
     public function argc ()
     {
 
     } // end argc ()
 
+    /**
+     * Returns the non-option arguments left over from getopt.
+     * @return array Arguments.
+     */
     public function args ()
     {
         $this->prepareOptionCache();
         return $this->_args;
     } // end args ()
 
-    public function argv ($offset)
-    {
-
-    } // end argv ()
-
+    /**
+     * Instructs Optionally that the current option should be considered a
+     * boolean option. The option will appear as a property to the current
+     * Optionally instance even if it wasn't specified on the command line;
+     * however, if the option wasn't provided by the user, its value will be
+     * false--otherwise true.
+     * @return Optionally Instance ($this).
+     */
     public function boolean ()
     {
         $option =& $this->getLastOption();
@@ -135,6 +163,11 @@ class Optionally
 
     } // end callback ()
 
+    /**
+     * Sets a default value (or values) for the current option.
+     * @param  mixed $value Option default value.
+     * @return Optionally Instance ($this).
+     */
     public function defaults ($value)
     {
         $option =& $this->getLastOption();
@@ -143,6 +176,12 @@ class Optionally
         return $this;
     } // end default ()
 
+    /**
+     * Describes an option. This will be displayed alongside the option and
+     * each of its aliases when Optionally::help() is called.
+     * @param  string $help Help string.
+     * @return Optionally Instance ($this).
+     */
     public function describe ($help)
     {
         $option =& $this->getLastOption();
@@ -151,11 +190,51 @@ class Optionally
         return $this;
     } // end help ()
 
+    /**
+     * Includes example usage for an option. While this isn't required,
+     * examples() is a useful addendum to describe() and will be displayed after
+     * the describe() output. Be aware that examples() will not function if
+     * describe() wasn't first called.
+     *
+     * $examples may be a string or an array; if it's a string, Optionally will
+     * assume that only a single example is listed. If $examples is an array,
+     * Optionally will treat each element as its own individual example.
+     * @param  mixed $examples String (single example) or an array (multiple
+     * examples).
+     * @return Optionally Instance ($this).
+     */
+    public function examples ($examples)
+    {
+        $option =& $this->getLastOption();
+        $option['examples'] = $examples;
+
+        return $this;
+    } // end examples ()
+
+    /**
+     * Displays derived help text pulled in from describe().
+     * @return string Help text.
+     */
     public function help ()
     {
 
     } // end help ()
 
+    /**
+     * Creates an option. Options may not include a leading dash (-) or trailing
+     * getopt suffixes (":" or "=") and must be comprised of a single character
+     * or string.
+     *
+     * If $settings is provided, option() can be used in a somewhat more
+     * traditional manner without method chaining and may be useful for certain
+     * programmatic applications. All options are supported in $settings. Any
+     * options missing from $settings will be merged with $this->optionTemplate
+     * to ensure reasonable defaults are maintained.
+     * @param  string $option           Option.
+     * @param  array  $settings=array() Settings override. See
+     * $this->optionTemplate for usage examples.
+     * @return Optionally Instance ($this).
+     */
     public function option ($option, $settings=array())
     {
         $this->lastOption = $option;
@@ -184,6 +263,13 @@ class Optionally
         return $this;
     } // end optional ()
 
+    /**
+     * Indicates that the option is required. Beware when using this feature;
+     * command line options are called "options" for a reason! :) You should
+     * elect to provide sensible defaults whenever options are missing rather
+     * than forcing end users to supply them on the command line.
+     * @return Optionally Instance ($this).
+     */
     public function required ()
     {
         $option =& $this->getLastOption();
@@ -194,6 +280,20 @@ class Optionally
 
         return $this;
     } // end required ()
+
+    /**
+     * Indicates that the current option is required if (and only if) $option
+     * was not provided. This can be useful for providing toggle options.
+     * @param  string $option Option.
+     * @return Optionally Instance ($this).
+     */
+    public function requiredIfNull ($option)
+    {
+        $option =& $this->getLastOption();
+        $option['ifNull'] = $option;
+
+        return $this;
+    } // end requiredIfNull ()
 
     /**
      * Tests the option's value to determine if it is acceptable. $callback
@@ -212,17 +312,9 @@ class Optionally
 
     } // end test ()
 
-    public function usage ($usage)
-    {
-        $option =& $this->getLastOption();
-        $option['usage'] = $usage;
-
-        return $this;
-    } // end usage ()
-
     /**
-     * Indicates that an option must possess an argument for its value.
-     * @return [type]
+     * Indicates that an option must possess a value argument.
+     * @return Optionally Instance ($this).
      */
     public function value ()
     {
@@ -232,6 +324,20 @@ class Optionally
         return $this;
     } // end value ()
 
+    /**
+     * Retrieves an option value from this Optionally instance. Be aware that
+     * this functionality may be shifted into a subordinate class in the future.
+     * __get() is a PHP override method for retrieving values from a class
+     * instance, e.g. $optionally->someValue.
+     *
+     * Calling any property on an Optionally instance that does not exist will
+     * trigger a preparation of the option cache.
+     * @param  string $value Property value; more specifically (or hopefully),
+     * the value of a command line option.
+     * @return mixed Returns the value of the option if it exists or null
+     * otherwise. This might also generate errors in rare circumstances where
+     * an option conflicts with an already defined property. Use with care.
+     */
     public function __get ($value)
     {
         // Bail early if the option cache exists for this entry.
@@ -250,6 +356,12 @@ class Optionally
         }
     } // end getter
 
+    /**
+     * Retrieves a reference to the last option defined by option(). This is
+     * used exclusively by method chaining in order to determine which modifier
+     * should be applied to what option.
+     * @return object Reference to the last option offset in $this->options.
+     */
     private function &getLastOption ()
     {
         $this->optionCache = array();
@@ -343,8 +455,10 @@ class Optionally
      * Parses $options, compares the values contained within against
      * $this->options, and returns an array containing the option names as keys
      * and their checked values as values.
-     * @param  [type] $options [description]
-     * @return [type]
+     * @param array $options Options to parse.
+     * @param array $optionMap Map containing as keys a list of all known
+     * aliases pointing to values of their parent option.
+     * @return array Parsed values.
      */
     private function parseOptions ($options, $optionMap)
     {
@@ -399,6 +513,10 @@ class Optionally
         return $values;
     } // end parseOptions ()
 
+    /**
+     * Prepares the option cache which is used to extract options for user code
+     * that expects their values to be present as getter properties.
+     */
     private function prepareOptionCache ()
     {
         $shortOpts = '';
