@@ -1,6 +1,6 @@
 <?php
 
-namespace org\destrealm\utilities;
+namespace org\destrealm\utilities\optionally;
 
 use PHPUnit_Framework_TestCase;
 

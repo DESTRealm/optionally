@@ -1,6 +1,6 @@
 <?php
 
-namespace org\destrealm\utilities;
+namespace org\destrealm\utilities\optionally;
 
 $__path = dirname(__FILE__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.
     'Getopt.php';

@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 
-namespace org\destrealm\utilities;
+namespace org\destrealm\utilities\optionally;
 
 /* !!! WARNING !!!
  *
