@@ -7,11 +7,10 @@ namespace org\destrealm\utilities;
  *
  * This file has been modified from its original version. PEAR dependencies have
  * been removed and PEAR error conditions have been replaced with raised
- * OptionallyGetoptException exceptions.
- * 
- * GetOptWrapper will include this file if and only if the PEAR version is not
- * installed.
- * 
+ * OptionallyGetoptException exceptions. Furthermore, certain GNU getopt-
+ * compatible options have been changed and may behave differently from what
+ * might otherwise be expected.
+ *
  * !!! WARNING !!!
  */
 
