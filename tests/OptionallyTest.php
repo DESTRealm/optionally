@@ -6,9 +6,19 @@ use PHPUnit_Framework_TestCase;
 
 require_once 'optionally.php';
 
+/**
+ * Optionally unit tests.
+ * 
+ * While these unit tests are fairly simple, they serve to demonstrate much of
+ * the common use cases Optionally is intended to fulfill.
+ */
 class OptionallyTest extends PHPUnit_Framework_TestCase
 {
 
+    /**
+     * Test basic option creation.
+     * @return [type]
+     */
     public function testCreateOption ()
     {
         $options = new Optionally(array('-c', 'file', '--file', 'test.txt', 'arg1'));
@@ -36,6 +46,10 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     } // end testCreateOption ()
 
+    /**
+     * Test the creation of boolean options.
+     * @return [type]
+     */
     public function testBoolean ()
     {
         $options = new Optionally(array('--debug', '-c', 'file', 'arg0'));
@@ -60,6 +74,68 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('arg0', $args[0]);
     } // end testBoolean ()
 
+    /**
+     * Test the creation of options that require values.
+     */
+    public function testRequiredValues ()
+    {
+        $options = new Optionally(array('--source=config.txt', '-c', 'file'));
+
+        $options
+            ->option('source')
+                ->describe('Configuration source.')
+                ->value()
+            ->option('c')
+                ->describe('Configuration source type.')
+                ->value()
+            ;
+
+        $this->assertEquals('config.txt', $options->source);
+        $this->assertEquals('file', $options->c);
+    } // end testRequiredValues ()
+
+    /**
+     * Tests the creation of options that require values but have not been
+     * supplied the appropriate values. Short option test.
+     * @expectedException OptionallyGetoptException
+     */
+    public function testRequiredValuesShortOptFailure ()
+    {
+        $options = new Optionally(array('--source=config.txt', '-c'));
+
+        $options
+            ->option('source')
+                ->describe('Configuration source.')
+                ->value()
+            ->option('c')
+                ->describe('Configuration source type.')
+                ->value()
+            ;
+    } // end testRequiredValuesShortOptFailure ()
+
+    /**
+     * Tests the creation of options that require values but have not been
+     * supplied the appropriate values. Long option test.
+     * @expectedException OptionallyGetoptException
+     */
+    public function testRequiredValuesLongOptFailure ()
+    {
+        $options = new Optionally(array('--source', '-c', 'file'));
+
+        $options
+            ->option('source')
+                ->describe('Configuration source.')
+                ->value()
+            ->option('c')
+                ->describe('Configuration source type.')
+                ->value()
+            ;
+    } // end testRequiredValuesLongOptFailure ()
+
+    /**
+     * Test the creation of option value options (that is, options that may be
+     * supplied with or without value arguments).
+     */
     public function testOptionalValues ()
     {
         $options = new Optionally(array('--debug', '-c', 'file'));
