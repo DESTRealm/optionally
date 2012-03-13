@@ -212,6 +212,11 @@ class Console_Getopt
                            the arg string if there is anything left. */
                         $opts[] = array($opt, substr($arg, $i + 1));
                         break;
+                    } else if (list(, $opt_arg) = each($args)) {
+                        if (Console_Getopt::_isShortOpt($opt_arg) ||
+                            Console_Getopt::_isLongOpt($opt_arg)) {
+                            break;
+                        }
                     }
                 } else {
                     /* Option requires an argument. Use the remainder of the arg
@@ -228,7 +233,7 @@ class Console_Getopt
                             );
                         }
                     } else {
-                        throw new OptionallyGetoptException('Optiona requires argument: '.
+                        throw new OptionallyGetoptException('Option requires argument: '.
                             $opt, OptionallyException::REQUIRES_ARGUMENT
                         );
                     }
