@@ -16,6 +16,15 @@ class Options
 
     private $_args = array();
 
+    /**
+     * Constructor.
+     * @param array $options   Options processed by Console_Getopt.
+     * @param array $settings  Option settings defined by Optionally::option and
+     * friends.
+     * @param array $optionMap Option map mapping options and their aliases to
+     * the "master option" that defines the properties for those options or
+     * aliases.
+     */
     public function __construct ($options, $settings, $optionMap)
     {
         $this->_options = $this->parseOptions($options[0], $settings, $optionMap);
@@ -36,6 +45,11 @@ class Options
 
     } // end constructor
 
+    /**
+     * Getter override.
+     * @param  string $value Property to get.
+     * @return mixed Retrieves the value of the property defiend by $value.
+     */
     public function __get ($value)
     {
         // Bail early if the option cache exists for this entry.
@@ -52,6 +66,11 @@ class Options
         }
     } // end __get ()
 
+    /**
+     * Retrieves the bare arguments as processed by Console_Getopt. These are
+     * arguments that were not captured by the command line processor.
+     * @return array Array containing all bare (remaining) arguments.
+     */
     public function args () { return $this->_args; }
 
     /**
