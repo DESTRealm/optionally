@@ -2,6 +2,13 @@
 
 namespace org\destrealm\utilities\optionally;
 
+/**
+ * Options container class.
+ *
+ * This class serves as a container for processed options. When user code calls
+ * Optionally::argv(), an instance of this class will be returned containing
+ * all necessary logic and properties to handle configured command line options.
+ */
 class Options
 {
 
@@ -46,7 +53,6 @@ class Options
     } // end __get ()
 
     public function args () { return $this->_args; }
-
 
     /**
      * Parses $options, compares the values contained within against
