@@ -77,7 +77,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($options->debug);
         $this->assertEquals('file', $options->c);
 
-        $options = new Optionally(array('--debug', 'file', '-c'));
+        $options = new Optionally(array('--debug=file', '-c'));
         $options
             ->option('debug')
                 ->describe('Enables debugging mode.')
