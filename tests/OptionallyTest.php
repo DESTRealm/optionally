@@ -21,8 +21,8 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateOption ()
     {
-        $options = new Optionally(array('-c', 'file', '--file', 'test.txt', 'arg1'));
-        $options
+        $optionally = new Optionally(array('-c', 'file', '--file', 'test.txt', 'arg1'));
+        $options = $optionally
             ->option('c')
                 ->required()
                 ->describe('Loads a config file.')
@@ -34,6 +34,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
                 ->alias('f')
                 ->value()
                     ->optional()
+            ->argv()
             ;
 
         $this->assertEquals('file', $options->c);
@@ -52,8 +53,8 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testBoolean ()
     {
-        $options = new Optionally(array('--debug', '-c', 'file', 'arg0'));
-        $options
+        $optionally = new Optionally(array('--debug', '-c', 'file', 'arg0'));
+        $options = $optionally
             ->option('debug')
                 ->boolean()
                 ->describe('Enables debugging mode.')
@@ -64,6 +65,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
                 ->alias('config')
                 ->describe('Specify a configuration file.')
                 ->value()
+            ->argv()
             ;
 
         $args = $options->args();
@@ -79,15 +81,15 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredValues ()
     {
-        $options = new Optionally(array('--source=config.txt', '-c', 'file'));
-
-        $options
+        $optionally = new Optionally(array('--source=config.txt', '-c', 'file'));
+        $options = $optionally
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
             ->option('c')
                 ->describe('Configuration source type.')
                 ->value()
+            ->argv()
             ;
 
         $this->assertEquals('config.txt', $options->source);
@@ -101,15 +103,15 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredValuesShortOptFailure ()
     {
-        $options = new Optionally(array('--source=config.txt', '-c'));
-
-        $options
+        $optionally = new Optionally(array('--source=config.txt', '-c'));
+        $options = $optionally
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
             ->option('c')
                 ->describe('Configuration source type.')
                 ->value()
+            ->argv()
             ;
     } // end testRequiredValuesShortOptFailure ()
 
@@ -120,15 +122,15 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredValuesLongOptFailure ()
     {
-        $options = new Optionally(array('--source', '-c', 'file'));
-
-        $options
+        $optionally = new Optionally(array('--source', '-c', 'file'));
+        $options = $optionally
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
             ->option('c')
                 ->describe('Configuration source type.')
                 ->value()
+            ->argv()
             ;
     } // end testRequiredValuesLongOptFailure ()
 
@@ -138,8 +140,8 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testOptionalValues ()
     {
-        $options = new Optionally(array('--debug', '-c', 'file'));
-        $options
+        $optionally = new Optionally(array('--debug', '-c', 'file'));
+        $options = $optionally
             ->option('debug')
                 ->describe('Enables debugging mode.')
                 ->value()
@@ -148,13 +150,14 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
                 ->describe('Specify a configuration file.')
                 ->value()
                     ->optional()
+            ->argv()
             ;
 
         $this->assertNull($options->debug);
         $this->assertEquals('file', $options->c);
 
-        $options = new Optionally(array('--debug=file', '-c'));
-        $options
+        $optionally = new Optionally(array('--debug=file', '-c'));
+        $options = $optionally
             ->option('debug')
                 ->describe('Enables debugging mode.')
                 ->value()
@@ -163,6 +166,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
                 ->describe('Specify a configuration file.')
                 ->value()
                     ->optional()
+            ->argv()
             ;
 
         $this->assertNull($options->c);
