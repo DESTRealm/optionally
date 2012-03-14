@@ -79,6 +79,7 @@ class Optionally
         'callback' => null,     /* Option callbacks. See Optionally::callback(). */
         'defaults' => null,     /* Option default value(s). */
         'examples' => null,     /* Usage example(s). */
+        'ifMissing' => null,    /* Default value if the option is missing. */
         'value' => false,       /* Value is required. */
         'optionalValue' => false,   /* Value is optional. */
     );
@@ -88,7 +89,7 @@ class Optionally
      * chaining without creating intermediate variables.
      * @return Optionally Instance ($this).
      */
-    public static function options ($args=array())
+    public static function options ($args=null)
     {
         $optionally = new self($args);
 
@@ -101,15 +102,25 @@ class Optionally
      * arguments to override what Optionally believes it's supposed to handle.
      * This is mostly useful for unit testing.
      */
-    public function __construct ($args=array())
+    public function __construct ($args=null)
     {
-        if (empty($args)) {
+        if ($args === null) {
             $args = $_SERVER['argv'];
         }
 
         $this->args = $args;
         $this->getopt = new Console_Getopt();
     } // end constructor
+
+    public function __get ($value)
+    {
+        if (!method_exists($this, $value) && !property_exists($this, $value)) {
+            throw new OptionallyException(
+                sprintf('Invalid option "%s." Did you forget to call argv()?',
+                    $value)
+            );
+        }
+    } // end __get ()
 
     /**
      * Attach an alias to the current option.
@@ -241,7 +252,21 @@ class Optionally
         $option['defaults'] = $value;
 
         return $this;
-    } // end default ()
+    } // end defaults ()
+
+
+    /**
+     * Default value if the option is missing.
+     * @param  [type] $value [description]
+     * @return [type]
+     */
+    public function defaultsIfMissing ($value)
+    {
+        $option =& $this->getLastOption();
+        $option['ifMissing'] = $value;
+
+        return $this;
+    } // end defaultsIfMissing ()
 
     /**
      * Describes an option. This will be displayed alongside the option and
@@ -357,15 +382,16 @@ class Optionally
     } // end required ()
 
     /**
-     * Indicates that the current option is required if (and only if) $option
+     * Indicates that the current option is required if (and only if) $name
      * was not provided. This can be useful for providing toggle options.
-     * @param  string $option Option.
+     * @param  string $name Option.
      * @return Optionally Instance ($this).
      */
-    public function requiredIfNull ($option)
+    public function requiredIfNull ($name)
     {
+        $name = (string)$name;
         $option =& $this->getLastOption();
-        $option['ifNull'] = $option;
+        $option['ifNull'] = $name;
 
         return $this;
     } // end requiredIfNull ()
