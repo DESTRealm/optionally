@@ -34,12 +34,6 @@ class Optionally
     private $lastOption = '';
 
     /**
-     * Option cache.
-     * @var array
-     */
-    private $optionCache = array();
-
-    /**
      * Option names. This is a key-value store that contains references as
      * defined by Optionally::$optionTemplate.
      * @var array
@@ -118,10 +112,6 @@ class Optionally
         $longOpts = array();
 
         $optionMap = array();
-
-        if (!empty($this->optionCache)) {
-            return;
-        }
 
         /**
          * Appends the appropriate suffix to either $shortOpts or $longOpts.
@@ -387,7 +377,6 @@ class Optionally
      */
     private function &getLastOption ()
     {
-        $this->optionCache = array();
         return $this->options[ $this->lastOption ];
     } // end getLastOption ()
 
