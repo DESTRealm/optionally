@@ -351,6 +351,23 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testAliases ()
 
     /**
+     * @expectedException org\destrealm\utilities\optionally\OptionallyGetoptException
+     * @expectedExceptionMessage Unrecognized option: c
+     * @return [type]
+     */
+    public function testOptionsThatWerentConfigured ()
+    {
+        $options = Optionally::options(array('--debug', '-c', 'file.config'))
+            ->option('debug')
+                ->boolean()
+            ->argv()
+            ;
+
+        $this->assertTrue($options->debug);
+        $this->assertNull($options->c);
+    } // end testOptionsThatWerentConfigured ()
+
+    /**
      * Tests setting defaults.
      */
     public function testDefaults ()
