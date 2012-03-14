@@ -6,6 +6,9 @@ use PHPUnit_Framework_TestCase;
 
 require_once 'optionally.php';
 
+// Stop PHPUnit's test reports from complaining.
+date_default_timezone_set('UTC');
+
 /**
  * Optionally unit tests.
  * 
@@ -288,6 +291,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
                 ->alias('verbose-output')
                 ->describe('Enable verbose output.')
                 ->boolean()
+            ->argv()
             ;
 
         $this->assertTrue($options->d);
