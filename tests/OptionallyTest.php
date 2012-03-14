@@ -16,13 +16,88 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 {
 
     /**
+     * Test Optionally's instantiation.
+     * @return [type]
+     */
+    public function testInstantiation ()
+    {
+        // Instantiation without passed in arguments, using only $_SERVER['argv'].
+        $_SERVER['argv'] = array('--debug', '-c', 'file.config');
+        $optionally = new Optionally();
+        $options = $optionally
+            ->option('debug')
+                ->describe('Enable debugging.')
+                ->boolean()
+            ->option('c')
+                ->describe('Loads a configuration file.')
+                ->value()
+            ->argv()
+            ;
+
+        $this->assertEquals('file.config', $options->c);
+        $this->assertTrue($options->debug);
+
+        // Instantiation passing in arguments.
+        $optionally = new Optionally(array('--debug', '-c', 'file.config'));
+        $options = $optionally
+            ->option('debug')
+                ->describe('Enable debugging.')
+                ->boolean()
+            ->option('c')
+                ->describe('Loads a configuration file.')
+                ->value()
+            ->argv()
+            ;
+
+        $this->assertEquals('file.config', $options->c);
+        $this->assertTrue($options->debug);
+    } // end testInstantiation ()
+
+    /**
+     * Test initializaing Optionally using its factory method
+     * Optionally::options(). This is the recommended method since it allows for
+     * slightly more compact code.
+     * @return [type]
+     */
+    public function testFactoryMethod ()
+    {
+        // Factory method using $_SERVER['argv'].
+        $_SERVER['argv'] = array('--debug', '-c', 'file.config');
+        $options = Optionally::options()
+            ->option('debug')
+                ->describe('Enable debugging.')
+                ->boolean()
+            ->option('c')
+                ->describe('Loads a configuration file.')
+                ->value()
+            ->argv()
+            ;
+
+        $this->assertEquals('file.config', $options->c);
+        $this->assertTrue($options->debug);
+
+        // Factory method providing an arguments list.
+        $options = Optionally::options(array('--debug', '-c', 'file.config'))
+            ->option('debug')
+                ->describe('Enable debugging.')
+                ->boolean()
+            ->option('c')
+                ->describe('Loads a configuration file.')
+                ->value()
+            ->argv()
+            ;
+
+        $this->assertEquals('file.config', $options->c);
+        $this->assertTrue($options->debug);
+    } // end testFactoryMethod ()
+
+    /**
      * Test basic option creation.
      * @return [type]
      */
     public function testCreateOption ()
     {
-        $optionally = new Optionally(array('-c', 'file', '--file', 'test.txt', 'arg1'));
-        $options = $optionally
+        $options = Optionally::options(array('-c', 'file', '--file', 'test.txt', 'arg1'))
             ->option('c')
                 ->required()
                 ->describe('Loads a config file.')
@@ -53,8 +128,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testBoolean ()
     {
-        $optionally = new Optionally(array('--debug', '-c', 'file', 'arg0'));
-        $options = $optionally
+        $options = Optionally::options(array('--debug', '-c', 'file', 'arg0'))
             ->option('debug')
                 ->boolean()
                 ->describe('Enables debugging mode.')
@@ -81,8 +155,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredValues ()
     {
-        $optionally = new Optionally(array('--source=config.txt', '-c', 'file'));
-        $options = $optionally
+        $options = Optionally::options(array('--source=config.txt', '-c', 'file'))
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
@@ -99,12 +172,11 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * Tests the creation of options that require values but have not been
      * supplied the appropriate values. Short option test.
-     * @expectedException OptionallyGetoptException
+     * @expectedException org\destrealm\utilities\optionally\OptionallyGetoptException
      */
     public function testRequiredValuesShortOptFailure ()
     {
-        $optionally = new Optionally(array('--source=config.txt', '-c'));
-        $options = $optionally
+        $options = Optionally::options(array('--source=config.txt', '-c'))
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
@@ -118,12 +190,11 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * Tests the creation of options that require values but have not been
      * supplied the appropriate values. Long option test.
-     * @expectedException OptionallyGetoptException
+     * @expectedException org\destrealm\utilities\optionally\OptionallyGetoptException
      */
     public function testRequiredValuesLongOptFailure ()
     {
-        $optionally = new Optionally(array('--source', '-c', 'file'));
-        $options = $optionally
+        $options = Optionally::options(array('--source', '-c', 'file'))
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
@@ -140,8 +211,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testOptionalValues ()
     {
-        $optionally = new Optionally(array('--debug', '-c', 'file'));
-        $options = $optionally
+        $options = Optionally::options(array('--debug', '-c', 'file'))
             ->option('debug')
                 ->describe('Enables debugging mode.')
                 ->value()
@@ -156,8 +226,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($options->debug);
         $this->assertEquals('file', $options->c);
 
-        $optionally = new Optionally(array('--debug=file', '-c'));
-        $options = $optionally
+        $options = Optionally::options(array('--debug=file', '-c'))
             ->option('debug')
                 ->describe('Enables debugging mode.')
                 ->value()
@@ -172,5 +241,67 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($options->c);
         $this->assertEquals('file', $options->debug);
     } // end testOptionalValues ()
+
+    /**
+     * Tests arguments passed in addition to options.
+     * @return [type]
+     */
+    public function testArguments ()
+    {
+        $options = Optionally::options(array('--debug', '-c', 'file', '/home', '/usr/bin'))
+            ->option('debug')
+                ->describe('Enables debugging with an optional level between 1 and 9.')
+                ->value()
+                    ->optional()
+            ->option('c')
+                ->describe('Loads a configuration file.')
+                ->value()
+            ->argv()
+            ;
+
+        $args = $options->args();
+        $this->assertEquals('/home', $args[0]);
+        $this->assertEquals('/usr/bin', $args[1]);
+
+        $this->assertEquals('/home', $options->args(0));
+        $this->assertEquals('/usr/bin', $options->args(1));
+
+        $this->assertNull($options->args(2));
+    } // end testArguments ()
+
+    public function testAliases ()
+    {
+
+        $options = Optionally::options(array(
+            '--debug', '-o', '-v'
+        ))
+            ->option('debug')
+                ->alias('d')
+                ->describe('Enable debugging output.')
+                ->boolean()
+            ->option('o')
+                ->alias('std-out')
+                ->describe('Output processed data via STDOUT.')
+                ->boolean()
+            ->option('v')
+                ->alias('verbose')
+                ->alias('verbose-output')
+                ->describe('Enable verbose output.')
+                ->boolean()
+            ;
+
+        $this->assertTrue($options->d);
+        $this->assertTrue($options->debug);
+
+        $this->assertTrue($options->o);
+        $this->assertTrue($options->std_out);
+        $this->assertTrue($options->stdOut);
+
+        $this->assertTrue($options->v);
+        $this->assertTrue($options->verbose);
+        $this->assertTrue($options->verbose_output);
+        $this->assertTrue($options->verboseOutput);
+
+    } // end testAliases ()
 
 } // end OptionallyTest
