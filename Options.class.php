@@ -71,7 +71,12 @@ class Options
      * arguments that were not captured by the command line processor.
      * @return array Array containing all bare (remaining) arguments.
      */
-    public function args () { return $this->_args; }
+    public function args ($offset=null)
+    {
+        if ($offset === null)
+            return $this->_args;
+        return array_key_exists($offset, $this->_args) ? $this->_args[ $offset ] : null;
+    } // end args ()
 
     /**
      * Parses $options, compares the values contained within against
