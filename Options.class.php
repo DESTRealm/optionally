@@ -94,14 +94,6 @@ class Options
                 $this->_options[$master] = $settings[$master]['ifMissing'];
             }
 
-            // Handle required option. Throws an exception.
-            if (!array_key_exists($option, $this->_options) &&
-                $settings[$master]['required'] === true) {
-                throw new OptionallyOptionsException(
-                    sprintf('Required option "%s" is missing."', $option)
-                );
-            }
-
         }
 
         // Add the arguments to our tracker.
@@ -121,13 +113,7 @@ class Options
             return $this->_options[$value];
         }
 
-        if (array_key_exists($value, $this->_options)) {
-            return $this->_options[$value];
-        }
-
-        if (!property_exists($this, $value)) {
-            return null;
-        }
+        return null;
     } // end __get ()
 
     /**
@@ -166,29 +152,7 @@ class Options
             // Preemptively set the option to our captured value.
             $values[$opt] = $val;
 
-            $attributes = null;
-
-            // Find which option we're honoring; this is one of the master
-            // $this->options key-value store or something in the $optionMap
-            // which will lead us there.
-            if (array_key_exists($opt, $settings)) {
-                $attributes = $settings[ $opt ];
-            } else if (in_array($opt, $optionMap)) {
-                $attributes = $settings[ $optionMap[$opt] ];
-            } else {
-                continue;
-            }
-
-            // If the value is empty and we're expecting a value, and this value
-            // is *not* optional, throw an error.
-            if ($attributes['value'] && !$attributes['optionalValue'] &&
-                empty($val)) {
-                throw new OptionallyParserException(
-                    'Value is required for option.',
-                    $opt,
-                    OptionallyException::REQUIRES_ARGUMENT
-                );
-            }
+            $attributes = $settings[ $opt ];
 
             // Boolean true. False is handled elsewhere.
             if ($attributes['boolean'] === true && empty($val)) {
