@@ -49,8 +49,21 @@ class Options
     {
         $this->_options = $this->parseOptions($options[0], $settings, $optionMap);
 
-        // Handle boolean false options.
         foreach ($optionMap as $option => $master) {
+
+            // TODO: Clean all of this cruft up. It's really messy.
+
+            // Handle requiredIfNull option. Throws an exception.
+            if (!empty($settings[$master]['ifNull']) &&
+                !array_key_exists($settings[$master]['ifNull'], $this->_options) &&
+                !array_key_exists($option, $this->_options)) {
+                throw new OptionallyOptionsException(
+                    sprintf('The option %s is required if %s was not specified.',
+                        $option, $settings[$master]['ifNull'])
+                );
+            }
+
+            // Handle boolean false if a boolean option is missing.
             if (!array_key_exists($option, $this->_options) &&
                 $settings[$master]['boolean'] === true) {
                 foreach ($settings[$option]['aliases'] as $alias) {
@@ -58,6 +71,37 @@ class Options
                 }
                 $this->_options[$master] = false;
             }
+
+            // Handle default values assignment if the option has an optional
+            // value but none was passed.
+            if (array_key_exists($option, $this->_options) &&
+                $settings[$master]['ifMissing'] === null &&
+                $settings[$master]['value'] &&
+                $settings[$master]['optionalValue'] &&
+                $settings[$master]['defaults'] !== null) {
+                foreach ($settings[$master]['aliases'] as $alias) {
+                    $this->_options[$alias] = $settings[$master]['defaults'];
+                }
+                $this->_options[$master] = $settings[$master]['defaults'];
+            }
+
+            // Handle ifMissing value assignment.
+            if (!array_key_exists($option, $this->_options) &&
+                $settings[$master]['ifMissing'] !== null) {
+                foreach ($settings[$option]['aliases'] as $alias) {
+                    $this->_options[$alias] = $settings[$master]['ifMissing'];
+                }
+                $this->_options[$master] = $settings[$master]['ifMissing'];
+            }
+
+            // Handle required option. Throws an exception.
+            if (!array_key_exists($option, $this->_options) &&
+                $settings[$master]['required'] === true) {
+                throw new OptionallyOptionsException(
+                    sprintf('Required option "%s" is missing."', $option)
+                );
+            }
+
         }
 
         // Add the arguments to our tracker.
