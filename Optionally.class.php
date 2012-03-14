@@ -62,14 +62,14 @@ class Optionally
     /**
      * Factory method to create a new Optioanlly instance. Useful for method
      * chaining without creating intermediate variables.
-     * @return [type]
+     * @return Optionally Instance ($this).
      */
-    public static function factory ($args=array())
+    public static function options ($args=array())
     {
         $optionally = new self($args);
 
         return $optionally;
-    } // end factory ()
+    } // end options ()
 
     /**
      * Constructor.
@@ -107,15 +107,6 @@ class Optionally
 
         return $this;
     } // end alias ()
-
-    /**
-     * Returns the non-option arguments left over from getopt.
-     * @return array Arguments.
-     */
-    public function args ()
-    {
-        return $this->_args;
-    } // end args ()
 
     /**
      * Returns a usable but immutable Options object
