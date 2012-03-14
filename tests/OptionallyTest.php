@@ -95,8 +95,29 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testFactoryMethod ()
 
     /**
+     * This test tests a common circumstance where argv() may have been
+     * forgotten.
+     * @expectedException org\destrealm\utilities\optionally\OptionallyException
+     * @expectedExceptionMessage Invalid option "debug." Did you forget to call argv()?
+     * @covers org\destrealm\utilities\optionally\Optionally::__get
+     */
+    public function testForgottenArgvWarning ()
+    {
+        $options = Optionally::options(array('--debug'))
+            ->option('debug')
+                ->describe('Enable debugging.')
+                ->boolean()
+            ;
+
+        $options->optionTemplate; // Override code coverage complains for __get.
+
+        if ($options->debug) {
+            // Nothing happens here.
+        }
+    } // end testForgottenArgvWarning ()
+
+    /**
      * Test basic option creation.
-     * @return [type]
      */
     public function testCreateOption ()
     {
@@ -126,8 +147,27 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testCreateOption ()
 
     /**
+     * Tests the creation of an option with its settings passed in as an array.
+     * This is likely a lesser-used option since using method chaining is much
+     * easier to read but might result in more compact code.
+     */
+    public function testCreateOptionWithSettingsArray ()
+    {
+        $options = Optionally::options(array('--debug', '-f', 'file.config'))
+            ->option('debug', array('boolean' => true, 'aliases' => array('d')))
+            ->option('f', array('value' => true, 'aliases' => array('file')))
+            ->argv()
+            ;
+
+        $this->assertTrue($options->debug);
+        $this->assertTrue($options->d);
+
+        $this->assertEquals('file.config', $options->f);
+        $this->assertEquals('file.config', $options->file);
+    } // end testCreateOptionWithSettingsArray ()
+
+    /**
      * Test the creation of boolean options.
-     * @return [type]
      */
     public function testBoolean ()
     {
@@ -247,7 +287,6 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     /**
      * Tests arguments passed in addition to options.
-     * @return [type]
      */
     public function testArguments ()
     {
@@ -272,6 +311,9 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($options->args(2));
     } // end testArguments ()
 
+    /**
+     * Tests aliasing assignments.
+     */
     public function testAliases ()
     {
 
@@ -307,5 +349,105 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($options->verboseOutput);
 
     } // end testAliases ()
+
+    /**
+     * Tests setting defaults.
+     */
+    public function testDefaults ()
+    {
+
+        // Default assignments with all options.
+        $options = Optionally::options(array('--debug', '-v'))
+            ->option('debug')
+                ->boolean()
+            ->option('v')
+                ->alias('verbose')
+                ->value()
+                    ->optional()
+                ->defaults(2)
+            ->argv()
+            ;
+
+        $this->assertTrue($options->debug);
+        $this->assertEquals(2, $options->v);
+        $this->assertEquals(2, $options->verbose);
+
+        // Default assignments with no options. "debug" should be false (it's
+        // a boolean option) and "verbose" should be null as default values
+        // are not honored when the value is missing.
+        $options = Optionally::options(array())
+            ->option('debug')
+                ->boolean()
+            ->option('v')
+                ->alias('verbose')
+                ->value()
+                    ->optional()
+                ->defaults(2)
+            ->argv()
+            ;
+
+        $this->assertFalse($options->debug);
+        $this->assertNull($options->v);
+        $this->assertNull($options->verbose);
+
+    } // end testDefaults ()
+
+    /**
+     * Tests assigning defaults with defaultsIfMissing().
+     */
+    public function testDefaultsIfMissing ()
+    {
+        // Default assignment with no options and defaultsIfMissing.
+        $options = Optionally::options(array())
+            ->option('debug')
+                ->boolean()
+                ->defaultsIfMissing(true) // Shouldn't work; boolean overrides
+                                          // defaultsIfMissing()
+            ->option('v')
+                ->alias('verbose')
+                ->value()
+                    ->optional()
+                    ->defaults(2)
+                    ->defaultsIfMissing(-1)
+            ->argv()
+            ;
+
+        $this->assertFalse($options->debug);
+        $this->assertEquals(-1, $options->v);
+        $this->assertEquals(-1, $options->verbose);
+    } // end testDefaultsIfMissing ()
+
+    /**
+     * Tests requiredIfNull.
+     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsException
+     * @return [type]
+     */
+    public function testRequiredIfNull ()
+    {
+
+/*        $options = Optionally::options(array('--on'))
+            ->option('on')
+                ->boolean()
+                ->requiredIfNull('off')
+            ->option('off')
+                ->boolean()
+                ->requiredIfNull('on')
+            ->argv()
+            ;
+
+        $this->assertTrue($options->on);
+        $this->assertFalse($options->off);*/
+
+        $options = Optionally::options(array())
+            ->option('on')
+                ->boolean()
+                ->requiredIfNull('off')
+            ->option('off')
+                ->boolean()
+                ->requiredIfNull('on')
+            ->argv()
+            ;
+
+    } // end testRequiredIfNull ()
 
 } // end OptionallyTest
