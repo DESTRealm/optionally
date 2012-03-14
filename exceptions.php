@@ -21,6 +21,8 @@ class OptionallyGetoptException extends OptionallyException
 
 } // end OptionallyException
 
+class OptionallyOptionsException extends OptionallyException {}
+
 class OptionallyParserException extends OptionallyException
 {
     private $option = '';
