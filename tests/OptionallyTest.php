@@ -25,7 +25,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testInstantiation ()
     {
         // Instantiation without passed in arguments, using only $_SERVER['argv'].
-        $_SERVER['argv'] = array('--debug', '-c', 'file.config');
+        $_SERVER['argv'] = array('test.php', '--debug', '-c', 'file.config');
         $optionally = new Optionally();
         $options = $optionally
             ->option('debug')
@@ -65,7 +65,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testFactoryMethod ()
     {
         // Factory method using $_SERVER['argv'].
-        $_SERVER['argv'] = array('--debug', '-c', 'file.config');
+        $_SERVER['argv'] = array('test.php', '--debug', '-c', 'file.config');
         $options = Optionally::options()
             ->option('debug')
                 ->describe('Enable debugging.')
@@ -249,6 +249,22 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testRequiredValuesLongOptFailure ()
 
     /**
+     * Tests options required with Optionally::required().
+     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsException
+     * @expectedExceptionMessage Required option "f" was not provided!
+     * @return [type]
+     */
+    public function testRequiredOptions ()
+    {
+        $options = Optionally::options(array())
+            ->option('f')
+                ->alias('file')
+                ->required()
+            ->argv()
+            ;
+    } // end testRequiredOptions ()
+
+    /**
      * Test the creation of option value options (that is, options that may be
      * supplied with or without value arguments).
      */
@@ -347,6 +363,22 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($options->verbose);
         $this->assertTrue($options->verbose_output);
         $this->assertTrue($options->verboseOutput);
+
+        // Test swapped arguments: Alias being called, master option ignored.
+        $options = Optionally::options(array('--debug', '--file', 'file.config'))
+            ->option('d')
+                ->alias('debug')
+                ->describe('Enable debugging mode.')
+                ->boolean()
+            ->option('f')
+                ->alias('file')
+                ->describe('Loads the file %file and prints it to STDOUT.')
+                ->value()
+            ->argv()
+            ;
+
+        $this->assertTrue($options->debug);
+        $this->assertEquals('file.config', $options->file);
 
     } // end testAliases ()
 
