@@ -495,4 +495,44 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     } // end testRequiredIfNull ()
 
+    public function testCallbacks ()
+    {
+        $callbacks = array();
+        $instance = null;
+        $callback = function ($option, $stage, &$reference) use (&$callbacks, &$instance) {
+            $callbacks[] = $stage;
+            if ($instance === null) {
+                $instance = $reference;
+            }
+        };
+
+        $options = Optionally::options(array('-v'))
+            ->option('v')
+                ->callback($callback)
+                ->alias('verbose')
+                ->boolean()
+                ->describe('This is a description.')
+                ->examples('This is an example.')
+                ->optional()
+                ->argv()
+            ;
+
+        //$this->assertTrue($instance);
+        $this->assertInstanceOf('org\destrealm\utilities\optionally\Optionally', $instance);
+
+        $this->assertEquals(
+            array(
+                'alias',
+                'boolean',
+                'describe',
+                'examples',
+                'optional',
+                'pre',
+                'post'
+            ),
+            $callbacks
+        );
+
+    } // end testCallbacks ()
+
 } // end OptionallyTest
