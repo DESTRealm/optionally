@@ -105,7 +105,7 @@ class Optionally
     public function __construct ($args=null)
     {
         if ($args === null) {
-            $args = $_SERVER['argv'];
+            $args = array_slice($_SERVER['argv'], 1);
         }
 
         $this->args = $args;
