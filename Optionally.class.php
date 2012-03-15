@@ -112,6 +112,13 @@ class Optionally
         $this->getopt = new Console_Getopt();
     } // end constructor
 
+    /**
+     * Raises an error when a non-existent property is called. Since such
+     * properties are usually requested when the user forgest to call
+     * Optionally::argv(), this should give them a hint regarding their mistake.
+     * @param  string $value Requested property.
+     * @throws OptionallyException If Non-existent property is requested.
+     */
     public function __get ($value)
     {
         if (!method_exists($this, $value) && !property_exists($this, $value)) {
@@ -200,7 +207,8 @@ class Optionally
         $options = $this->getopt->getopt2(
             $this->args,
             $shortOpts,
-            $longOpts
+            $longOpts,
+            true
         );
 
         return new Options($options, $this->options, $optionMap);

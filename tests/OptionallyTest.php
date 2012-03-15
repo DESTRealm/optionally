@@ -327,6 +327,19 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($options->args(2));
     } // end testArguments ()
 
+    public function testUnspecifiedOptions ()
+    {
+        $options = Optionally::options(array('-no-such-option', '-d', 'arg1'))
+            ->argv()
+            ;
+
+        $this->assertFalse(property_exists($options, 'no_such_option'));
+        $this->assertFalse(property_exists($options, 'noSuchOption'));
+        $this->assertFalse(property_exists($options, 'd'));
+
+        $this->assertEquals('arg1', $options->args(0));
+    } // end testUnspecifiedOptions ()
+
     /**
      * Tests aliasing assignments.
      */
@@ -381,23 +394,6 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('file.config', $options->file);
 
     } // end testAliases ()
-
-    /**
-     * @expectedException org\destrealm\utilities\optionally\OptionallyGetoptException
-     * @expectedExceptionMessage Unrecognized option: c
-     * @return [type]
-     */
-    public function testOptionsThatWerentConfigured ()
-    {
-        $options = Optionally::options(array('--debug', '-c', 'file.config'))
-            ->option('debug')
-                ->boolean()
-            ->argv()
-            ;
-
-        $this->assertTrue($options->debug);
-        $this->assertNull($options->c);
-    } // end testOptionsThatWerentConfigured ()
 
     /**
      * Tests setting defaults.
