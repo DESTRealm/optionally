@@ -470,7 +470,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testRequiredIfNull ()
     {
 
-/*        $options = Optionally::options(array('--on'))
+        $options = Optionally::options(array('--on'))
             ->option('on')
                 ->boolean()
                 ->requiredIfNull('off')
@@ -481,7 +481,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             ;
 
         $this->assertTrue($options->on);
-        $this->assertFalse($options->off);*/
+        $this->assertFalse($options->off);
 
         $options = Optionally::options(array())
             ->option('on')
