@@ -94,6 +94,14 @@ class Options
                 $this->_options[$master] = $settings[$master]['ifMissing'];
             }
 
+            // Test required arguments.
+            if (!array_key_exists($option, $this->_options) &&
+                $settings[$master]['required'] === true) {
+                throw new OptionallyOptionsException(
+                    sprintf('Required option "%s" was not provided!', $option)
+                );
+            }
+
         }
 
         // Add the arguments to our tracker.
@@ -149,10 +157,16 @@ class Options
             // Filter long options.
             $opt = str_replace('--', '', $opt);
 
+            if (array_key_exists($opt, $optionMap)) {
+                $opt = $optionMap[$opt];
+            }
+
+            if (array_key_exists($opt, $settings)) {
+                $attributes = $settings[ $opt ];
+            }
+
             // Preemptively set the option to our captured value.
             $values[$opt] = $val;
-
-            $attributes = $settings[ $opt ];
 
             // Boolean true. False is handled elsewhere.
             if ($attributes['boolean'] === true && empty($val)) {
