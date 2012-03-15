@@ -147,6 +147,8 @@ class Optionally
             );
         }
 
+        $this->fireCallback('alias');
+
         return $this;
     } // end alias ()
 
@@ -161,6 +163,8 @@ class Optionally
 
         $optionMap = array();
 
+        $this->fireCallback('pre');
+
         /**
          * Appends the appropriate suffix to either $shortOpts or $longOpts.
          */
@@ -174,6 +178,8 @@ class Optionally
 
         };
 
+        // Figure out which options have values or optional values. Also update
+        // their aliases.
         foreach ($this->options as $option => $prefs) {
 
             $appendOpts($option,
@@ -211,6 +217,8 @@ class Optionally
             true
         );
 
+        $this->fireCallback('post');
+
         return new Options($options, $this->options, $optionMap);
     } // end argv ()
 
@@ -230,23 +238,37 @@ class Optionally
         // Boolean options cannot be required options.
         $option['required'] = false;
 
+        $this->fireCallback('boolean');
+
         return $this;
     } // end boolean ()
 
     /**
      * Callback function called prior to handling an option, after an option
      * has been handled, or for each call during an option's method chain calls.
-     * The callback must accept two arguments with one optional: The option
-     * name, the option handling stage, and a reference to this class. Valid
-     * handling stages are "pre", "post", or any name matching methods in this
-     * class that handler option attributes; this includes "alias",
-     * "describe", "required", and so forth.
+     * The callback must accept three arguments: The option name, the option
+     * handling stage, and a reference to this class. Valid handling stages are
+     * "pre", "post", or any name matching methods in this class that handles
+     * option attributes; this includes "alias", "describe", "required", and so
+     * forth. Obviously, callback() must be configured prior to calling any of
+     * the affected methods.
      * @param  function $callback [description]
-     * @return [type]
+     * @return Optionally Instance ($this).
      */
     public function callback ($callback)
     {
+        $option =& $this->getLastOption();
 
+        if (empty($option['callback'])) {
+            $option['callback'] = $callback;
+        } else {
+            if ((array)$option['callback'] !== $callback) {
+                $option['callback'] = array($option['callback']);
+            }
+            $option['callback'][] = $callback;
+        }
+
+        return $this;
     } // end callback ()
 
     /**
@@ -258,6 +280,8 @@ class Optionally
     {
         $option =& $this->getLastOption();
         $option['defaults'] = $value;
+
+        $this->fireCallback('defaults');
 
         return $this;
     } // end defaults ()
@@ -273,6 +297,8 @@ class Optionally
         $option =& $this->getLastOption();
         $option['ifMissing'] = $value;
 
+        $this->fireCallback('ddfaultsIfMissing');
+
         return $this;
     } // end defaultsIfMissing ()
 
@@ -286,6 +312,8 @@ class Optionally
     {
         $option =& $this->getLastOption();
         $option['description'] = $help;
+
+        $this->fireCallback('describe');
 
         return $this;
     } // end help ()
@@ -308,6 +336,8 @@ class Optionally
         $option =& $this->getLastOption();
         $option['examples'] = $examples;
 
+        $this->fireCallback('examples');
+
         return $this;
     } // end examples ()
 
@@ -317,7 +347,6 @@ class Optionally
      */
     public function help ()
     {
-
     } // end help ()
 
     /**
@@ -368,6 +397,8 @@ class Optionally
         $option =& $this->getLastOption();
         $option['optionalValue'] = true;
 
+        $this->fireCallback('optional');
+
         return $this;
     } // end optional ()
 
@@ -386,6 +417,8 @@ class Optionally
         // Required options cannot be boolean options.
         $option['boolean'] = false;
 
+        $this->fireCallback('required');
+
         return $this;
     } // end required ()
 
@@ -400,6 +433,8 @@ class Optionally
         $name = (string)$name;
         $option =& $this->getLastOption();
         $option['ifNull'] = $name;
+
+        $this->fireCallback('requiredIfNull');
 
         return $this;
     } // end requiredIfNull ()
@@ -430,8 +465,30 @@ class Optionally
         $option =& $this->getLastOption();
         $option['value'] = true;
 
+        $this->fireCallback('value');
+
         return $this;
     } // end value ()
+
+    /**
+     * Fires a callback for the callback stage $stage.
+     * @param  string $stage Callback stage.
+     */
+    private function fireCallback ($stage)
+    {
+        $option =& $this->getLastOption();
+
+        if (!empty($option['callback'])) {
+            if ((array)$option['callback'] !== $option['callback']) {
+                call_user_func($option['callback'], $this->lastOption, $stage, &$this);
+            } else {
+                array_map(
+                    function($callback){
+                        call_user_func($callback, $this->lastOption, $stage, &$this);
+                    }, $option['callback']);
+            }
+        }
+    } // end fireCallback ()
 
     /**
      * Retrieves a reference to the last option defined by option(). This is
