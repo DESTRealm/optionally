@@ -495,6 +495,9 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     } // end testRequiredIfNull ()
 
+    /**
+     * Tests option handling callbacks.
+     */
     public function testCallbacks ()
     {
         $callbacks = array();
@@ -514,7 +517,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
                 ->describe('This is a description.')
                 ->examples('This is an example.')
                 ->optional()
-                ->argv()
+            ->argv()
             ;
 
         //$this->assertTrue($instance);
@@ -534,5 +537,138 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         );
 
     } // end testCallbacks ()
+
+    /**
+     * Tests option handling callbacks.
+     */
+    public function testCallbacks2 ()
+    {
+        $callbacks = array();
+        $instance = null;
+        $callback = function ($option, $stage, &$reference) use (&$callbacks, &$instance) {
+            $callbacks[] = $stage;
+            if ($instance === null) {
+                $instance = $reference;
+            }
+        };
+
+        $options = Optionally::options(array('-v'))
+            ->option('v')
+                ->callback($callback)
+                ->alias('verbose')
+                ->defaults(5)
+                ->defaultsIfMissing(10)
+                ->required()
+                ->requiredIfNull('c')
+                ->value()
+                 ->optional()
+            ->argv()
+            ;
+
+        //$this->assertTrue($instance);
+        $this->assertInstanceOf('org\destrealm\utilities\optionally\Optionally', $instance);
+
+        $this->assertEquals(
+            array(
+                'alias',
+                'defaults',
+                'defaultsIfMissing',
+                'required',
+                'requiredIfNull',
+                'value',
+                'optional',
+                'pre',
+                'post'
+            ),
+            $callbacks
+        );
+
+    } // end testCallbacks2 ()
+
+    /**
+     * Tests setting multiple option handling callbacks.
+     * @return [type]
+     */
+    public function testCallbackArray ()
+    {
+
+        $called1 = null;
+        $called2 = null;
+
+        $callback1 = function ($option, $stage, $reference) use (&$called1) {
+            $called1 = true;
+        };
+        $callback2 = function ($option, $stage, $reference) use (&$called2) {
+            $called2 = true;
+        };
+
+        $options = Optionally::options(array('-v'))
+            ->option('v')
+                ->callback($callback1)
+                ->callback($callback2)
+                ->alias('verbose')
+                ->boolean()
+            ->argv()
+            ;
+
+        $this->assertTrue($called1);
+        $this->assertTrue($called2);
+
+    } // end testCallbackArray ()
+
+    /**
+     * Tests value filter/test callback.
+     */
+    public function testOptionTest ()
+    {
+
+        $options = Optionally::options(array('--number=5', '-t', 'testing'))
+            ->option('number')
+                ->value()
+                ->test(function($value){
+                    return preg_match('#[0-9]+#', $value, $subject) !== false;
+                })
+            ->option('t')
+                ->value()
+                ->test(function($value){
+                    return $value === 'testing';
+                })
+            ->argv()
+            ;
+
+        $this->assertEquals(5, $options->number);
+        $this->assertEquals('testing', $options->t);
+
+    } // end testOptionTest ()
+
+    /**
+     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsValueException
+     */
+    public function testOptionTestFailure ()
+    {
+        $options = Optionally::options(array('--number=asdf'))
+            ->option('number')
+                ->value()
+                ->test(function($value){
+                    return preg_match('#[0-9]+#', $value, $subject) !== false;
+                })
+            ->argv()
+            ;
+    } // end testOptionTestFailure ()
+
+    /**
+     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsValueException
+     */
+    public function testOptionTestFailure2 ()
+    {
+        $options = Optionally::options(array('-t', 'blah'))
+            ->option('t')
+                ->value()
+                ->test(function($value){
+                    return $value === 'testing';
+                })
+            ->argv()
+            ;
+    } // end testOptionTestFailure2 ()
 
 } // end OptionallyTest
