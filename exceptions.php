@@ -23,6 +23,8 @@ class OptionallyGetoptException extends OptionallyException
 
 class OptionallyOptionsException extends OptionallyException {}
 
+class OptionallyOptionsValueException extends OptionallyOptionsException {}
+
 class OptionallyParserException extends OptionallyException
 {
     private $option = '';
