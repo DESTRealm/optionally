@@ -77,6 +77,7 @@ class Optionally
         'ifNull' => '',         /* Option is required if ifNull is absent. */
         'boolean' => false,     /* Option is boolean. */
         'callback' => null,     /* Option callbacks. See Optionally::callback(). */
+        'filter' => null,       /* Test filter callbacks. See Optioanlly::test(). */
         'defaults' => null,     /* Option default value(s). */
         'examples' => null,     /* Usage example(s). */
         'ifMissing' => null,    /* Default value if the option is missing. */
@@ -297,7 +298,7 @@ class Optionally
         $option =& $this->getLastOption();
         $option['ifMissing'] = $value;
 
-        $this->fireCallback('ddfaultsIfMissing');
+        $this->fireCallback('defaultsIfMissing');
 
         return $this;
     } // end defaultsIfMissing ()
@@ -453,7 +454,10 @@ class Optionally
      */
     public function test ($callback)
     {
+        $option =& $this->getLastOption();
+        $option['filter'] = $callback;
 
+        return $this;
     } // end test ()
 
     /**
@@ -477,14 +481,15 @@ class Optionally
     private function fireCallback ($stage)
     {
         $option =& $this->getLastOption();
+        $self =& $this;
 
         if (!empty($option['callback'])) {
             if ((array)$option['callback'] !== $option['callback']) {
-                call_user_func($option['callback'], $this->lastOption, $stage, &$this);
+                call_user_func($option['callback'], $this->lastOption, $stage, $this);
             } else {
                 array_map(
-                    function($callback){
-                        call_user_func($callback, $this->lastOption, $stage, &$this);
+                    function ($callback) use (&$self, $stage) {
+                        call_user_func($callback, $self->lastOption, $stage, $self);
                     }, $option['callback']);
             }
         }
