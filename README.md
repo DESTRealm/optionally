@@ -444,9 +444,9 @@ GetOpt library may genuinely insist on chucking one out there.
 
 Optionally may throw an exception if you've told it to expect a `->value()` but
 the user didn't specify one, if you've used `->requiredIfNull()` or if you're
-using `test` to filter out invalid values. Conveniently, Optionally will also
+using `->test()` to filter out invalid values. Conveniently, Optionally will also
 throw an exception if you've forgotten to append `->argv()` to your options
-list, reminding you that it doesn't know you're not finished!
+list, reminding you that it doesn't know you're finished!
 
 Handling exceptions is easy, and once the help generator is finished, it'll be
 even easier:
