@@ -299,6 +299,16 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
         $this->assertNull($options->c);
         $this->assertEquals('file', $options->debug);
+
+        // Optional values can also be set by supplying a default value to
+        // ->value():
+        $options = Optionally::options(array('n'))
+            ->option('n')
+                ->value('')
+            ->argv()
+            ;
+
+        $this->assertEquals('', $options->n);
     } // end testOptionalValues ()
 
     /**
