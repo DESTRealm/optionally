@@ -1,69 +1,83 @@
 # Optionally
 
-Optionally is command line library not unlike substack's wonderful Node JS
+Optionally is a command line library not unlike substack's wonderful Node JS
 utility [Optimist](https://github.com/substack/node-optimist). Written for
 PHP5.3 and greater, Optionally provides many useful features to filter, test,
-and manipulate command line options and alleviates you of the mundane parts.
-If you're familiar with Optimist, you'll find a friend in Optionally, and
+and manipulate command line options and alleviates you of much of the mundane
+work. If you're familiar with Optimist, you'll find a friend in Optionally, and
 although the semantics differ from substack's Optimist they shouldn't be a
-nuisance.
+nuisance. If you've never used a semantic `getopt()` wrapper before, you'll be
+in for a pleasant surprise.
 
 ## Motivation
 
-getopt() (and, by extension, PEAR's Console_GetOpt) has its uses and is trivial
-to learn. Perhaps most importantly, learning getopt() is highly useful and can
-be translated virtually unmodified to many other platforms. Unfortunately, if
-you've written more than a handful of fairly trivial shell scripts, you'll
-quickly find yourself writing (and re-writing!) code to check argument values,
-the presence of specific arguments (or their absence), handle errors, and
-document usage. All of this distracts you from the important things: Writing
-useful code.
+`getopt()` (and, by extension, PEAR's `Console_GetOpt`) has its uses and is
+trivial to learn. Perhaps most importantly, learning `getopt()` is highly useful
+and can be translated virtually unmodified to many other platforms.
+Unfortunately, if you've written more than a handful of fairly trivial shell
+scripts, you'll quickly find yourself writing (and re-writing!) code to check
+argument values, the presence of specific arguments (or their absence), handle
+errors, and document usage. All of this distracts you from the important things:
+Writing useful code.
 
 Optionally greatly simplifies the chore of handling command line arguments and
-greatly simplifies the process of writing shell scripts in PHP. You'll see why.
+streamlines the process of writing shell scripts in PHP. You'll see why.
 
 ## Basic Usage
 
 Using optionally is trivial. First, simply copy (or clone) the repository into a
 handy spot (like "lib") and include it:
 
-````php
+```php
 require_once 'lib/optionally.php';
 
 use org\destrealm\utilities\optionally\Optionally;
-````
+```
 
 For every example in this guide, we'll assume that these two lines of code
-already exist.
+already exist; you won't see them again, but that doesn't mean they're not
+needed!
 
 Next, handle your command line arguments (we'll deal with options later):
 
-````php
+```php
 $options = Optionally::options()
   ->argv()
   ;
-````
+```
 
 This will create an `$options` object that can be used to to get positional
 arguments and options. Assuming we ran our script as:
 
-````
+```
 php -q script.php --test=1 -v --debug file.txt output.txt
-````
+```
 
 Our options object will contain positional data for `file.txt` and
 `output.txt`:
 
-````php
+```php
 print $options->args(0); // outputs file.txt
 print $options->args(1); // outputs output.txt
-````
+```
 
-You might notice the `argv()` method call at the end. This instructions
-optionally that it shouldn't expect anything more from your code and that it's
-OK to return an `Options` object. You must call `argv()` when you're
-finished setting Optionally up; this is the first significant deviation from
-other libraries from which Optionally has derived inspiration.
+This means that each positional argument can be accessed from `$options->args()`.
+Of course, if you'd rather manipulate the positional arguments yourself or as an
+array, you can do that, too:
+
+```php
+$args = $options->args();
+print $args[0]; // outputs file.txt
+print $args[1]; // outputs output.txt
+```
+
+The astute reader might have noticed the `argv()` method call at the end of our
+earlier example code. This instructs optionally that it shouldn't expect
+anything more from your code and that it's OK to return an `Options` object. You
+must call `argv()` when you're finished setting Optionally up. The reason for
+this is mostly a mix of asthetics and internal infrastructure; calling `argv()`
+when the programmer is finished setting up options front-loads the processing
+and makes capturing exceptions (seen later in this README) easier.
 
 You've probably also taken note that I didn't do anything with the options yet,
 and there's a reason: Optionally doesn't know anything about them! Optionally
@@ -84,14 +98,14 @@ In its current incantation, Optionally won't bother much with options even if
 you specify them until you tell it what to treat an option as, though this may
 change in the future. Thus, in our example:
 
-````
+```
 php -q script.php --test=1 -v --debug file.txt output.txt
-````
+```
 
 We would need to do the following to extract useful information out of
 Optionally:
 
-````php
+```php
 $options = Optionally::options()
   ->option('test')
     ->value()       // Tells Optionally the option expects a value.
@@ -101,20 +115,20 @@ $options = Optionally::options()
     ->boolean()
   ->argv()          // Get the options object.
   ;
-````
+```
 
 Now, our `$options` variable will contain:
 
-````php
+```php
 var_dump($options->test); // outputs string(1) "1"
 var_dump($options->v); // outputs bool(true)
 var_dump($options->debug); // outputs bool(true)
-````
+```
 
 If, for example, we hadn't passed `--debug` into our script, *boolean* options
 take care of this for us:
 
-````php
+```php
 
 // Command line:
 // php -q script.php -v --test=1 file.txt
@@ -132,13 +146,13 @@ $options = Optionally::options()
 var_dump($options->test); // outputs string(1) "1"
 var_dump($options->v); // outputs bool(true)
 var_dump($options->debug); // outputs bool(false)
-````
+```
 
 Likewise, omitting the `--test=1` option will yield:
 
-````php
+```php
 var_dump($options->test); // outputs NULL
-````
+```
 
 ## Advanced Options: Aliases!
 
@@ -146,7 +160,7 @@ Oftentimes, options will have multiple synonmys or aliases. For most scripts,
 `-v` and `--verbose` might have the same meaning. Optionally handles this
 for you for free:
 
-````php
+```php
 
 // Command line:
 // php -q script.php -v
@@ -160,7 +174,7 @@ $options = Optionally::options()
 
 var_dump($options->v); // outputs bool(true)
 var_dump($options->verbose); // outputs bool(true)
-````
+```
 
 Order isn't important: Both long and short options can appear in either the
 `option()` or `alias()` declarations; neither does the appearance of type
@@ -170,7 +184,7 @@ fine!
 
 Incidentally, the same goes for the *Options* object:
 
-````php
+```php
 
 // Command line:
 // php -q script.php --debug
@@ -189,7 +203,7 @@ var_dump($options->debug); // outputs bool(true)
 var_dump($options->d) ; // alias, outputs bool(true)
 var_dump($options->v); // outputs bool(false)
 var_dump($options->verbose); // outputs bool(false)
-````
+```
 
 ## Advanced Options: Optional Values!
 
@@ -197,7 +211,7 @@ Value options aren't necessarily always in need of values. Sometimes values
 should be optional and have some intrinsic value even if they weren't specified.
 Optional values (and optional options) can be handled rather simply:
 
-````php
+```php
 
 // Command line:
 // php -q script.php -v --number --count=5
@@ -222,7 +236,7 @@ var_dump($options->number); // outputs int(0)
 var_dump($options->n); // outputs int(0)
 var_dump($options->count); // outputs string(1) "5"
 var_dump($options->max); // outputs int(0)
-````
+```
 
 You may notice that an option doesn't have to be specified when supplying an
 argument to `value()`, and even if an option is specified it doesn't need to
@@ -230,7 +244,7 @@ have a value because a default one can be assigned. This means that the
 following code could be used to determine if an option was specified or not and
 if it had a value assigned to it:
 
-````php
+```php
 
 $options = Optionally::options()
   ->option('count')
@@ -252,7 +266,7 @@ if ($options->count === '') {
   // count was specified and it has a value assigned.
 
 }
-````
+```
 
 ## Really Advanced Options: Mostly Optional Values with Different Defaults!
 
@@ -279,7 +293,7 @@ In other words:
 To do this, we'll need to use the two alternate methods of supplying defaults
 that Optionally uses: `defaults()` and `defaultsIfMissing()`:
 
-````php
+```php
 $options = Optionally::options()
   ->option('count')
     ->value()
@@ -288,7 +302,7 @@ $options = Optionally::options()
       ->defaultsIfMissing(false)    // sets default to false if --count is missing
   ->argv()
   ;
-````
+```
 
 We can't specify `0` or `false` when we call `value()` however, because
 neither `defaults()` nor `defaultsIfMissing()` do anything if the default
@@ -302,7 +316,7 @@ might be useful if there's a specific option (or two) that must be supplied
 numbers, strings, or other patterns. Anything you can match with a regular
 expression is fair game:
 
-````php
+```php
 $options = Optionally::options()
   ->option('number')
     ->value(0)
@@ -311,7 +325,7 @@ $options = Optionally::options()
     })
   ->argv()
   ;
-````
+```
 
 In this example, if `--number` is supplied anything but a number (an integer at
 that!), Optionally will throw an OptionallyOptionsValueException. You'll need to
@@ -329,7 +343,7 @@ why would you need to force the user to supply another option anyway?). Here's
 a nonsense example of toggle options where one must be specified if the other is
 not:
 
-````php
+```php
 $options = Optionally::options()
     ->option('on')
         ->boolean()
@@ -339,7 +353,7 @@ $options = Optionally::options()
         ->requiredIfNull('on')
     ->argv()
     ;
-````
+```
 
 Optionally handles this particular case by throwing an exception if only one of
 the two options was specified.
@@ -391,14 +405,14 @@ for your use and your use only (that never happens, believe me; if it's useful,
 it'll eventually leak out, and you'll send it to someone), you can make sure
 that an option *absolutely must be supplied*:
 
-````php
+```php
 $options = Optionally::options()
   ->option('require-me')
     ->alias('r')
     ->required()    // don't do this
   ->argv()
   ;
-````
+```
 
 This will throw an `OptionallyOptionsException`. You shouldn't be doing this
 (did I repeat myself?), so I'll leave it to you to decide how to handle the
