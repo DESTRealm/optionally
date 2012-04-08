@@ -722,4 +722,47 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             ;
     } // end testOptionTestFailure2 ()
 
+    /**
+     * Tests value filter/test callback; if the test fails, the default value
+     * is returned instead.
+     */
+    public function testOptionTestValue ()
+    {
+
+        $options = Optionally::options(array('--number=5', '-t', 'testing'))
+            ->option('number')
+                ->value()
+                ->test(function($value){
+                    return (bool)preg_match('#[0-9]+#', $value, $subject) !== false;
+                }, 0)
+            ->option('t')
+                ->value()
+                ->test(function($value){
+                    return $value === 'testing';
+                })
+            ->argv()
+            ;
+
+        $this->assertEquals(5, $options->number);
+        $this->assertEquals('testing', $options->t);
+
+        $options = Optionally::options(array('--number=asdf', '-t', 'testing'))
+            ->option('number')
+                ->value()
+                ->test(function($value){
+                    return (bool)preg_match('#[0-9]+#', $value, $subject) !== false;
+                }, 0)
+            ->option('t')
+                ->value()
+                ->test(function($value){
+                    return $value === 'testing';
+                })
+            ->argv()
+            ;
+
+        $this->assertEquals(0, $options->number);
+        $this->assertEquals('testing', $options->t);
+
+    } // end testOptionTestValue ()
+
 } // end OptionallyTest

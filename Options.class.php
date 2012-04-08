@@ -105,12 +105,17 @@ class Options
             // Run filter.
             if ($settings[$master]['value'] &&
                 !empty($settings[$master]['filter'])) {
-                if (!call_user_func($settings[$master]['filter'],
-                        $this->$option)) {
+                $filter = call_user_func($settings[$master]['filter'],
+                        $this->$option);
+                if (!$filter && $settings[$master]['filterFailure'] === null) {
                     throw new OptionallyOptionsValueException(
                         sprintf('Value "%s" mismatch for option "%s".',
                             (string)$this->_options[$option], $option)
                     );
+                } else if (!$filter &&
+                    $settings[$master]['filterFailure'] !== null) {
+                    $this->_options[$master] =
+                        $settings[$master]['filterFailure'];
                 }
 
             }

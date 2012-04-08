@@ -77,7 +77,8 @@ class Optionally
         'ifNull' => '',         /* Option is required if ifNull is absent. */
         'boolean' => false,     /* Option is boolean. */
         'callback' => null,     /* Option callbacks. See Optionally::callback(). */
-        'filter' => null,       /* Test filter callbacks. See Optioanlly::test(). */
+        'filter' => null,       /* Test filter callbacks. See Optionally::test(). */
+        'filterValue' => null,  /* Value to use on filter failure. */
         'defaults' => null,     /* Option default value(s). */
         'examples' => null,     /* Usage example(s). */
         'ifMissing' => null,    /* Default value if the option is missing. */
@@ -452,10 +453,11 @@ class Optionally
      * @param  function $callback Callback to process option.
      * @return [type]
      */
-    public function test ($callback)
+    public function test ($callback, $default=null)
     {
         $option =& $this->getLastOption();
         $option['filter'] = $callback;
+        $option['filterFailure'] = $default;
 
         return $this;
     } // end test ()
