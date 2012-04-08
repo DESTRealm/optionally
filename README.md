@@ -25,7 +25,7 @@ streamlines the process of writing shell scripts in PHP. You'll see why.
 
 ## Basic Usage
 
-Using optionally is trivial. First, simply copy (or clone) the repository into a
+Using Optionally is trivial. First, simply copy (or clone) the repository into a
 handy spot (like "lib") and include it:
 
 ```php
@@ -36,9 +36,10 @@ use org\destrealm\utilities\optionally\Optionally;
 
 For every example in this guide, we'll assume that these two lines of code
 already exist; you won't see them again, but that doesn't mean they're not
-needed!
+needed.
 
-Next, handle your command line arguments (we'll deal with options later):
+Next, tell Optionally you'd like to handle your command line arguments (we'll
+deal with options later):
 
 ```php
 $options = Optionally::options()
@@ -74,16 +75,17 @@ print $args[1]; // outputs output.txt
 The astute reader might have noticed the `argv()` method call at the end of our
 earlier example code. This instructs optionally that it shouldn't expect
 anything more from your code and that it's OK to return an `Options` object. You
-must call `argv()` when you're finished setting Optionally up. The reason for
-this is mostly a mix of asthetics and internal infrastructure; calling `argv()`
-when the programmer is finished setting up options front-loads the processing
-and makes capturing exceptions (seen later in this README) easier.
+must call `argv()` when you're finished setting Optionally up, no excuses. The
+reason for this is mostly a mix of asthetics and internal infrastructure;
+calling `argv()` when you're finished setting up options front-loads the
+processing and makes capturing exceptions (seen later in this README) easier.
 
 You've probably also taken note that I didn't do anything with the options yet,
 and there's a reason: Optionally doesn't know anything about them! Optionally
-uses a modified version of PEAR's Console_GetOpt internally and puts absolutely
-no effort into parsing the command line for options--beyond what it knows about.
-So, let's give it some options.
+uses a modified version of PEAR's `Console_GetOpt internally` and puts absolutely
+no effort into parsing the command line for options--beyond what you've told it.
+
+Let's give it some options.
 
 ## Optionally and Options
 
@@ -154,9 +156,54 @@ Likewise, omitting the `--test=1` option will yield:
 var_dump($options->test); // outputs NULL
 ```
 
+## The Options Object
+
+As you've seen so far, the `Options` object is what you get returned to you
+whenever you call `argv()` on Optionally's method chain. However, the `Options`
+object does a few interesting things to make things more PHP-ish. First, all
+options exist as pseudo-properties of the `Options` object, so whenever we
+call something like:
+
+```php
+print $options->debug;
+```
+
+We're actually asking `Option` if it knows about an option named **debug** and,
+if it does, what **debug**'s value is. If it doesn't know anything about
+**debug**, it'll simply return null which provides you with a means to quickly
+check for the existence (or not) of any given option.
+
+However, long options--as they are known in `getopt()` parlance--can often have
+hyphens separating word components to make them more readable to humans. This
+means that options like `--without-foo` or `--with-bar` might appear with a
+certain degree of regularity. The `Options` object provides you with two ways
+of dealing with these types of options: Camel case or underscores. Whichever you
+use is entirely up to you:
+
+```php
+
+// Command line:
+// php -q script.php --without-foo
+
+$options = Optionally::options()
+  ->option('with-bar')
+    ->boolean()
+  ->option('without-foo')
+    ->boolean()
+  ->argv()
+  ;
+
+var_dump($options->withoutFoo); // outputs bool(true)
+var_dump($options->without_foo); // outputs bool(true)
+var_dump($options->withBar); // outputs bool(false)
+var_dump($options->with_bar); // outputs bool(false)
+```
+
+Of course, options that don't contain a hyphen are left as is.
+
 ## Advanced Options: Aliases!
 
-Oftentimes, options will have multiple synonmys or aliases. For most scripts,
+Oftentimes, options will have multiple synonyms or aliases. For most scripts,
 `-v` and `--verbose` might have the same meaning. Optionally handles this
 for you for free:
 
@@ -179,10 +226,7 @@ var_dump($options->verbose); // outputs bool(true)
 Order isn't important: Both long and short options can appear in either the
 `option()` or `alias()` declarations; neither does the appearance of type
 declarations like `boolean()` disrupt Optionally's behavior. As long as you
-remember to always declare an option with `option()` first, everything will be
-fine!
-
-Incidentally, the same goes for the *Options* object:
+remember to declare an option with `option()` first, everything will be fine!
 
 ```php
 
@@ -198,6 +242,11 @@ $options = Optionally::options()
     ->alias('verbose')
   ->argv()
   ;
+```
+
+Incidentally, the same goes for the *Options* object:
+
+```php
 
 var_dump($options->debug); // outputs bool(true)
 var_dump($options->d) ; // alias, outputs bool(true)
