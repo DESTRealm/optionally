@@ -6,6 +6,12 @@ use Exception;
 
 /**
  * Optionally's master exception.
+ *
+ * If you're just interested in capturing Optionally's exceptions and don't
+ * particularly care what the source was that triggered it, such as generating
+ * a help/usage list if Optionally dies, you should at least catch this
+ * exception. All exceptions that Optionally throws inherit from this class,
+ * and catching it will catch all of them.
  */
 class OptionallyException extends Exception
 {
@@ -16,31 +22,51 @@ class OptionallyException extends Exception
     const ARGC_ARGV_ERROR       = 0x00000010;
 } // end OptionallyException
 
-class OptionallyGetoptException extends OptionallyException
-{
+/**
+ * Forgotten ->argv() exception.
+ *
+ * This exception is thrown whenever it appears likely that the user forgot to
+ * call ->argv() after setting up their options.
+ */
+class OptionallyMissingArgvException extends OptionallyException {}
 
-} // end OptionallyException
+/**
+ * GetOpt exception wrapper.
+ *
+ * This exception is thrown by the modified Console_Getopt class; rather than
+ * generating PEAR errors, which Console_Getopt does by default, it will throw
+ * this exception instead.
+ *
+ * You generally shouldn't capture this exception unless you're fairly certain
+ * you need to be made aware of the status of the Getopt parser. If you're
+ * seeing this exception crop up in user code, try catching OptionallyException
+ * instead.
+ */
+class OptionallyGetoptException extends OptionallyException {}
 
+/**
+ * Options exception
+ * 
+ * This exception is thrown whenever a required option was expected but not
+ * supplied as well as if an option is required if another option wasn't
+ * supplied.
+ * 
+ * IF YOU'RE CAPTURING THIS EXCEPTION, YOU'RE DOING SOMETHING SORELY WRONG.
+ * 
+ * The two features that throw this exception have extremely limited use cases,
+ * and if you're seeing this exception, you should probably reconsider the
+ * design of your script or application.
+ */
 class OptionallyOptionsException extends OptionallyException {}
 
+/**
+ * Value exception.
+ * 
+ * This exception is thrown by the ->test() method and indicates that an
+ * option's value failed whatever test you configured. If you're seeing this
+ * exception, it's safer to capture OptionallyException instead and print out
+ * your script's usage text. Of course, there might be a circumstance where you
+ * must know the precise cause of the error; in that case, examining this
+ * exception might prove useful.
+ */
 class OptionallyOptionsValueException extends OptionallyOptionsException {}
-
-class OptionallyParserException extends OptionallyException
-{
-    private $option = '';
-
-    public function __construct ($message, $option='', $code=0, $exception=null)
-    {
-        $this->option = $option;
-
-        parent::__construct($message, $code, $exception);
-    } // end constructor
-
-    /**
-     * Returns the option that may have triggered this exception. getOption()
-     * isn't guaranteed to return useful information.
-     * @return string Option string if an option was encountered during this
-     * exception; the empty string otherwise.
-     */
-    public function getOption () { return $this->option; }
-} // end OptionallyParserException
