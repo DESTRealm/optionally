@@ -387,6 +387,27 @@ catch this exception and do something useful with it, such as printing out the
 script's usage text or perhaps a descriptive error so the user has an idea what
 went wrong.
 
+Testing option values can be much more useful if you decide to use a default
+value in those circumstances where the value supplied fails your test. `test()`
+lets you do that by supplying the default as its second argument:
+
+```php
+$options = Optionally::options()
+  ->option('number')
+    ->value(0)
+    ->test(function($value){
+      return (bool)preg_match('#[0-9]+#', $value) !== false;
+      },
+      0)
+  ->argv()
+  ;
+
+var_dump($options->number); // outputs int(0)
+```
+
+Now, if the user supplies anything but an integer, the value of
+`$options->number` will be pegged at 0.
+
 ## Really Advanced Options: Require a Value if Another is Null!
 
 Although the use case for this feature is arguably slim, there might be some
