@@ -464,10 +464,15 @@ class Optionally
      * Indicates that an option must possess a value argument.
      * @return Optionally Instance ($this).
      */
-    public function value ()
+    public function value ($value=null)
     {
         $option =& $this->getLastOption();
         $option['value'] = true;
+
+        if ($value !== null) {
+            $option['defaults'] = $value;
+            $option['ifMissing'] = $value;
+        }
 
         $this->fireCallback('value');
 
