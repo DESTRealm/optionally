@@ -97,7 +97,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * This test tests a common circumstance where argv() may have been
      * forgotten.
-     * @expectedException org\destrealm\utilities\optionally\OptionallyException
+     * @expectedException org\destrealm\utilities\optionally\OptionallyMissingArgvException
      * @expectedExceptionMessage Invalid option "debug." Did you forget to call argv()?
      * @covers org\destrealm\utilities\optionally\Optionally::__get
      */
@@ -109,7 +109,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
                 ->boolean()
             ;
 
-        $options->optionTemplate; // Override code coverage complains for __get.
+        $options->optionTemplate; // Override code coverage complaints for __get.
 
         if ($options->debug) {
             // Nothing happens here.
