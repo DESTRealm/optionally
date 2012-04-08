@@ -473,9 +473,11 @@ Normally, you shouldn't torture your users by making an option a required one.
 After all, that's why we call them command line **options** because they're
 optional. Get it? Options are *optional*? Don't use this feature. Honestly, not
 even a little bit. Seriously, just scroll passed this section and pretend it
-doesn't exist.
+doesn't exist. If you can't scroll passed this section because I shuffled it
+around, just pretend it doesn't exist. Perhaps you should read the license text
+instead.
 
-Of course, if you're the masochistic type and only intend to write a script
+Of course, if you're the masochistic type and intend to write a script
 for your use and your use only (that never happens, believe me; if it's useful,
 it'll eventually leak out, and you'll send it to someone), you can make sure
 that an option *absolutely must be supplied*:
@@ -495,3 +497,31 @@ generated exception.
 
 Hint: Use default values if you're thinking about using a required option.
 They're easier to maintain and much less frustrating for your users.
+
+# License
+
+Optionally is an Optimist- (NodeJS) like API and getopt wrapper for PHP.
+Although Optionally isn't a direct decendent of Optimist for reasons mostly
+related to quirks in both PHP and its author, it does adhere to many of the
+same principles first introduced in popular usage by Optimist for handling
+command line arguments.
+
+Copyright (c) 2012 Benjamin A. Shelton
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
