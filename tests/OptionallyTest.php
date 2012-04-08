@@ -701,7 +701,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             ->option('number')
                 ->value()
                 ->test(function($value){
-                    return (bool)preg_match('#[0-9]+#', $value, $subject) !== false;
+                    return (bool)preg_match('#[0-9]+#', $value) !== false;
                 })
             ->argv()
             ;
