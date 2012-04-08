@@ -257,8 +257,9 @@ var_dump($options->verbose); // outputs bool(false)
 ## Advanced Options: Optional Values!
 
 Value options aren't necessarily always in need of values. Sometimes values
-should be optional and have some intrinsic value even if they weren't specified.
-Optional values (and optional options) can be handled rather simply:
+should be optional and options should have some intrinsic value even if they
+weren't specified. Optional values (and optional options) can be handled rather
+simply:
 
 ```php
 
@@ -291,7 +292,7 @@ You may notice that an option doesn't have to be specified when supplying an
 argument to `value()`, and even if an option is specified it doesn't need to
 have a value because a default one can be assigned. This means that the
 following code could be used to determine if an option was specified or not and
-if it had a value assigned to it:
+if it had a value assigned to it (notice the empty string):
 
 ```php
 
@@ -340,7 +341,9 @@ In other words:
 
 
 To do this, we'll need to use the two alternate methods of supplying defaults
-that Optionally uses: `defaults()` and `defaultsIfMissing()`:
+that Optionally uses: `defaults()` and `defaultsIfMissing()`. We'll also need
+to use a new method `optional()` to tell Optionally that our value is now
+an optional one:
 
 ```php
 $options = Optionally::options()
@@ -353,14 +356,16 @@ $options = Optionally::options()
   ;
 ```
 
-We can't specify `0` or `false` when we call `value()` however, because
+We can't specify `0` or `false` when we call `value()`, because
 neither `defaults()` nor `defaultsIfMissing()` do anything if the default
-value has already been set by `value()`.
+value has already been set by `value()`. Thus, we must ignore passing a value
+to `value()` and use the extra methods to gain more fine-grained control over
+what we want Optionally to do.
 
 ## Really Advanced Options: Test Option Values!
 
 Optionally conveniently provides you, dear programmer, with a means of testing
-options supplied by the user, and discarding them if they don't match. This
+options supplied by the user and discarding them if they don't match. This
 might be useful if there's a specific option (or two) that must be supplied
 numbers, strings, or other patterns. Anything you can match with a regular
 expression is fair game:
