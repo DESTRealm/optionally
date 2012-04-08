@@ -435,6 +435,47 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($options->v);
         $this->assertNull($options->verbose);
 
+        // Test default assignment via ->value(). This should override any call
+        // to ->defaults(). Furthermore, passing in a value to ->value() should
+        // indicate to Optionally that the value is optionally. Both of the
+        // following tests should be equivalent.
+        $options = Optionally::options(array('n'))
+            ->option('n')
+                ->value(100)
+            ->argv()
+            ;
+
+        $this->assertEquals(100, $options->n);
+
+        $options = Optionally::options(array('n'))
+            ->option('n')
+                ->value(100)
+                    ->optional()
+            ->argv()
+            ;
+
+        $this->assertEquals(100, $options->n);
+
+        $options = Optionally::options(array('n'))
+            ->option('n')
+                ->value(100)
+                    ->optional()
+                ->defaults(100)
+            ->argv()
+            ;
+
+        $this->assertEquals(100, $options->n);
+
+        // The most simplistic test case of an optional value with an intrinsic
+        // default is as follows:
+        $options = Optionally::options(array('n'))
+            ->option('n')
+                ->value('')
+            ->argv()
+            ;
+
+        $this->assertEquals('', $options->n);
+
     } // end testDefaults ()
 
     /**
