@@ -470,7 +470,7 @@ conditions may trigger them.
 ## Advanced (but stupid) Options: Required Options!
 
 Normally, you shouldn't torture your users by making an option a required one.
-After all, that's why we call them *command line options* because they're
+After all, that's why we call them command line **options** because they're
 optional. Get it? Options are *optional*? Don't use this feature. Honestly, not
 even a little bit. Seriously, just scroll passed this section and pretend it
 doesn't exist.
