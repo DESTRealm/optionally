@@ -32,9 +32,23 @@ namespace org\destrealm\utilities\optionally;
 class Options
 {
 
+    /**
+     * Parsed options.
+     * @var array
+     */
     private $_options = array();
 
+    /**
+     * Arguments; this is anything that wasn't captured by an option.
+     * @var array
+     */
     private $_args = array();
+
+    /**
+     * Options help.
+     * @var OptionallyHelp
+     */
+    private $_help = null;
 
     /**
      * Constructor.
@@ -45,7 +59,7 @@ class Options
      * the "master option" that defines the properties for those options or
      * aliases.
      */
-    public function __construct ($options, $settings, $optionMap)
+    public function __construct ($options, $settings, $optionMap, $help)
     {
         $this->_options = $this->parseOptions($options[0], $settings, $optionMap);
 
@@ -125,6 +139,8 @@ class Options
         // Add the arguments to our tracker.
         $this->_args = $options[1];
 
+        $this->_help = $help;
+
     } // end constructor
 
     /**
@@ -153,6 +169,11 @@ class Options
             return $this->_args;
         return array_key_exists($offset, $this->_args) ? $this->_args[ $offset ] : null;
     } // end args ()
+
+    public function help ()
+    {
+        return $this->help;
+    } // end help ()
 
     /**
      * Parses $options, compares the values contained within against

@@ -1,31 +1,25 @@
 <?php
 
+namespace org\destrealm\utilities\optionally;
+
 class OptionallyHelp
 {
 
-    public function __construct ($options)
+    private $help = array();
+
+    public function __construct ()
     {
 
     } // end constructor
 
-    /**
-     * Parses the description $desc.
-     * @param  string $desc Description.
-     * @return string       Parsed description.
-     */
-    private static function parseDescription ($desc)
+    public function addDescription ($option, $description, $aliases=array())
     {
 
-    } // end parseDescription ()
+    } // end addDescription ()
 
-    /**
-     * Parses the example $example.
-     * @param  string $example Example.
-     * @return string          Parsed example.
-     */
-    private static function parseExample ($example)
+    public function addExamples ($option, $example, $aliases=array())
     {
 
-    } // end parseExample ()
+    } // end addExamples ()
 
 } // end OptionallyHelp

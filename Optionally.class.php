@@ -87,12 +87,26 @@ class Optionally
     );
 
     /**
+     * Usage examples for the host script. This typically shouldn't be needed if
+     * you provide example usage for each option individually.
+     * @var array
+     */
+    private $scriptExamples = array();
+
+    /**
      * Name of the host script. This is derived from the first offset of
      * $_SERVER['argv'] or whatever the value of $args is as passed in from the
      * constructor.
      * @var string
      */
     private $scriptName = '';
+
+    /**
+     * Usage tips for the host script. If this isn't provided, the default
+     * listed here will be used instead.
+     * @var string
+     */
+    private $scriptUsage = 'Usage: %script %options %args';
 
     /**
      * Factory method to create a new Optioanlly instance. Useful for method
@@ -172,8 +186,9 @@ class Optionally
     {
         $shortOpts = '';
         $longOpts = array();
-
         $optionMap = array();
+
+        $help = new OptionallyHelp();
 
         $this->fireCallback('pre');
 
@@ -204,6 +219,16 @@ class Optionally
 
             $optionMap[$option] = $option;
 
+            if (!empty($prefs['description'])) {
+                $help->addDescription($option, $prefs['description'],
+                    $prefs['aliases']);
+            }
+
+            if (!empty($prefs['examples'])) {
+                $help->addExamples($option, $prefs['examples'],
+                    $prefs['aliases']);
+            }
+
             if (!empty($prefs['aliases'])) {
                 foreach ($prefs['aliases'] as $alias) {
 
@@ -231,7 +256,7 @@ class Optionally
 
         $this->fireCallback('post');
 
-        return new Options($options, $this->options, $optionMap);
+        return new Options($options, $this->options, $optionMap, $help);
     } // end argv ()
 
     /**
