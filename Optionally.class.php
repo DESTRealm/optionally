@@ -87,6 +87,14 @@ class Optionally
     );
 
     /**
+     * Name of the host script. This is derived from the first offset of
+     * $_SERVER['argv'] or whatever the value of $args is as passed in from the
+     * constructor.
+     * @var string
+     */
+    private $scriptName = '';
+
+    /**
      * Factory method to create a new Optioanlly instance. Useful for method
      * chaining without creating intermediate variables.
      * @return Optionally Instance ($this).
@@ -106,9 +114,11 @@ class Optionally
      */
     public function __construct ($args=null)
     {
-        if ($args === null) {
-            $args = array_slice($_SERVER['argv'], 1);
+        if (empty($args)) {
+            $args = $_SERVER['argv'];
         }
+
+        $args = array_slice($args, 1);
 
         $this->args = $args;
         $this->getopt = new Console_Getopt();
@@ -342,14 +352,6 @@ class Optionally
 
         return $this;
     } // end examples ()
-
-    /**
-     * Displays derived help text pulled in from describe().
-     * @return string Help text.
-     */
-    public function help ()
-    {
-    } // end help ()
 
     /**
      * Creates an option. Options may not include a leading dash (-) or trailing

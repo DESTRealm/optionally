@@ -41,7 +41,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($options->debug);
 
         // Instantiation passing in arguments.
-        $optionally = new Optionally(array('--debug', '-c', 'file.config'));
+        $optionally = new Optionally(array('test.php', '--debug', '-c', 'file.config'));
         $options = $optionally
             ->option('debug')
                 ->describe('Enable debugging.')
@@ -80,7 +80,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($options->debug);
 
         // Factory method providing an arguments list.
-        $options = Optionally::options(array('--debug', '-c', 'file.config'))
+        $options = Optionally::options(array('test.php', '--debug', '-c', 'file.config'))
             ->option('debug')
                 ->describe('Enable debugging.')
                 ->boolean()
@@ -103,7 +103,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testForgottenArgvWarning ()
     {
-        $options = Optionally::options(array('--debug'))
+        $options = Optionally::options(array('test.php', '--debug'))
             ->option('debug')
                 ->describe('Enable debugging.')
                 ->boolean()
@@ -121,7 +121,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateOption ()
     {
-        $options = Optionally::options(array('-c', 'file', '--file', 'test.txt', 'arg1'))
+        $options = Optionally::options(array('test.php', '-c', 'file', '--file', 'test.txt', 'arg1'))
             ->option('c')
                 ->required()
                 ->describe('Loads a config file.')
@@ -153,7 +153,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateOptionWithSettingsArray ()
     {
-        $options = Optionally::options(array('--debug', '-f', 'file.config'))
+        $options = Optionally::options(array('test.php', '--debug', '-f', 'file.config'))
             ->option('debug', array('boolean' => true, 'aliases' => array('d')))
             ->option('f', array('value' => true, 'aliases' => array('file')))
             ->argv()
@@ -171,7 +171,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testBoolean ()
     {
-        $options = Optionally::options(array('--debug', '-c', 'file', 'arg0'))
+        $options = Optionally::options(array('test.php', '--debug', '-c', 'file', 'arg0'))
             ->option('debug')
                 ->boolean()
                 ->describe('Enables debugging mode.')
@@ -198,7 +198,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredValues ()
     {
-        $options = Optionally::options(array('--source=config.txt', '-c', 'file'))
+        $options = Optionally::options(array('test.php', '--source=config.txt', '-c', 'file'))
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
@@ -219,7 +219,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredValuesShortOptFailure ()
     {
-        $options = Optionally::options(array('--source=config.txt', '-c'))
+        $options = Optionally::options(array('test.php', '--source=config.txt', '-c'))
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
@@ -237,7 +237,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredValuesLongOptFailure ()
     {
-        $options = Optionally::options(array('--source', '-c', 'file'))
+        $options = Optionally::options(array('test.php', '--source', '-c', 'file'))
             ->option('source')
                 ->describe('Configuration source.')
                 ->value()
@@ -256,7 +256,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testRequiredOptions ()
     {
-        $options = Optionally::options(array())
+        $options = Optionally::options(array('test.php', ))
             ->option('f')
                 ->alias('file')
                 ->required()
@@ -270,7 +270,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testOptionalValues ()
     {
-        $options = Optionally::options(array('--debug', '-c', 'file'))
+        $options = Optionally::options(array('test.php', '--debug', '-c', 'file'))
             ->option('debug')
                 ->describe('Enables debugging mode.')
                 ->value()
@@ -285,7 +285,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($options->debug);
         $this->assertEquals('file', $options->c);
 
-        $options = Optionally::options(array('--debug=file', '-c'))
+        $options = Optionally::options(array('test.php', '--debug=file', '-c'))
             ->option('debug')
                 ->describe('Enables debugging mode.')
                 ->value()
@@ -302,7 +302,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
         // Optional values can also be set by supplying a default value to
         // ->value():
-        $options = Optionally::options(array('n'))
+        $options = Optionally::options(array('test.php', 'n'))
             ->option('n')
                 ->value('')
             ->argv()
@@ -316,7 +316,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testArguments ()
     {
-        $options = Optionally::options(array('--debug', '-c', 'file', '/home', '/usr/bin'))
+        $options = Optionally::options(array('test.php', '--debug', '-c', 'file', '/home', '/usr/bin'))
             ->option('debug')
                 ->describe('Enables debugging with an optional level between 1 and 9.')
                 ->value()
@@ -339,7 +339,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     public function testUnspecifiedOptions ()
     {
-        $options = Optionally::options(array('-no-such-option', '-d', 'arg1'))
+        $options = Optionally::options(array('test.php', '-no-such-option', '-d', 'arg1'))
             ->argv()
             ;
 
@@ -356,7 +356,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testAliases ()
     {
 
-        $options = Optionally::options(array(
+        $options = Optionally::options(array('test.php', 
             '--debug', '-o', '-v'
         ))
             ->option('debug')
@@ -388,7 +388,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($options->verboseOutput);
 
         // Test swapped arguments: Alias being called, master option ignored.
-        $options = Optionally::options(array('--debug', '--file', 'file.config'))
+        $options = Optionally::options(array('test.php', '--debug', '--file', 'file.config'))
             ->option('d')
                 ->alias('debug')
                 ->describe('Enable debugging mode.')
@@ -412,7 +412,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     {
 
         // Default assignments with all options.
-        $options = Optionally::options(array('--debug', '-v'))
+        $options = Optionally::options(array('test.php', '--debug', '-v'))
             ->option('debug')
                 ->boolean()
             ->option('v')
@@ -430,7 +430,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         // Default assignments with no options. "debug" should be false (it's
         // a boolean option) and "verbose" should be null as default values
         // are not honored when the value is missing.
-        $options = Optionally::options(array())
+        $options = Optionally::options(array('test.php', ))
             ->option('debug')
                 ->boolean()
             ->option('v')
@@ -449,7 +449,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         // to ->defaults(). Furthermore, passing in a value to ->value() should
         // indicate to Optionally that the value is optionally. Both of the
         // following tests should be equivalent.
-        $options = Optionally::options(array('n'))
+        $options = Optionally::options(array('test.php', 'n'))
             ->option('n')
                 ->value(100)
             ->argv()
@@ -457,7 +457,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(100, $options->n);
 
-        $options = Optionally::options(array('n'))
+        $options = Optionally::options(array('test.php', 'n'))
             ->option('n')
                 ->value(100)
                     ->optional()
@@ -466,7 +466,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(100, $options->n);
 
-        $options = Optionally::options(array('n'))
+        $options = Optionally::options(array('test.php', 'n'))
             ->option('n')
                 ->value(100)
                     ->optional()
@@ -478,7 +478,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
         // The most simplistic test case of an optional value with an intrinsic
         // default is as follows:
-        $options = Optionally::options(array('n'))
+        $options = Optionally::options(array('test.php', 'n'))
             ->option('n')
                 ->value('')
             ->argv()
@@ -494,7 +494,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testDefaultsIfMissing ()
     {
         // Default assignment with no options and defaultsIfMissing.
-        $options = Optionally::options(array())
+        $options = Optionally::options(array('test.php'))
             ->option('debug')
                 ->boolean()
                 ->defaultsIfMissing(true) // Shouldn't work; boolean overrides
@@ -521,7 +521,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testRequiredIfNull ()
     {
 
-        $options = Optionally::options(array('--on'))
+        $options = Optionally::options(array('test.php', '--on'))
             ->option('on')
                 ->boolean()
                 ->requiredIfNull('off')
@@ -534,7 +534,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($options->on);
         $this->assertFalse($options->off);
 
-        $options = Optionally::options(array())
+        $options = Optionally::options(array('test.php'))
             ->option('on')
                 ->boolean()
                 ->requiredIfNull('off')
@@ -560,7 +560,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             }
         };
 
-        $options = Optionally::options(array('-v'))
+        $options = Optionally::options(array('test.php', '-v'))
             ->option('v')
                 ->callback($callback)
                 ->alias('verbose')
@@ -603,7 +603,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             }
         };
 
-        $options = Optionally::options(array('-v'))
+        $options = Optionally::options(array('test.php', '-v'))
             ->option('v')
                 ->callback($callback)
                 ->alias('verbose')
@@ -653,7 +653,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             $called2 = true;
         };
 
-        $options = Optionally::options(array('-v'))
+        $options = Optionally::options(array('test.php', '-v'))
             ->option('v')
                 ->callback($callback1)
                 ->callback($callback2)
@@ -673,7 +673,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testOptionTest ()
     {
 
-        $options = Optionally::options(array('--number=5', '-t', 'testing'))
+        $options = Optionally::options(array('test.php', '--number=5', '-t', 'testing'))
             ->option('number')
                 ->value()
                 ->test(function($value){
@@ -697,7 +697,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testOptionTestFailure ()
     {
-        $options = Optionally::options(array('--number=asdf'))
+        $options = Optionally::options(array('test.php', '--number=asdf'))
             ->option('number')
                 ->value()
                 ->test(function($value){
@@ -712,7 +712,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
      */
     public function testOptionTestFailure2 ()
     {
-        $options = Optionally::options(array('-t', 'blah'))
+        $options = Optionally::options(array('test.php', '-t', 'blah'))
             ->option('t')
                 ->value()
                 ->test(function($value){
@@ -729,7 +729,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     public function testOptionTestValue ()
     {
 
-        $options = Optionally::options(array('--number=5', '-t', 'testing'))
+        $options = Optionally::options(array('test.php', '--number=5', '-t', 'testing'))
             ->option('number')
                 ->value()
                 ->test(function($value){
@@ -746,7 +746,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(5, $options->number);
         $this->assertEquals('testing', $options->t);
 
-        $options = Optionally::options(array('--number=asdf', '-t', 'testing'))
+        $options = Optionally::options(array('test.php', '--number=asdf', '-t', 'testing'))
             ->option('number')
                 ->value()
                 ->test(function($value){
