@@ -170,7 +170,7 @@ class Options
         return array_key_exists($offset, $this->_args) ? $this->_args[ $offset ] : null;
     } // end args ()
 
-    public function help ()
+    public function getHelp ()
     {
         return $this->help;
     } // end help ()

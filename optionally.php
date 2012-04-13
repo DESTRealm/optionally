@@ -35,3 +35,4 @@ include dirname(__FILE__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.
 include dirname(__FILE__).DIRECTORY_SEPARATOR.'Options.class.php';
 include dirname(__FILE__).DIRECTORY_SEPARATOR.'Optionally.class.php';
 include dirname(__FILE__).DIRECTORY_SEPARATOR.'OptionallyHelp.class.php';
+include dirname(__FILE__).DIRECTORY_SEPARATOR.'String.class.php';
