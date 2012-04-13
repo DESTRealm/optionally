@@ -33,7 +33,7 @@ class OptionallyHelp
         }
 
         $this->help[$option] = array(
-            'description' => $this->normalize($description),
+            'description' => String::normalize($description),
             'aliases' => $aliases
         );
     } // end addDescription ()
