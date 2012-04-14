@@ -19,6 +19,36 @@ date_default_timezone_set('UTC');
 class StringTest extends PHPUnit_Framework_TestCase
 {
 
+    public function testIndent ()
+    {
+        $string = "This is a space test;\n\nIt should be well indented:\nFour spaces per line.";
+
+        $this->assertEquals(
+            '    This is a space test;
+
+    It should be well indented:
+    Four spaces per line.',
+            String::indent($string, 4)
+        );
+    } // end testIndent ()
+
+    public function testReplaceIndent ()
+    {
+        $string = 
+'        Oh, indented text,
+        I have to replace your space,
+        other random cruft.';
+
+        $this->assertEquals(
+            '--debug Oh, indented text,
+        I have to replace your space,
+        other random cruft.',
+            String::replaceIndent(
+                '        ', '--debug', $string
+            )
+        );
+    } // end testReplaceIndent ()
+
     public function testBasicStringWrap ()
     {
         $string = 
