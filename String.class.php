@@ -9,6 +9,27 @@ class String
 {
 
     /**
+     * Indents the string $text $spaces spaces.
+     * @param  string  $text     Text to indent.
+     * @param  integer $spaces=0 Number of spaces to indent $text by.
+     * @return string Indented text.
+     */
+    public static function indent ($text, $spaces=0)
+    {
+        $indent = str_repeat(' ', $spaces);
+
+        return preg_replace(
+            '#^(\b)#',
+            $indent.'\\1',
+            preg_replace(
+                '#(\v)\h?(\b)#',
+                '\\1'.$indent.'\\2',
+                $text
+            )
+        );
+    } // end indent ()
+
+    /**
      * Normalizes the string text such that unnecessary whitespace is removed.
      * This converts text passed into Optionally's describe() such that the user
      * needn't be concerned with precisely how it might be spaced as Optionally
@@ -61,6 +82,30 @@ class String
 
         return str_replace("\r", "\n", str_replace("\r\n", "\n", $text));
     } // end normalizeLineEndings ()
+
+    /**
+     * Replaces the source text $source's indentation $indent with the string
+     * $replacement. Indentation must be sufficient to hold $replacement.
+     * @param string $indent='' Indentation placeholder. This will typically be
+     * @param string $replacement Text to insert at the first indent position.
+     * @param string $source Source text.
+     * comprised of a series of spaces.
+     * @return string or boolean Indented text with first (or subsequent)
+     * indents replaced with $replacement or false if $indent cannot be found
+     * or is not sufficient to hold $replacement.
+     */
+    public static function replaceIndent ($indent, $replacement, $source)
+    {
+        if (($pos = strpos($source, $indent)) === false ||
+            strlen($replacement) > strlen($indent)) {
+            return false;
+        }
+
+        $start = substr($source, 0, $pos);
+        $stop  = substr($source, strlen($replacement));
+
+        return $start.$replacement.$stop;
+    } // end replaceIndent ()
 
     /**
      * Wraps the text $text at column $columns.
