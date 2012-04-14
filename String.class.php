@@ -27,16 +27,40 @@ class String
      */
     public static function normalize ($text)
     {
-        return preg_replace(
-            '#(\w+)\v#',
-            "\\1 ",
+        return trim(
             preg_replace(
-                '#\h\h+#',
-                '',
-                $text
+                '#(\v)\h(\b)#',
+                '\\1\\2',
+                preg_replace(
+                    '#\h\h+#',
+                    ' ',
+                    preg_replace(
+                        '#([^\n])\n(\b|\h)#',
+                        '\\1 \\2',
+                        preg_replace(
+                            '#(\w)\n(\w|\h)#',
+                            "\\1 \\2",
+                            self::normalizeLineEndings($text)
+                        )
+                    )
+                )
             )
         );
     } // end normalize ()
+
+    /**
+     * Normalizes line endings from MSDOS (\r\n) and pre-OS X (\r) to Unix (\n).
+     * @param  string $text Input text.
+     * @return string Text containing normalized line endings.
+     */
+    public static function normalizeLineEndings ($text)
+    {
+        if (strpos($text, "\r") === false) {
+            return $text;
+        }
+
+        return str_replace("\r", "\n", str_replace("\r\n", "\n", $text));
+    } // end normalizeLineEndings ()
 
     /**
      * Wraps the text $text at column $columns.
@@ -47,7 +71,7 @@ class String
     public static function wrap ($text, $columns=80)
     {
         // Normalize line endings. Hi, Windows!
-        $text = str_replace("\r", "\n", str_replace("\r\n", "\n", $text));
+        $text = self::normalizeLineEndings($text);
         $pos = 0;
         $buf = '';
 
