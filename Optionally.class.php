@@ -72,7 +72,6 @@ class Optionally
      */
     private $optionTemplate = array(
         'aliases' => array(),   /* Aliases for a given option. */
-        'description' => null,  /* Option description. Shown by help(). */
         'required' => false,    /* Option is required. */
         'ifNull' => '',         /* Option is required if ifNull is absent. */
         'boolean' => false,     /* Option is boolean. */
@@ -84,6 +83,7 @@ class Optionally
         'ifMissing' => null,    /* Default value if the option is missing. */
         'value' => false,       /* Value is required. */
         'optionalValue' => false,   /* Value is optional. */
+        'argName' => '',        /* Argument name; used for help text. */
     );
 
     /**
@@ -136,6 +136,7 @@ class Optionally
 
         $this->args = $args;
         $this->getopt = new Console_Getopt();
+        $this->help = new OptionallyHelp();
     } // end constructor
 
     /**
@@ -184,11 +185,10 @@ class Optionally
      */
     public function argv ()
     {
+        $this->help->setOptions($this->options);
         $shortOpts = '';
         $longOpts = array();
         $optionMap = array();
-
-        $help = new OptionallyHelp();
 
         $this->fireCallback('pre');
 
@@ -219,15 +219,10 @@ class Optionally
 
             $optionMap[$option] = $option;
 
-            if (!empty($prefs['description'])) {
-                $help->addDescription($option, $prefs['description'],
-                    $prefs['aliases']);
-            }
-
-            if (!empty($prefs['examples'])) {
+            /*if (!empty($prefs['examples'])) {
                 $help->addExamples($option, $prefs['examples'],
                     $prefs['aliases']);
-            }
+            }*/
 
             if (!empty($prefs['aliases'])) {
                 foreach ($prefs['aliases'] as $alias) {
@@ -256,7 +251,7 @@ class Optionally
 
         $this->fireCallback('post');
 
-        return new Options($options, $this->options, $optionMap, $help);
+        return new Options($options, $this->options, $optionMap, $this->help);
     } // end argv ()
 
     /**
@@ -345,10 +340,10 @@ class Optionally
      * @param  string $help Help string.
      * @return Optionally Instance ($this).
      */
-    public function describe ($help)
+    public function describe ($help, $argName='')
     {
         $option =& $this->getLastOption();
-        $option['description'] = $help;
+        $this->help->addDescription($this->lastOption, $help, $argName);
 
         $this->fireCallback('describe');
 
