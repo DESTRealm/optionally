@@ -58,6 +58,7 @@ class Options
      * @param array $optionMap Option map mapping options and their aliases to
      * the "master option" that defines the properties for those options or
      * aliases.
+     * @param OptionallyHelp $help Help instance.
      */
     public function __construct ($options, $settings, $optionMap, $help)
     {
