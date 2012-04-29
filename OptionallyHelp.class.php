@@ -269,24 +269,6 @@ class OptionallyHelp
         return $maxLength;
     } // end calculateMaxLength ()
 
-    private function getArg ($option)
-    {
-        if (array_key_exists($option, $this->help)) {
-            return $this->help[$option]['arg'];
-        }
-
-        return '';
-    } // end getArg ()
-
-    private function getShortArg ($option)
-    {
-        if (array_key_exists($option, $this->help)) {
-            return $this->help[$option]['shortArg'];
-        }
-
-        return '';
-    } // end getShortArg ()
-
     /**
      * Determines if the option $option has an optional value or not.
      * @param string $option Option to check.
@@ -358,6 +340,13 @@ class OptionallyHelp
         return $buf;
     } // end helpLine ()
 
+    /**
+     * Parses an option's description for specific variables or keywords. This
+     * method has side-effects and will modify the contents of $this->help as
+     * appropriate.
+     * @param  string $option Option to parse for a description and its content.
+     * @return string         Parsed description.
+     */
     private function parseDescription ($option)
     {
         $arg = 'value';
@@ -411,6 +400,19 @@ class OptionallyHelp
 
     } // end parseDescription ()
 
+    /**
+     * Converts an option string to its full option text including any arguments
+     * or optional arguments and honoring long or short options. For instance,
+     * passing in a single string as an option such as "d" will return "-d"
+     * while "debug" will return "--debug". Likewise, passing in arguments will
+     * append those argument strings to each option encapsulated in square
+     * brackets ([]) if the argument is optional or angle brackets (<>) if the
+     * option is required, e.g. "--file[=]<filename>".
+     * @param  string  $option         Option text.
+     * @param  string  $arg=''         Argument.
+     * @param  boolean $optional=false Is argument optional?
+     * @return string                  Option text plus arguments, if any.
+     */
     private function toOption ($option, $arg='', $optional=false)
     {
         if (strlen($option) === 1) {
