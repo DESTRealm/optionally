@@ -174,7 +174,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         $help = new OptionallyHelp();
 
         $help->addDescription('config', 'Loads the configuration specified by
-            %@. %arg is required.', 'config');
+            %@. %arg is required.', 'file');
 
         $help->setOptions(
             array(
@@ -196,8 +196,8 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--config=<file>  Loads the configuration specified by <file>. <file> is
-    -c           required.',
+'--config[=]<file>  Loads the configuration specified by <file>. <file> is
+    -c <file>      required.',
             $help->help()
         );
     } // end testNamedArg ()
