@@ -4,7 +4,7 @@ namespace org\destrealm\utilities\optionally;
 
 /**
  * Optionally help generator.
- * 
+ *
  * This class provides a mechanism for automatically generating usage text for
  * Optionally options. Client libraries aren't required to use this, but they
  * will receive its benefits for free.
@@ -126,7 +126,7 @@ class OptionallyHelp
      * Adds example usage to options. Normally, you shouldn't need this if your
      * options are well-explained, but it can be useful for certain things.
      * Option examples will appear below the usage and will be indented.
-     * 
+     *
      * If you specify aliases, each example $example will be generated for every
      * option.
      * @param string $option          Option.
@@ -153,7 +153,6 @@ class OptionallyHelp
 
         foreach ($keys as $option) {
             $this->parseDescription($option);
-            //$this->parseOption($option);
         }
 
         $this->maxLength = $this->calculateMaxLength($keys);
@@ -211,7 +210,7 @@ class OptionallyHelp
      * Sets the local options reference to that used internally by Optionally
      * and processed by Options. This is used mostly to determine how to
      * display option arguments.
-     * 
+     *
      * This method is guaranteed to be called before $this->help().
      * @param array $options=array() [description]
      */
@@ -412,81 +411,6 @@ class OptionallyHelp
 
     } // end parseDescription ()
 
-    private function parseOption ($option, &$help)
-    {
-        $aliases = array();
-
-        $help['option'] = OptionallyHelp::toOption(
-            $option,
-            $help['arg'],
-            $help['argIsOptional']
-        );
-
-        $this->maxLength = max(strlen($help['option']), $this->maxLength);
-
-        foreach ($this->options[$option]['aliases'] as $alias) {
-            $aliasOption = OptionallyHelp::toOption(
-                $alias,
-                $help['arg'],
-                $help['argIsOptional']
-            );
-
-            $this->maxLength = max(strlen($aliasOption)+$this->indentAliases,
-                $this->maxLength);
-            $aliases[] = $aliasOption;
-        }
-
-
-return;
-
-        foreach ($this->options as $option => $details) {
-
-            if (!array_key_exists($option, $this->help)) {
-                continue;
-            }
-
-            $aliases = array();
-            $this->help[$option] = array_merge($this->help[$option], $details);
-            $parsed = $this->parseDescription(
-                $this->help[$option]['description'],
-                $option,
-                $this->help[$option]['argName']
-            );
-            $fullOption = OptionallyHelp::toOption(
-                $option,
-                $parsed['arg'],
-                $parsed['shortArg']
-            );
-
-            $this->maxLength = max(strlen($fullOption), $this->maxLength);
-
-            $this->help[$option]['description'] = String::normalize(
-                $parsed['description']
-            );
-            $this->help[$option]['argName'] = $parsed['argName'];
-            $this->help[$option]['arg'] = $parsed['arg'];
-            $this->help[$option]['shortArg'] = $parsed['shortArg'];
-
-            foreach ($details['aliases'] as $alias) {
-                $this->help[$alias] =& $this->help[$option];
-                $this->options[$alias] =& $this->options[$option];
-
-                $alias = OptionallyHelp::toOption(
-                    $alias,
-                    $parsed['arg'],
-                    $parsed['shortArg']
-                );
-                $this->maxLength = max(strlen($alias)+$this->indentAliases,
-                    $this->maxLength);
-                $aliases[] = $alias;
-            }
-
-            $this->help[$option]['aliases'] = $aliases;
-
-        }
-    } // end parseOption ()
-
-    //public static function toOption ($option, $arg='', $optional=false)
     private function toOption ($option, $arg='', $optional=false)
     {
         if (strlen($option) === 1) {
