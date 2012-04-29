@@ -156,7 +156,7 @@ class OptionallyHelp
             //$this->parseOption($option);
         }
 
-        $maxLength = $this->calculateMaxLength($keys); print $maxLength;
+        $this->maxLength = $this->calculateMaxLength($keys);
 
         foreach ($keys as $key) {
 
@@ -165,13 +165,14 @@ class OptionallyHelp
             }
 
             $arg = $this->help[$key]['arg'];
+            $optional = $this->help[$key]['argIsOptional'];
             $aliases = $this->options[$key]['aliases'];
 
             // Indented help text, one element per line.
             $help = explode("\n",
                 String::indent(
                     String::wrap(
-                        $this->help[$key]['description'],
+                        String::normalize($this->help[$key]['description']),
                         $this->columns - $this->maxLength - $this->buffer + 1
                     ),
                     $this->maxLength + $this->buffer
@@ -180,20 +181,27 @@ class OptionallyHelp
 
             $buf .= $this->helpLine($key, $help);
 
-            $max = count($aliases);
-            for ($i = 0; $i < $max; $i++) {
+            foreach ($aliases as $alias) {
 
-                if (empty($help)) {
-                    break;
+                if (count($help) > 0) {
+                    $buf .= $this->helpLine($key, $help, $alias);
+                } else {
+                    $buf .= str_repeat(' ', $this->indentAliases).
+                        $this->toOption(
+                            $alias,
+                            $arg,
+                            $optional)."\n";
                 }
-
-                $alias = array_shift($aliases);
-
-                $buf .= $this->helpLine($key, $help, $alias);
 
             }
 
-            $buf .= "\n";
+            if (count($help) > 0) {
+                $buf .= implode("\n", $help);
+            }
+
+            if (substr($buf, -1) !== "\n") {
+                $buf .= "\n";
+            }
 
         }
         return $buf;
