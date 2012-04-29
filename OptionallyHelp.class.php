@@ -146,15 +146,17 @@ class OptionallyHelp
      */
     public function help ()
     {
-        foreach ($this->help as $option => &$help) {
-            $this->parseDescription($option, &$help);
-            $this->parseOption($option, &$help);
-        }
-
         $buf = '';
         $keys = array_keys($this->help);
         sort($keys, SORT_STRING);
         $pos = 0;
+
+        foreach ($keys as $option) {
+            $this->parseDescription($option);
+            //$this->parseOption($option);
+        }
+
+        $maxLength = $this->calculateMaxLength($keys); print $maxLength;
 
         foreach ($keys as $key) {
 
@@ -163,7 +165,6 @@ class OptionallyHelp
             }
 
             $arg = $this->help[$key]['arg'];
-            $shortArg = $this->help[$key]['shortArg'];
             $aliases = $this->options[$key]['aliases'];
 
             // Indented help text, one element per line.
@@ -188,32 +189,13 @@ class OptionallyHelp
 
                 $alias = array_shift($aliases);
 
-                $buf .= $this->helpLine(
-                    $alias,
-                    $help,
-                    $this->indentAliases
-                );
+                $buf .= $this->helpLine($key, $help, $alias);
 
-            }
-
-            if (!empty($aliases)) {
-                $buf .= str_repeat(' ', $this->indentAliases).
-                    implode("\n".str_repeat(' ', $this->indentAliases),
-                        array_map(function($alias) use ($key, $arg, $shortArg) {
-                            return OptionallyHelp::toOption(
-                                $alias,
-                                $arg,
-                                $shortArg
-                            );
-                        }, $aliases));
-            } else if (!empty($help)) {
-                $buf .= implode("\n", $help);
             }
 
             $buf .= "\n";
 
         }
-print $buf;
         return $buf;
     } // end help ()
 
@@ -225,7 +207,7 @@ print $buf;
      * This method is guaranteed to be called before $this->help().
      * @param array $options=array() [description]
      */
-    public function setOptions (&$options=array())
+    public function setOptions ($options=array())
     {
         $this->options = $options;
     } // end $options ()
@@ -234,6 +216,51 @@ print $buf;
     {
 
     } // end show ()
+
+    /**
+     * Calculates the maximum length of all options. This is used to determine
+     * exactly how much indentation is needed in effort to fit options ahead
+     * of their usage text. This value is also compared against $this->cutoff to
+     * determine whether an option must be placed on its own line.
+     * @return integer Maximum length of all options.
+     */
+    private function calculateMaxLength ($options)
+    {
+        $maxLength = 0;
+        foreach ($options as $option) {
+
+            $maxLength = max(
+                $maxLength,
+                strlen(
+                    $this->toOption(
+                        $option,
+                        $this->help[$option]['arg'],
+                        $this->help[$option]['argIsOptional']
+                    )
+                )
+            );
+
+            if (!empty($this->options[$option]['aliases'])) {
+                foreach ($this->options[$option]['aliases'] as $alias) {
+
+                    $maxLength = max(
+                        $maxLength,
+                        strlen(
+                            $this->toOption(
+                                $alias,
+                                $this->help[$option]['arg'],
+                                $this->help[$option]['argIsOptional']
+                            )
+                        )
+                    );
+
+                }
+            }
+
+        }
+
+        return $maxLength;
+    } // end calculateMaxLength ()
 
     private function getArg ($option)
     {
@@ -293,14 +320,19 @@ print $buf;
      * If $option is greater than $this->cutoff, $help is left untouched and
      * $option is returned on its own line.
      */
-    private function helpLine ($option, &$help, $indent=0)
+    private function helpLine ($option, &$help, $alias='')
     {
         $buf = '';
-        $option = OptionallyHelp::toOption(
-            $option,
-            $this->getArg($option),
-            $this->getShortArg($option)
-        );
+        $arg = $this->help[$option]['arg'];
+        $optional = $this->help[$option]['argIsOptional'];
+        $indent = 0;
+
+        if (!empty($alias)) {
+            $option = $alias;
+            $indent = $this->indentAliases;
+        }
+
+        $option = $this->toOption($option, $arg, $optional);
 
         if (strlen($option) <= $this->cutoff) {
             $line = array_shift($help);
@@ -319,57 +351,56 @@ print $buf;
         return $buf;
     } // end helpLine ()
 
-    private function parseDescription ($option, &$help)
+    private function parseDescription ($option)
     {
-        $arg = '';
+        $arg = 'value';
         $optional = false;
         $replacement = '';
         $matches = array();
+        $description = $this->help[$option]['description'];
+
+        if (!empty($this->help[$option]['arg'])) {
+            $arg = $this->help[$option]['arg'];
+        }
 
         // Matches %@ and %@name for the arg name.
         if (preg_match_all(
             '#(?:[^%]{1})(%@([_A-Za-z0-9]*))#',
-            $help['description'],
+            $description,
             $matches,
-            PREG_SET_ORDER) && $help['arg'] === '') {
-            if (!empty($matches[0][2])) {
-                $arg = $matches[0][2];
+            PREG_SET_ORDER)) {
+            $arg = $matches[0][2];
+        }
+
+        if ($this->options[$option]['value']) {
+            if ($this->options[$option]['optionalValue']) {
+                $replacement = '\\1['.$argName.']';
+                $optional = true;
+            } else {
+                $replacement = '\\1<'.$argName.'>';
+                $arg = '<'.$argName.'>';
             }
         }
 
-        if (!$arg !== '') {
+        $description = preg_replace(
+            '#([^%]{1})(%@([_A-Za-z0-9]+))#',
+            $replacement,
+            $description
+        );
+        $description = preg_replace(
+            '#([^%]{1})(%@)#',
+            $replacement,
+            $description
+        );
+        $description = preg_replace(
+            '#([^%]{1})(%arg)#',
+            $replacement,
+            $description
+        );
 
-            if ($this->options[$option]['value']) {
-                if ($this->options[$option]['optionalValue']) {
-                    $replacement = '\\1['.$argName.']';
-                    $optional = true;
-                } else {
-                    $replacement = '\\1<'.$argName.'>';
-                    $arg = '<'.$argName.'>';
-                }
-            }
-
-            $description = preg_replace(
-                '#([^%]{1})(%@([_A-Za-z0-9]+))#',
-                $replacement,
-                $description
-            );
-            $description = preg_replace(
-                '#([^%]{1})(%@)#',
-                $replacement,
-                $description
-            );
-            $description = preg_replace(
-                '#([^%]{1})(%arg)#',
-                $replacement,
-                $description
-            );
-
-            $help['description'] = $description;
-            $help['arg'] = $arg;
-            $help['argIsOptional'] = $optional;
-
-        }
+        $help['description'] = $description;
+        $help['arg'] = $arg;
+        $help['argIsOptional'] = $optional;
 
     } // end parseDescription ()
 
@@ -447,7 +478,8 @@ return;
         }
     } // end parseOption ()
 
-    public static function toOption ($option, $arg='', $optional=false)
+    //public static function toOption ($option, $arg='', $optional=false)
+    private function toOption ($option, $arg='', $optional=false)
     {
         if (strlen($option) === 1) {
             $option = '-'.$option;

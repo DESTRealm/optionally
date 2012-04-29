@@ -23,7 +23,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         $help = new OptionallyHelp();
 
         $help->addDescription('debug', 'This option will attempt to enable
-            debugging.', array('d'));
+            debugging.');
 
         $help->setOptions(
             array(
