@@ -59,7 +59,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
             debugging. Debugging mode enables additional output that may be of
             some use to developers. Debugging mode is rather chatty and may only
             be of use in circumstances where the default output is not enough to
-            diagnose a problem.', array('d'));
+            diagnose a problem.');
 
         $help->setOptions(
             array(
