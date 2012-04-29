@@ -108,17 +108,17 @@ class OptionallyHelp
      * any.
      * @param string $option          Option.
      * @param string $description     Option description.
-     * @param string $argName         Argument name. For options that have
+     * @param string $arg             Argument name for options that have
      * required or optional values.
      */
-    public function addDescription ($option, $description, $argName='')
+    public function addDescription ($option, $description, $arg='')
     {
-        $this->maxLength = max(strlen(OptionallyHelp::toOption($option)),
-            $this->maxLength);
-
         $this->help[$option] = array(
             'description' => $description,
-            'argName' => $argName,
+            'arg' => $arg,
+            'argIsOptional' => false,
+            'option' => '', /* Full option and arg. */
+            'aliases' => array(), /* Full aliases and their args. */
         );
     } // end addDescription ()
 
@@ -146,7 +146,11 @@ class OptionallyHelp
      */
     public function help ()
     {
-        $this->parseOptions();
+        foreach ($this->help as $option => &$help) {
+            $this->parseDescription($option, &$help);
+            $this->parseOption($option, &$help);
+        }
+
         $buf = '';
         $keys = array_keys($this->help);
         sort($keys, SORT_STRING);
@@ -158,6 +162,8 @@ class OptionallyHelp
                 $buf .= "\n";
             }
 
+            $arg = $this->help[$key]['arg'];
+            $shortArg = $this->help[$key]['shortArg'];
             $aliases = $this->options[$key]['aliases'];
 
             // Indented help text, one element per line.
@@ -193,7 +199,13 @@ class OptionallyHelp
             if (!empty($aliases)) {
                 $buf .= str_repeat(' ', $this->indentAliases).
                     implode("\n".str_repeat(' ', $this->indentAliases),
-                        array_map(function($alias) {return OptionallyHelp::toOption($alias);}, $aliases));
+                        array_map(function($alias) use ($key, $arg, $shortArg) {
+                            return OptionallyHelp::toOption(
+                                $alias,
+                                $arg,
+                                $shortArg
+                            );
+                        }, $aliases));
             } else if (!empty($help)) {
                 $buf .= implode("\n", $help);
             }
@@ -201,11 +213,19 @@ class OptionallyHelp
             $buf .= "\n";
 
         }
-
+print $buf;
         return $buf;
     } // end help ()
 
-    public function setOptions ($options=array())
+    /**
+     * Sets the local options reference to that used internally by Optionally
+     * and processed by Options. This is used mostly to determine how to
+     * display option arguments.
+     * 
+     * This method is guaranteed to be called before $this->help().
+     * @param array $options=array() [description]
+     */
+    public function setOptions (&$options=array())
     {
         $this->options = $options;
     } // end $options ()
@@ -214,6 +234,24 @@ class OptionallyHelp
     {
 
     } // end show ()
+
+    private function getArg ($option)
+    {
+        if (array_key_exists($option, $this->help)) {
+            return $this->help[$option]['arg'];
+        }
+
+        return '';
+    } // end getArg ()
+
+    private function getShortArg ($option)
+    {
+        if (array_key_exists($option, $this->help)) {
+            return $this->help[$option]['shortArg'];
+        }
+
+        return '';
+    } // end getShortArg ()
 
     /**
      * Determines if the option $option has an optional value or not.
@@ -258,7 +296,11 @@ class OptionallyHelp
     private function helpLine ($option, &$help, $indent=0)
     {
         $buf = '';
-        $option = OptionallyHelp::toOption($option);
+        $option = OptionallyHelp::toOption(
+            $option,
+            $this->getArg($option),
+            $this->getShortArg($option)
+        );
 
         if (strlen($option) <= $this->cutoff) {
             $line = array_shift($help);
@@ -277,13 +319,87 @@ class OptionallyHelp
         return $buf;
     } // end helpLine ()
 
-    private function parseDescription ($description, $option, $argName='')
+    private function parseDescription ($option, &$help)
     {
-        return $description;
+        $arg = '';
+        $optional = false;
+        $replacement = '';
+        $matches = array();
+
+        // Matches %@ and %@name for the arg name.
+        if (preg_match_all(
+            '#(?:[^%]{1})(%@([_A-Za-z0-9]*))#',
+            $help['description'],
+            $matches,
+            PREG_SET_ORDER) && $help['arg'] === '') {
+            if (!empty($matches[0][2])) {
+                $arg = $matches[0][2];
+            }
+        }
+
+        if (!$arg !== '') {
+
+            if ($this->options[$option]['value']) {
+                if ($this->options[$option]['optionalValue']) {
+                    $replacement = '\\1['.$argName.']';
+                    $optional = true;
+                } else {
+                    $replacement = '\\1<'.$argName.'>';
+                    $arg = '<'.$argName.'>';
+                }
+            }
+
+            $description = preg_replace(
+                '#([^%]{1})(%@([_A-Za-z0-9]+))#',
+                $replacement,
+                $description
+            );
+            $description = preg_replace(
+                '#([^%]{1})(%@)#',
+                $replacement,
+                $description
+            );
+            $description = preg_replace(
+                '#([^%]{1})(%arg)#',
+                $replacement,
+                $description
+            );
+
+            $help['description'] = $description;
+            $help['arg'] = $arg;
+            $help['argIsOptional'] = $optional;
+
+        }
+
     } // end parseDescription ()
 
-    private function parseOptions ()
+    private function parseOption ($option, &$help)
     {
+        $aliases = array();
+
+        $help['option'] = OptionallyHelp::toOption(
+            $option,
+            $help['arg'],
+            $help['argIsOptional']
+        );
+
+        $this->maxLength = max(strlen($help['option']), $this->maxLength);
+
+        foreach ($this->options[$option]['aliases'] as $alias) {
+            $aliasOption = OptionallyHelp::toOption(
+                $alias,
+                $help['arg'],
+                $help['argIsOptional']
+            );
+
+            $this->maxLength = max(strlen($aliasOption)+$this->indentAliases,
+                $this->maxLength);
+            $aliases[] = $aliasOption;
+        }
+
+
+return;
+
         foreach ($this->options as $option => $details) {
 
             if (!array_key_exists($option, $this->help)) {
@@ -292,34 +408,76 @@ class OptionallyHelp
 
             $aliases = array();
             $this->help[$option] = array_merge($this->help[$option], $details);
+            $parsed = $this->parseDescription(
+                $this->help[$option]['description'],
+                $option,
+                $this->help[$option]['argName']
+            );
+            $fullOption = OptionallyHelp::toOption(
+                $option,
+                $parsed['arg'],
+                $parsed['shortArg']
+            );
+
+            $this->maxLength = max(strlen($fullOption), $this->maxLength);
+
+            $this->help[$option]['description'] = String::normalize(
+                $parsed['description']
+            );
+            $this->help[$option]['argName'] = $parsed['argName'];
+            $this->help[$option]['arg'] = $parsed['arg'];
+            $this->help[$option]['shortArg'] = $parsed['shortArg'];
 
             foreach ($details['aliases'] as $alias) {
-                $alias = OptionallyHelp::toOption($alias);
+                $this->help[$alias] =& $this->help[$option];
+                $this->options[$alias] =& $this->options[$option];
+
+                $alias = OptionallyHelp::toOption(
+                    $alias,
+                    $parsed['arg'],
+                    $parsed['shortArg']
+                );
                 $this->maxLength = max(strlen($alias)+$this->indentAliases,
                     $this->maxLength);
                 $aliases[] = $alias;
             }
 
             $this->help[$option]['aliases'] = $aliases;
-            $this->help[$option]['description'] =
-                $this->parseDescription(
-                    String::normalize(
-                        $this->help[$option]['description']
-                    ),
-                    $option,
-                    $this->help[$option]['argName']
-                );
 
         }
     } // end parseOption ()
 
-    public static function toOption ($option)
+    public static function toOption ($option, $arg='', $optional=false)
     {
         if (strlen($option) === 1) {
-            return '-'.$option;
+            $option = '-'.$option;
+
+            if ($arg === '') {
+                return $option;
+            }
+
+            if ($optional) {
+                $option .= '[ '.$arg.']';
+            } else {
+                $option .= ' <'.$arg.'>';
+            }
+
         }
 
-        return '--'.$option;
+        $option = '--'.$option;
+
+        if ($arg === '') {
+            return $option;
+        }
+
+        if ($optional) {
+            $option .= '[=]['.$arg.']';
+        } else {
+            $option .= '[=]<'.$arg.'>';
+        }
+
+        return $option;
+
     } // end toOption ()
 
 } // end OptionallyHelp
