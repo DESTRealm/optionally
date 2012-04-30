@@ -169,7 +169,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
     } // end testMultipleOptions ()
 
-    public function testNamedArg ()
+    public function testRequiredNamedArg ()
     {
         $help = new OptionallyHelp();
 
@@ -201,5 +201,39 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
 ',
             $help->help()
         );
-    } // end testNamedArg ()
+    } // end testRequiredNamedArg ()
+
+    public function testOptionalNamedArg ()
+    {
+        $help = new OptionallyHelp();
+
+        $help->addDescription('config', 'Loads the configuration specified by
+            %@. %arg is optional.', 'file');
+
+        $help->setOptions(
+            array(
+                'config' => array(
+                    'aliases' => array('c'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => true,
+                    'optionalValue' => true,
+                )
+            )
+        );
+
+        $this->assertEquals(
+'--config[=][file]  Loads the configuration specified by <file>. <file> is
+    -c [file]      required.
+',
+            $help->help()
+        );
+    } // end testRequiredNamedArg ()
 } // end OptionallyHelpTest
