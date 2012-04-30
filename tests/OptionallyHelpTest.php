@@ -4,6 +4,8 @@ namespace org\destrealm\utilities\optionally;
 
 use PHPUnit_Framework_TestCase;
 
+error_reporting(E_ALL | E_NOTICE | E_STRICT);
+
 require_once 'optionally.php';
 
 // Stop PHPUnit's test reports from complaining.
@@ -203,6 +205,60 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
     } // end testRequiredNamedArg ()
 
+    public function testManyRequiredNamedArgs ()
+    {
+        $help = new OptionallyHelp();
+
+        $help->addDescription('config', 'Loads the configuration specified by
+            %@. %arg is required.', 'file');
+        $help->addDescription('save-to', 'Saves the generated output to the file
+            specified by %@.', 'file');
+
+        $help->setOptions(
+            array(
+                'config' => array(
+                    'aliases' => array('c'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => true,
+                    'optionalValue' => false,
+                ),
+                'save-to' => array(
+                    'aliases' => array('s', 'save'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => true,
+                    'optionalValue' => false,
+                )
+            )
+        );
+
+        $this->assertEquals(
+'--config[=]<file>   Loads the configuration specified by <file>. <file> is
+    -c <file>       required.
+
+--save-to[=]<file>  Saves the generated output to the file specified by <file>.
+    -s <file>
+    --save[=]<file>
+',
+            $help->help());
+
+    } // end testManyRequiredNamedArgs ()
+
     public function testOptionalNamedArg ()
     {
         $help = new OptionallyHelp();
@@ -235,5 +291,60 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
 ',
             $help->help()
         );
-    } // end testRequiredNamedArg ()
+    } // end testOptionalNamedArg ()
+
+    public function testManyOptionalNamedArgs ()
+    {
+        $help = new OptionallyHelp();
+
+        $help->addDescription('config', 'Loads the configuration specified by
+            %@. %arg is optional.', 'file');
+        $help->addDescription('save-to', 'Saves the generated output to the file
+            specified by %@.', 'file');
+
+        $help->setOptions(
+            array(
+                'config' => array(
+                    'aliases' => array('c'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => true,
+                    'optionalValue' => true,
+                ),
+                'save-to' => array(
+                    'aliases' => array('s', 'save'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => true,
+                    'optionalValue' => true,
+                )
+            )
+        );
+
+        $this->assertEquals(
+'--config[=][file]   Loads the configuration specified by [file]. [file] is
+    -c [file]       optional.
+
+--save-to[=][file]  Saves the generated output to the file specified by [file].
+    -s [file]
+    --save[=][file]
+',
+            $help->help());
+
+    } // end testManyOptionalNamedArgs ()
 } // end OptionallyHelpTest
+
