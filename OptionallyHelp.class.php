@@ -423,7 +423,7 @@ class OptionallyHelp
             }
 
             if ($optional) {
-                $option .= '[ '.$arg.']';
+                $option .= ' ['.$arg.']';
             } else {
                 $option .= ' <'.$arg.'>';
             }
