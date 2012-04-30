@@ -28,7 +28,7 @@ class OptionallyException extends Exception
  * This exception is thrown whenever it appears likely that the user forgot to
  * call ->argv() after setting up their options.
  */
-class OptionallyMissingArgvException extends OptionallyException {}
+class MissingArgvException extends OptionallyException {}
 
 /**
  * GetOpt exception wrapper.
@@ -42,7 +42,7 @@ class OptionallyMissingArgvException extends OptionallyException {}
  * seeing this exception crop up in user code, try catching OptionallyException
  * instead.
  */
-class OptionallyGetoptException extends OptionallyException {}
+class GetoptException extends OptionallyException {}
 
 /**
  * Options exception
@@ -57,7 +57,7 @@ class OptionallyGetoptException extends OptionallyException {}
  * and if you're seeing this exception, you should probably reconsider the
  * design of your script or application.
  */
-class OptionallyOptionsException extends OptionallyException {}
+class OptionsException extends OptionallyException {}
 
 /**
  * Value exception.
@@ -69,4 +69,4 @@ class OptionallyOptionsException extends OptionallyException {}
  * must know the precise cause of the error; in that case, examining this
  * exception might prove useful.
  */
-class OptionallyOptionsValueException extends OptionallyOptionsException {}
+class OptionsValueException extends OptionsException {}

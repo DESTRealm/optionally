@@ -7,9 +7,9 @@ namespace org\destrealm\utilities\optionally;
  *
  * This file has been modified from its original version. PEAR dependencies have
  * been removed and PEAR error conditions have been replaced with raised
- * OptionallyGetoptException exceptions. Furthermore, certain GNU getopt-
- * compatible options have been changed and may behave differently from what
- * might otherwise be expected.
+ * GetoptException exceptions. Furthermore, certain GNU getopt-compatible
+ * options have been changed and may behave differently from what might
+ * otherwise be expected.
  *
  * !!! WARNING !!!
  */
@@ -199,7 +199,7 @@ class Console_Getopt
                     break;
                 }
 
-                throw new OptionallyGetoptException('Unrecognized option: '.$opt,
+                throw new GetoptException('Unrecognized option: '.$opt,
                     OptionallyException::UNRECOGNIZED_OPTION
                 );
             }
@@ -227,12 +227,12 @@ class Console_Getopt
                         /* Else use the next argument. */;
                         if (Console_Getopt::_isShortOpt($opt_arg)
                             || Console_Getopt::_isLongOpt($opt_arg)) {
-                            throw new OptionallyGetoptException('Option requires argument: '.
+                            throw new GetoptException('Option requires argument: '.
                                 $opt, OptionallyException::REQUIRES_ARGUMENT
                             );
                         }
                     } else {
-                        throw new OptionallyGetoptException('Option requires argument: '.
+                        throw new GetoptException('Option requires argument: '.
                             $opt, OptionallyException::REQUIRES_ARGUMENT
                         );
                     }
@@ -315,7 +315,7 @@ class Console_Getopt
                 $next_option_rest != '' &&
                 $next_option_rest{0} != '=') {
 
-                throw new OptionallyGetoptException('Ambiguous option: '.$opt,
+                throw new GetoptException('Ambiguous option: '.$opt,
                     OptionallyException::AMBIGUOUS_OPTION
                 );
             }
@@ -326,18 +326,18 @@ class Console_Getopt
                        Take the next argument if one wasn't specified. */;
                     if (!strlen($opt_arg) && !(list(, $opt_arg) = each($args))) {
                         $msg = "Console_Getopt: option requires an argument --$opt";
-                        throw new OptionallyGetoptException($msg);
+                        throw new GetoptException($msg);
                     }
 
                     if (Console_Getopt::_isShortOpt($opt_arg)
                         || Console_Getopt::_isLongOpt($opt_arg)) {
-                        throw new OptionallyGetoptException('Option requires argument: '.
+                        throw new GetoptException('Option requires argument: '.
                             $opt, OptionallyException::REQUIRES_ARGUMENT
                         );
                     }
                 }
             } else if ($opt_arg) {
-                throw new OptionallyGetoptException('Argument not allowed: '.$opt_arg,
+                throw new GetoptException('Argument not allowed: '.$opt_arg,
                     OptionallyException::ARGUMENT_NOT_ALLOWED
                 );
             }
@@ -350,7 +350,7 @@ class Console_Getopt
             return;
         }
 
-        throw new OptionallyGetoptException('Unrecognized option: '.$opt,
+        throw new GetoptException('Unrecognized option: '.$opt,
             OptionallyException::UNRECOGNIZED_OPTION
         );
     }
@@ -368,7 +368,7 @@ class Console_Getopt
         if (!is_array($argv)) {
             if (!@is_array($_SERVER['argv'])) {
                 if (!@is_array($GLOBALS['HTTP_SERVER_VARS']['argv'])) {
-                    throw new OptionallyGetoptException('argc/argv error',
+                    throw new GetoptException('argc/argv error',
                         OptionallyException::ARGC_ARGV_ERROR
                     );
                 }

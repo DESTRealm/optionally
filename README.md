@@ -382,8 +382,8 @@ $options = Optionally::options()
 ```
 
 In this example, if `--number` is supplied anything but a number (an integer at
-that!), Optionally will throw an OptionallyOptionsValueException. You'll need to
-catch this exception and do something useful with it, such as printing out the
+that!), Optionally will throw an OptionsValueException. You'll need to catch
+this exception and do something useful with it, such as printing out the
 script's usage text or perhaps a descriptive error so the user has an idea what
 went wrong.
 
@@ -491,9 +491,9 @@ $options = Optionally::options()
   ;
 ```
 
-This will throw an `OptionallyOptionsException`. You shouldn't be doing this
-(did I repeat myself?), so I'll leave it to you to decide how to handle the
-generated exception.
+This will throw an `OptionsException`. You shouldn't be doing this (did I repeat
+myself?), so I'll leave it to you to decide how to handle the generated
+exception.
 
 Hint: Use default values if you're thinking about using a required option.
 They're easier to maintain and much less frustrating for your users.

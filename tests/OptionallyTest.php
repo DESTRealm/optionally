@@ -97,7 +97,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * This test tests a common circumstance where argv() may have been
      * forgotten.
-     * @expectedException org\destrealm\utilities\optionally\OptionallyMissingArgvException
+     * @expectedException org\destrealm\utilities\optionally\MissingArgvException
      * @expectedExceptionMessage Invalid option "debug." Did you forget to call argv()?
      * @covers org\destrealm\utilities\optionally\Optionally::__get
      */
@@ -215,7 +215,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * Tests the creation of options that require values but have not been
      * supplied the appropriate values. Short option test.
-     * @expectedException org\destrealm\utilities\optionally\OptionallyGetoptException
+     * @expectedException org\destrealm\utilities\optionally\GetoptException
      */
     public function testRequiredValuesShortOptFailure ()
     {
@@ -233,7 +233,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * Tests the creation of options that require values but have not been
      * supplied the appropriate values. Long option test.
-     * @expectedException org\destrealm\utilities\optionally\OptionallyGetoptException
+     * @expectedException org\destrealm\utilities\optionally\GetoptException
      */
     public function testRequiredValuesLongOptFailure ()
     {
@@ -250,7 +250,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     /**
      * Tests options required with Optionally::required().
-     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsException
+     * @expectedException org\destrealm\utilities\optionally\OptionsException
      * @expectedExceptionMessage Required option "f" was not provided!
      * @return [type]
      */
@@ -515,7 +515,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     /**
      * Tests requiredIfNull.
-     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsException
+     * @expectedException org\destrealm\utilities\optionally\OptionsException
      * @return [type]
      */
     public function testRequiredIfNull ()
@@ -693,7 +693,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testOptionTest ()
 
     /**
-     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsValueException
+     * @expectedException org\destrealm\utilities\optionally\OptionsValueException
      */
     public function testOptionTestFailure ()
     {
@@ -708,7 +708,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testOptionTestFailure ()
 
     /**
-     * @expectedException org\destrealm\utilities\optionally\OptionallyOptionsValueException
+     * @expectedException org\destrealm\utilities\optionally\OptionsValueException
      */
     public function testOptionTestFailure2 ()
     {

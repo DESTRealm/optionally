@@ -72,7 +72,7 @@ class Options
             if (!empty($settings[$master]['ifNull']) &&
                 !array_key_exists($settings[$master]['ifNull'], $this->_options) &&
                 !array_key_exists($option, $this->_options)) {
-                throw new OptionallyOptionsException(
+                throw new OptionsException(
                     sprintf('The option %s is required if %s was not specified.',
                         $option, $settings[$master]['ifNull'])
                 );
@@ -112,7 +112,7 @@ class Options
             // Test required arguments.
             if (!array_key_exists($option, $this->_options) &&
                 $settings[$master]['required'] === true) {
-                throw new OptionallyOptionsException(
+                throw new OptionsException(
                     sprintf('Required option "%s" was not provided!', $option)
                 );
             }
@@ -123,7 +123,7 @@ class Options
                 $filter = call_user_func($settings[$master]['filter'],
                         $this->$option);
                 if (!$filter && $settings[$master]['filterFailure'] === null) {
-                    throw new OptionallyOptionsValueException(
+                    throw new OptionsValueException(
                         sprintf('Value "%s" mismatch for option "%s".',
                             (string)$this->_options[$option], $option)
                     );
