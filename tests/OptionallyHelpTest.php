@@ -230,8 +230,8 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--config[=][file]  Loads the configuration specified by <file>. <file> is
-    -c [file]      required.
+'--config[=][file]  Loads the configuration specified by [file]. [file] is
+    -c [file]      optional.
 ',
             $help->help()
         );
