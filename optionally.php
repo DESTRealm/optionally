@@ -36,5 +36,5 @@ require $path.'lib'.DIRECTORY_SEPARATOR.
     'Getopt.php';
 require $path.'Options.class.php';
 require $path.'Optionally.class.php';
-require $path.'OptionallyHelp.class.php';
+require $path.'Help.class.php';
 require $path.'String.class.php';

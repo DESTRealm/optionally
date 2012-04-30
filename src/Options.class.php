@@ -46,7 +46,7 @@ class Options
 
     /**
      * Options help.
-     * @var OptionallyHelp
+     * @var Help
      */
     private $help = null;
 

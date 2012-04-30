@@ -137,7 +137,7 @@ class Optionally
 
         $this->args = $args;
         $this->getopt = new Console_Getopt();
-        $this->help = new OptionallyHelp($_SERVER['argv'][0]);
+        $this->help = new Help($_SERVER['argv'][0]);
     } // end constructor
 
     /**

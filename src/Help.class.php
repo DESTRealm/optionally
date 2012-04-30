@@ -9,7 +9,7 @@ namespace org\destrealm\utilities\optionally;
  * Optionally options. Client libraries aren't required to use this, but they
  * will receive its benefits for free.
  */
-class OptionallyHelp
+class Help
 {
     /**
      * Buffer between options and their associated help text, in spaces.
@@ -521,4 +521,4 @@ class OptionallyHelp
 
     } // end toOption ()
 
-} // end OptionallyHelp
+} // end Help

@@ -17,14 +17,14 @@ date_default_timezone_set('UTC');
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
-class OptionallyHelpTest extends PHPUnit_Framework_TestCase
+class HelpTest extends PHPUnit_Framework_TestCase
 {
 
     public function testBasicHelp ()
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
 
         $help->addDescription('debug', 'This option will attempt to enable
             debugging.');
@@ -62,7 +62,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
 
         $help->addDescription('debug', 'This option will attempt to enable
             debugging. Debugging mode enables additional output that may be of
@@ -105,7 +105,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
 
         $help->addDescription('this-is-a-really-long-argument', 'This is a long
             argument that should place this usage text on the following line.');
@@ -144,7 +144,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
         $help->setOptions(array());
 
         $help->addDescription('debug', 'This option will attempt to enable
@@ -227,7 +227,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
 
         $help->addDescription('config', 'Loads the configuration specified by
             %@. %arg is required.', 'file');
@@ -265,7 +265,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
 
         $help->addDescription('config', 'Loads the configuration specified by
             %@. %arg is required.', 'file');
@@ -323,7 +323,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
 
         $help->addDescription('config', 'Loads the configuration specified by
             %@. %arg is optional.', 'file');
@@ -361,7 +361,7 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['argv'] = array('./script.php');
 
-        $help = new OptionallyHelp();
+        $help = new Help();
 
         $help->addDescription('config', 'Loads the configuration specified by
             %@. %arg is optional.', 'file');
@@ -414,5 +414,5 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
             $help->help());
 
     } // end testManyOptionalNamedArgs ()
-} // end OptionallyHelpTest
+} // end HelpTest
 
