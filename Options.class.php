@@ -48,7 +48,7 @@ class Options
      * Options help.
      * @var OptionallyHelp
      */
-    private $_help = null;
+    private $help = null;
 
     /**
      * Constructor.
@@ -140,7 +140,7 @@ class Options
         // Add the arguments to our tracker.
         $this->_args = $options[1];
 
-        $this->_help = $help;
+        $this->help = $help;
 
     } // end constructor
 
@@ -171,9 +171,9 @@ class Options
         return array_key_exists($offset, $this->_args) ? $this->_args[ $offset ] : null;
     } // end args ()
 
-    public function getHelp ()
+    public function help ()
     {
-        return $this->help;
+        return $this->help->help();
     } // end help ()
 
     /**
