@@ -34,7 +34,7 @@ $path = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR;
 require $path.'exceptions.php';
 require $path.'lib'.DIRECTORY_SEPARATOR.
     'Getopt.php';
-require $path.'Options.class.php';
-require $path.'Optionally.class.php';
-require $path.'Help.class.php';
-require $path.'String.class.php';
+require $path.'Options.php';
+require $path.'Optionally.php';
+require $path.'Help.php';
+require $path.'String.php';
