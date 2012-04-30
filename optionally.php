@@ -29,10 +29,12 @@
 
 namespace org\destrealm\utilities\optionally;
 
-include dirname(__FILE__).DIRECTORY_SEPARATOR.'exceptions.php';
-include dirname(__FILE__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.
+$path = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR;
+
+require $path.'exceptions.php';
+require $path.'lib'.DIRECTORY_SEPARATOR.
     'Getopt.php';
-include dirname(__FILE__).DIRECTORY_SEPARATOR.'Options.class.php';
-include dirname(__FILE__).DIRECTORY_SEPARATOR.'Optionally.class.php';
-include dirname(__FILE__).DIRECTORY_SEPARATOR.'OptionallyHelp.class.php';
-include dirname(__FILE__).DIRECTORY_SEPARATOR.'String.class.php';
+require $path.'Options.class.php';
+require $path.'Optionally.class.php';
+require $path.'OptionallyHelp.class.php';
+require $path.'String.class.php';
