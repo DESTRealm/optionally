@@ -22,6 +22,8 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
 
     public function testBasicHelp ()
     {
+        $_SERVER['argv'] = array('./script.php');
+
         $help = new OptionallyHelp();
 
         $help->addDescription('debug', 'This option will attempt to enable
@@ -47,14 +49,19 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-            "--debug  This option will attempt to enable debugging.
-    -d\n",
+'Usage: ./script.php [options]
+
+--debug  This option will attempt to enable debugging.
+    -d
+',
             $help->help()
         );
     } // end testBasicHelp ()
 
     public function testHelpWordWrap ()
     {
+        $_SERVER['argv'] = array('./script.php');
+
         $help = new OptionallyHelp();
 
         $help->addDescription('debug', 'This option will attempt to enable
@@ -83,7 +90,9 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--debug  This option will attempt to enable debugging. Debugging mode enables
+'Usage: ./script.php [options]
+
+--debug  This option will attempt to enable debugging. Debugging mode enables
     -d   additional output that may be of some use to developers. Debugging mode
          is rather chatty and may only be of use in circumstances where the
          default output is not enough to diagnose a problem.
@@ -92,8 +101,49 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
     } // end testHelpWordWrap ()
 
+    public function testLongArgument ()
+    {
+        $_SERVER['argv'] = array('./script.php');
+
+        $help = new OptionallyHelp();
+
+        $help->addDescription('this-is-a-really-long-argument', 'This is a long
+            argument that should place this usage text on the following line.');
+
+        $help->setOptions(
+            array(
+                'this-is-a-really-long-argument' => array(
+                    'aliases' => array(),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => false,
+                    'optionalValue' => false,
+                ),
+            )
+        );
+
+        $this->assertEquals(
+'Usage: ./script.php [options]
+
+--this-is-a-really-long-argument
+    This is a long argument that should place this usage text on the following
+    line.
+',
+            $help->help()
+        );
+    } // end testLongArgument ()
+
     public function testMultipleOptions ()
     {
+        $_SERVER['argv'] = array('./script.php');
+
         $help = new OptionallyHelp();
         $help->setOptions(array());
 
@@ -155,7 +205,9 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--debug    This option will attempt to enable debugging. Debugging mode enables
+'Usage: ./script.php [options]
+
+--debug    This option will attempt to enable debugging. Debugging mode enables
     -d     additional output that may be of some use to developers. Debugging
            mode is rather chatty and may only be of use in circumstances where
            the default output is not enough to diagnose a problem.
@@ -173,6 +225,8 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
 
     public function testRequiredNamedArg ()
     {
+        $_SERVER['argv'] = array('./script.php');
+
         $help = new OptionallyHelp();
 
         $help->addDescription('config', 'Loads the configuration specified by
@@ -198,7 +252,9 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--config[=]<file>  Loads the configuration specified by <file>. <file> is
+'Usage: ./script.php [options]
+
+--config[=]<file>  Loads the configuration specified by <file>. <file> is
     -c <file>      required.
 ',
             $help->help()
@@ -207,6 +263,8 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
 
     public function testManyRequiredNamedArgs ()
     {
+        $_SERVER['argv'] = array('./script.php');
+
         $help = new OptionallyHelp();
 
         $help->addDescription('config', 'Loads the configuration specified by
@@ -248,7 +306,9 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--config[=]<file>   Loads the configuration specified by <file>. <file> is
+'Usage: ./script.php [options]
+
+--config[=]<file>   Loads the configuration specified by <file>. <file> is
     -c <file>       required.
 
 --save-to[=]<file>  Saves the generated output to the file specified by <file>.
@@ -261,6 +321,8 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
 
     public function testOptionalNamedArg ()
     {
+        $_SERVER['argv'] = array('./script.php');
+
         $help = new OptionallyHelp();
 
         $help->addDescription('config', 'Loads the configuration specified by
@@ -286,7 +348,9 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--config[=][file]  Loads the configuration specified by [file]. [file] is
+'Usage: ./script.php [options]
+
+--config[=][file]  Loads the configuration specified by [file]. [file] is
     -c [file]      optional.
 ',
             $help->help()
@@ -295,6 +359,8 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
 
     public function testManyOptionalNamedArgs ()
     {
+        $_SERVER['argv'] = array('./script.php');
+
         $help = new OptionallyHelp();
 
         $help->addDescription('config', 'Loads the configuration specified by
@@ -336,7 +402,9 @@ class OptionallyHelpTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-'--config[=][file]   Loads the configuration specified by [file]. [file] is
+'Usage: ./script.php [options]
+
+--config[=][file]   Loads the configuration specified by [file]. [file] is
     -c [file]       optional.
 
 --save-to[=][file]  Saves the generated output to the file specified by [file].
