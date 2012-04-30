@@ -181,7 +181,6 @@ class OptionallyHelp
             $buf .= $this->helpLine($key, $help);
 
             foreach ($aliases as $alias) {
-
                 if (count($help) > 0) {
                     $buf .= $this->helpLine($key, $help, $alias);
                 } else {
@@ -218,11 +217,6 @@ class OptionallyHelp
     {
         $this->options = $options;
     } // end $options ()
-
-    public function show ()
-    {
-
-    } // end show ()
 
     /**
      * Calculates the maximum length of all options. This is used to determine
@@ -349,7 +343,7 @@ class OptionallyHelp
      */
     private function parseDescription ($option)
     {
-        $arg = 'value';
+        $arg = '';
         $optional = false;
         $replacement = '';
         $matches = array();
@@ -365,38 +359,44 @@ class OptionallyHelp
             $description,
             $matches,
             PREG_SET_ORDER)) {
-            $arg = $matches[0][2];
+            if (!empty($matches[0][2]) && $arg === '') {
+                $arg = $matches[0][2];
+            }
         }
 
         if ($this->options[$option]['value']) {
             if ($this->options[$option]['optionalValue']) {
-                $replacement = '\\1['.$argName.']';
+                $replacement = '\\1['.$arg.']';
                 $optional = true;
             } else {
-                $replacement = '\\1<'.$argName.'>';
-                $arg = '<'.$argName.'>';
+                $replacement = '\\1<'.$arg.'>';
             }
         }
 
+        // Replace %@argName
         $description = preg_replace(
             '#([^%]{1})(%@([_A-Za-z0-9]+))#',
             $replacement,
             $description
         );
+
+        // Replace %@ placeholder.
         $description = preg_replace(
             '#([^%]{1})(%@)#',
             $replacement,
             $description
         );
+
+        // Replace %arg.
         $description = preg_replace(
             '#([^%]{1})(%arg)#',
             $replacement,
             $description
         );
 
-        $help['description'] = $description;
-        $help['arg'] = $arg;
-        $help['argIsOptional'] = $optional;
+        $this->help[$option]['description'] = $description;
+        $this->help[$option]['arg'] = $arg;
+        $this->help[$option]['argIsOptional'] = $optional;
 
     } // end parseDescription ()
 
@@ -427,6 +427,8 @@ class OptionallyHelp
             } else {
                 $option .= ' <'.$arg.'>';
             }
+
+            return $option;
 
         }
 
