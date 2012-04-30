@@ -11,7 +11,6 @@ namespace org\destrealm\utilities\optionally;
  */
 class OptionallyHelp
 {
-
     /**
      * Buffer between options and their associated help text, in spaces.
      * @var integer
@@ -43,6 +42,14 @@ class OptionallyHelp
     private $indentAliases = 4;
 
     /**
+     * Default indentation of word text. This is only used if the options
+     * provided each exceed the maximum length and the wrapped usage text is
+     * shifted to the following line.
+     * @var integer
+     */
+    private $indentation = 4;
+
+    /**
      * Maximum length of all options.
      * @var integer
      */
@@ -61,6 +68,28 @@ class OptionallyHelp
      * @var integer
      */
     private $overallIndent = 2;
+
+    /**
+     * Name of the currently executing script.
+     * @var string
+     */
+    private $scriptName = '';
+
+    /**
+     * Generated usage text.
+     * @var string
+     */
+    private $usage = 'Usage: %script [options]';
+
+    public function __construct ($scriptName='')
+    {
+        $this->scriptName = '';
+
+        if ($scriptName === '') {
+            $this->scriptName = $_SERVER['argv'][0];
+        }
+
+    } // end constructor
 
     /**
      * Sets the indentation used for aliases to offset them from their parent
@@ -151,10 +180,14 @@ class OptionallyHelp
         sort($keys, SORT_STRING);
         $pos = 0;
 
+        $buf .= $this->parseUsage();
+
         foreach ($keys as $option) {
             $this->parseDescription($option);
         }
 
+        // Maximum option + argument length for overall figures, including
+        // aliases.
         $this->maxLength = $this->calculateMaxLength($keys);
 
         foreach ($keys as $key) {
@@ -180,6 +213,8 @@ class OptionallyHelp
 
             $buf .= $this->helpLine($key, $help);
 
+            // Tack on the processes aliases. If we have more aliases than we
+            // do help lines, we'll just append them with their indentation.
             foreach ($aliases as $alias) {
                 if (count($help) > 0) {
                     $buf .= $this->helpLine($key, $help, $alias);
@@ -219,6 +254,24 @@ class OptionallyHelp
     } // end $options ()
 
     /**
+     * Sets the usage text for this script.
+     *
+     * ->usage('%script usage: ./%script [options] <file_to_load>
+     *
+     * Will generate at the top of the help output (assuming your script is
+     * named example-script.php):
+     *
+     * example-script.php usage: ./example-script.php [options] <file_to_load>
+     * @param  string $usage Usage text.
+     * @return Optionally Instance ($this).
+     */
+    public function setUsage ($usage)
+    {
+        $this->usage = $usage;
+    } // end setUsage ()
+
+
+    /**
      * Calculates the maximum length of all options. This is used to determine
      * exactly how much indentation is needed in effort to fit options ahead
      * of their usage text. This value is also compared against $this->cutoff to
@@ -230,34 +283,45 @@ class OptionallyHelp
         $maxLength = 0;
         foreach ($options as $option) {
 
-            $maxLength = max(
-                $maxLength,
-                strlen(
-                    $this->toOption(
-                        $option,
-                        $this->help[$option]['arg'],
-                        $this->help[$option]['argIsOptional']
-                    )
-                )
+            $option = $this->toOption(
+                $option,
+                $this->help[$option]['arg'],
+                $this->help[$option]['argIsOptional']
             );
+
+            if (strlen($option) <= $this->cutoff) {
+                $maxLength = max(
+                    $maxLength,
+                    strlen($option)
+                );
+            }
 
             if (!empty($this->options[$option]['aliases'])) {
                 foreach ($this->options[$option]['aliases'] as $alias) {
 
+                    $alias = $this->toOption(
+                        $alias,
+                        $this->help[$option]['arg'],
+                        $this->help[$option]['argIsOptional']
+                    );
+
+                    if (strlen($alias) > $this->cutoff) {
+                        continue;
+                    }
+
                     $maxLength = max(
                         $maxLength,
-                        strlen(
-                            $this->toOption(
-                                $alias,
-                                $this->help[$option]['arg'],
-                                $this->help[$option]['argIsOptional']
-                            )
-                        )
+                        strlen($alias)
                     );
 
                 }
             }
 
+        }
+
+        if ($maxLength == 0) {
+            $maxLength = $this->indentation;
+            $this->buffer = 0;
         }
 
         return $maxLength;
@@ -316,9 +380,9 @@ class OptionallyHelp
         }
 
         $option = $this->toOption($option, $arg, $optional);
+        $line = array_shift($help);
 
         if (strlen($option) <= $this->cutoff) {
-            $line = array_shift($help);
             if (($optLine = String::replaceIndent(
                     str_repeat(' ', $this->maxLength + $this->buffer),
                     str_repeat(' ', $indent).$option,
@@ -328,7 +392,7 @@ class OptionallyHelp
             }
             $buf .= $line."\n";
         } else {
-            $buf .= $option."\n";
+            $buf .= $option."\n".$line."\n";
         }
 
         return $buf;
@@ -399,6 +463,15 @@ class OptionallyHelp
         $this->help[$option]['argIsOptional'] = $optional;
 
     } // end parseDescription ()
+
+    /**
+     * Parses usage text, replacing %script with the name of the current script.
+     * @return [type] [description]
+     */
+    private function parseUsage ()
+    {
+        return str_replace('%script', $this->scriptName, $this->usage)."\n";
+    } // end parseUsage ()
 
     /**
      * Converts an option string to its full option text including any arguments
