@@ -33,10 +33,10 @@ class Optionally
 {
 
     /**
-     * Array of arguments passed in addition to our options.
+     * Processed arguments, minus the script name.
      * @var array
      */
-    private $_args = array();
+    private $args = array();
 
     /**
      * argv array passed into our script via PHP.
@@ -106,7 +106,7 @@ class Optionally
      * listed here will be used instead.
      * @var string
      */
-    private $scriptUsage = 'Usage: %script %options %args';
+    private $usage = 'Usage: %script [options]';
 
     /**
      * Factory method to create a new Optioanlly instance. Useful for method
@@ -124,7 +124,8 @@ class Optionally
      * Constructor.
      * @param array $args=array() Arguments. Pass an argv-like array of
      * arguments to override what Optionally believes it's supposed to handle.
-     * This is mostly useful for unit testing.
+     * This is mostly useful for unit testing. This must include the script name
+     * as the first argument.
      */
     public function __construct ($args=null)
     {
@@ -136,7 +137,7 @@ class Optionally
 
         $this->args = $args;
         $this->getopt = new Console_Getopt();
-        $this->help = new OptionallyHelp();
+        $this->help = new OptionallyHelp($_SERVER['argv'][0]);
     } // end constructor
 
     /**
@@ -186,6 +187,7 @@ class Optionally
     public function argv ()
     {
         $this->help->setOptions($this->options);
+        $this->help->setUsage($this->usage);
         $shortOpts = '';
         $longOpts = array();
         $optionMap = array();
@@ -473,7 +475,7 @@ class Optionally
      * values true or false will be passed into $callback depending on whether
      * or not the option was provided by the client code.
      * @param  function $callback Callback to process option.
-     * @return [type]
+     * @return Optionally Instance ($this).
      */
     public function test ($callback, $default=null)
     {
@@ -483,6 +485,26 @@ class Optionally
 
         return $this;
     } // end test ()
+
+    /**
+     * Adds usage text for the script itself, e.g.:
+     *
+     * ->usage('%script usage: ./%script [options] <file_to_load>
+     *
+     * Will generate at the top of the help output (assuming your script is
+     * named example-script.php):
+     *
+     * example-script.php usage: ./example-script.php [options] <file_to_load>
+     * @param  string $usage Usage text.
+     * @return Optionally Instance ($this).
+     */
+    public function usage ($usage)
+    {
+        $this->help->setUsage($usage);
+
+        return $this;
+    } // end usage ()
+
 
     /**
      * Indicates that an option must possess a value argument.
