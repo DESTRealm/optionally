@@ -221,11 +221,6 @@ class Optionally
 
             $optionMap[$option] = $option;
 
-            /*if (!empty($prefs['examples'])) {
-                $help->addExamples($option, $prefs['examples'],
-                    $prefs['aliases']);
-            }*/
-
             if (!empty($prefs['aliases'])) {
                 foreach ($prefs['aliases'] as $alias) {
 
