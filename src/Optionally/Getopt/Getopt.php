@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 
-namespace org\destrealm\utilities\optionally;
+namespace DESTRealm\Optionally\Getopt;
 
 /* !!! WARNING !!!
  *
@@ -28,7 +28,7 @@ namespace org\destrealm\utilities\optionally;
  * license@php.net so we can mail you a copy immediately.
  *
  * @category Console
- * @package  Console_Getopt
+ * @package  Getopt
  * @author   Andrei Zmievski <andrei@php.net>
  * @license  http://www.php.net/license/3_0.txt PHP 3.0
  * @version  CVS: $Id: Getopt.php 306067 2010-12-08 00:13:31Z dufuz $
@@ -44,7 +44,7 @@ namespace org\destrealm\utilities\optionally;
  * @license  http://www.php.net/license/3_0.txt PHP 3.0
  * @link     http://pear.php.net/package/Console_Getopt
  */
-class Console_Getopt
+class Getopt
 {
 
     /**
@@ -76,7 +76,7 @@ class Console_Getopt
      * @param array  $args          an array of command-line arguments
      * @param string $short_options specifies the list of allowed short options
      * @param array  $long_options  specifies the list of allowed long options
-     * @param boolean $skip_unknown suppresses Console_Getopt: unrecognized option
+     * @param boolean $skip_unknown suppresses Getopt: unrecognized option
      *
      * @return array two-element array containing the list of parsed options and
      * the non-option arguments
@@ -84,7 +84,7 @@ class Console_Getopt
      */
     function getopt2($args, $short_options, $long_options = null, $skip_unknown = false)
     {
-        return Console_Getopt::doGetopt(2, $args, $short_options, $long_options, $skip_unknown);
+        return Getopt::doGetopt(2, $args, $short_options, $long_options, $skip_unknown);
     }
 
     /**
@@ -101,7 +101,7 @@ class Console_Getopt
      */
     function getopt($args, $short_options, $long_options = null, $skip_unknown = false)
     {
-        return Console_Getopt::doGetopt(1, $args, $short_options, $long_options, $skip_unknown);
+        return Getopt::doGetopt(1, $args, $short_options, $long_options, $skip_unknown);
     }
 
     /**
@@ -111,7 +111,7 @@ class Console_Getopt
      * @param array  $args          an array of command-line arguments
      * @param string $short_options specifies the list of allowed short options
      * @param array  $long_options  specifies the list of allowed long options
-     * @param boolean $skip_unknown suppresses Console_Getopt: unrecognized option
+     * @param boolean $skip_unknown suppresses Getopt: unrecognized option
      *
      * @return array
      */
@@ -154,7 +154,7 @@ class Console_Getopt
                 $non_opts = array_merge($non_opts, array_slice($args, $i));
                 break;
             } elseif (strlen($arg) > 1 && $arg{1} == '-') {
-                $error = Console_Getopt::_parseLongOption(substr($arg, 2),
+                $error = Getopt::_parseLongOption(substr($arg, 2),
                                                           $long_options,
                                                           $opts,
                                                           $args,
@@ -164,7 +164,7 @@ class Console_Getopt
                 $non_opts = array_merge($non_opts, array_slice($args, $i));
                 break;
             } else {
-                $error = Console_Getopt::_parseShortOption(substr($arg, 1),
+                $error = Getopt::_parseShortOption(substr($arg, 1),
                                                            $short_options,
                                                            $opts,
                                                            $args,
@@ -182,7 +182,7 @@ class Console_Getopt
      * @param string[]   $short_options Available short options
      * @param string[][] &$opts
      * @param string[]   &$args
-     * @param boolean    $skip_unknown suppresses Console_Getopt: unrecognized option
+     * @param boolean    $skip_unknown suppresses Getopt: unrecognized option
      *
      * @access private
      * @return void
@@ -212,8 +212,8 @@ class Console_Getopt
                         $opts[] = array($opt, substr($arg, $i + 1));
                         break;
                     } else if (list(, $opt_arg) = each($args)) {
-                        if (Console_Getopt::_isShortOpt($opt_arg) ||
-                            Console_Getopt::_isLongOpt($opt_arg)) {
+                        if (Getopt::_isShortOpt($opt_arg) ||
+                            Getopt::_isLongOpt($opt_arg)) {
                             break;
                         }
                     }
@@ -225,8 +225,8 @@ class Console_Getopt
                         break;
                     } else if (list(, $opt_arg) = each($args)) {
                         /* Else use the next argument. */;
-                        if (Console_Getopt::_isShortOpt($opt_arg)
-                            || Console_Getopt::_isLongOpt($opt_arg)) {
+                        if (Getopt::_isShortOpt($opt_arg)
+                            || Getopt::_isLongOpt($opt_arg)) {
                             throw new GetoptException('Option requires argument: '.
                                 $opt, OptionallyException::REQUIRES_ARGUMENT
                             );
@@ -325,12 +325,12 @@ class Console_Getopt
                     /* Long option requires an argument.
                        Take the next argument if one wasn't specified. */;
                     if (!strlen($opt_arg) && !(list(, $opt_arg) = each($args))) {
-                        $msg = "Console_Getopt: option requires an argument --$opt";
+                        $msg = "Getopt: option requires an argument --$opt";
                         throw new GetoptException($msg);
                     }
 
-                    if (Console_Getopt::_isShortOpt($opt_arg)
-                        || Console_Getopt::_isLongOpt($opt_arg)) {
+                    if (Getopt::_isShortOpt($opt_arg)
+                        || Getopt::_isLongOpt($opt_arg)) {
                         throw new GetoptException('Option requires argument: '.
                             $opt, OptionallyException::REQUIRES_ARGUMENT
                         );
