@@ -1,6 +1,9 @@
 <?php
 
-namespace org\destrealm\utilities\optionally;
+namespace DESTRealm\Optionally;
+
+use DESTRealm\Optionally\Getopt\Getopt;
+use DESTRealm\Optionally\Exceptions\MissingArgvException;
 
 /**
  * Optionally is an Optimist- (NodeJS) like API and getopt wrapper for PHP.
@@ -46,7 +49,7 @@ class Optionally
 
     /**
      * Local PEAR Getopt reference.
-     * @var Console_Getopt
+     * @var Getopt
      */
     private $getopt = null;
 
@@ -136,7 +139,7 @@ class Optionally
         $args = array_slice($args, 1);
 
         $this->args = $args;
-        $this->getopt = new Console_Getopt();
+        $this->getopt = new Getopt();
         $this->help = new Help($_SERVER['argv'][0]);
     } // end constructor
 

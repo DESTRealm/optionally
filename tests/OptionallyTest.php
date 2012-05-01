@@ -1,6 +1,6 @@
 <?php
 
-namespace org\destrealm\utilities\optionally;
+namespace DESTRealm\Optionally;
 
 use PHPUnit_Framework_TestCase;
 
@@ -97,9 +97,9 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * This test tests a common circumstance where argv() may have been
      * forgotten.
-     * @expectedException org\destrealm\utilities\optionally\MissingArgvException
+     * @expectedException DESTRealm\Optionally\Exceptions\MissingArgvException
      * @expectedExceptionMessage Invalid option "debug." Did you forget to call argv()?
-     * @covers org\destrealm\utilities\optionally\Optionally::__get
+     * @covers DESTRealm\Optionally\Optionally::__get
      */
     public function testForgottenArgvWarning ()
     {
@@ -215,7 +215,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * Tests the creation of options that require values but have not been
      * supplied the appropriate values. Short option test.
-     * @expectedException org\destrealm\utilities\optionally\GetoptException
+     * @expectedException DESTRealm\Optionally\Exceptions\GetoptException
      */
     public function testRequiredValuesShortOptFailure ()
     {
@@ -233,7 +233,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     /**
      * Tests the creation of options that require values but have not been
      * supplied the appropriate values. Long option test.
-     * @expectedException org\destrealm\utilities\optionally\GetoptException
+     * @expectedException DESTRealm\Optionally\Exceptions\GetoptException
      */
     public function testRequiredValuesLongOptFailure ()
     {
@@ -250,7 +250,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     /**
      * Tests options required with Optionally::required().
-     * @expectedException org\destrealm\utilities\optionally\OptionsException
+     * @expectedException DESTRealm\Optionally\Exceptions\OptionsException
      * @expectedExceptionMessage Required option "f" was not provided!
      * @return [type]
      */
@@ -515,7 +515,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
 
     /**
      * Tests requiredIfNull.
-     * @expectedException org\destrealm\utilities\optionally\OptionsException
+     * @expectedException DESTRealm\Optionally\Exceptions\OptionsException
      * @return [type]
      */
     public function testRequiredIfNull ()
@@ -572,7 +572,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             ;
 
         //$this->assertTrue($instance);
-        $this->assertInstanceOf('org\destrealm\utilities\optionally\Optionally', $instance);
+        $this->assertInstanceOf('DESTRealm\Optionally\Optionally', $instance);
 
         $this->assertEquals(
             array(
@@ -617,7 +617,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
             ;
 
         //$this->assertTrue($instance);
-        $this->assertInstanceOf('org\destrealm\utilities\optionally\Optionally', $instance);
+        $this->assertInstanceOf('DESTRealm\Optionally\Optionally', $instance);
 
         $this->assertEquals(
             array(
@@ -693,7 +693,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testOptionTest ()
 
     /**
-     * @expectedException org\destrealm\utilities\optionally\OptionsValueException
+     * @expectedException DESTRealm\Optionally\Exceptions\OptionsValueException
      */
     public function testOptionTestFailure ()
     {
@@ -708,7 +708,7 @@ class OptionallyTest extends PHPUnit_Framework_TestCase
     } // end testOptionTestFailure ()
 
     /**
-     * @expectedException org\destrealm\utilities\optionally\OptionsValueException
+     * @expectedException DESTRealm\Optionally\Exceptions\OptionsValueException
      */
     public function testOptionTestFailure2 ()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace org\destrealm\utilities\optionally;
+namespace DESTRealm\Optionally;
 
 /**
  * String manipulation library for Optionally.

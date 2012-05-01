@@ -27,13 +27,17 @@
  * IN THE SOFTWARE.
  */
 
-namespace org\destrealm\utilities\optionally;
+namespace DESTRealm\Optionally;
 
-$path = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR;
+$path = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.
+    'Optionally'.DIRECTORY_SEPARATOR;
 
-require $path.'exceptions.php';
-require $path.'lib'.DIRECTORY_SEPARATOR.
-    'Getopt.php';
+require $path.'Exceptions'.DIRECTORY_SEPARATOR.'OptionallyException.php';
+require $path.'Exceptions'.DIRECTORY_SEPARATOR.'GetoptException.php';
+require $path.'Exceptions'.DIRECTORY_SEPARATOR.'MissingArgvException.php';
+require $path.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsException.php';
+require $path.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsValueException.php';
+require $path.'Getopt'.DIRECTORY_SEPARATOR.'Getopt.php';
 require $path.'Options.php';
 require $path.'Optionally.php';
 require $path.'Help.php';
