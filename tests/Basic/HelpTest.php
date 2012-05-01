@@ -1,15 +1,14 @@
 <?php
 
-namespace DESTRealm\Optionally;
+namespace DESTRealm\Optionally\Tests\Basic;
 
-use PHPUnit_Framework_TestCase;
+use DESTRealm\Optionally\Help;
+use DESTRealm\Optionally\Tests\OptionallyTestCase;
 
-error_reporting(E_ALL | E_NOTICE | E_STRICT);
-
-require_once 'optionally.php';
+//error_reporting(E_ALL | E_NOTICE | E_STRICT);
 
 // Stop PHPUnit's test reports from complaining.
-date_default_timezone_set('UTC');
+//date_default_timezone_set('UTC');
 
 /**
  * Optionally unit tests.
@@ -17,7 +16,7 @@ date_default_timezone_set('UTC');
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
-class HelpTest extends PHPUnit_Framework_TestCase
+class HelpTest extends OptionallyTestCase
 {
 
     public function testBasicHelp ()
