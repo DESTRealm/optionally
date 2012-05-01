@@ -30,7 +30,7 @@
 namespace DESTRealm\Optionally;
 
 $path = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.
-    'Optionally'.DIRECTORY_SEPARATOR;
+    'DESTRealm'.DIRECTORY_SEPARATOR.'Optionally'.DIRECTORY_SEPARATOR;
 
 require $path.'Exceptions'.DIRECTORY_SEPARATOR.'OptionallyException.php';
 require $path.'Exceptions'.DIRECTORY_SEPARATOR.'GetoptException.php';
