@@ -2,6 +2,9 @@
 
 namespace DESTRealm\Optionally;
 
+use DESTRealm\Optionally\Exceptions\OptionsException;
+use DESTRealm\Optionally\Exceptions\OptionsValueException;
+
 /**
  * Options container class.
  *

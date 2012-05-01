@@ -3,6 +3,9 @@
 
 namespace DESTRealm\Optionally\Getopt;
 
+use DESTRealm\Optionally\Exceptions\OptionallyException;
+use DESTRealm\Optionally\Exceptions\GetoptException;
+
 /* !!! WARNING !!!
  *
  * This file has been modified from its original version. PEAR dependencies have
