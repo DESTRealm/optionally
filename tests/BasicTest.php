@@ -2,11 +2,10 @@
 
 namespace DESTRealm\Optionally\Tests;
 
-use DESTRealm\Optionally\Tests\OptionallyTestCase;
-
-require 'autoload.php';
-
-class BasicTest extends OptionallyTestCase
+class BasicTest extends \PHPUnit_Framework_TestCase
 {
-
+    public function setUp ()
+    {
+        require 'autoload.php';
+    } // end setUp ()
 } // end BasicTest

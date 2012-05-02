@@ -1,9 +1,9 @@
 <?php
 
-namespace DESTRealm\Optionally\Tests\Basic;
+namespace DESTRealm\Optionally\Tests\NoAutoload;
 
 use DESTRealm\Optionally\Help;
-use DESTRealm\Optionally\Tests\BasicTest;
+use DESTRealm\Optionally\Tests\NoAutoloadTestCase;
 
 //error_reporting(E_ALL | E_NOTICE | E_STRICT);
 
@@ -16,7 +16,7 @@ use DESTRealm\Optionally\Tests\BasicTest;
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
-class HelpTest extends BasicTest
+class HelpTest extends NoAutoloadTestCase
 {
 
     public function testBasicHelp ()

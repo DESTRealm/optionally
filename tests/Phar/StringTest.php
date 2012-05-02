@@ -1,9 +1,9 @@
 <?php
 
-namespace DESTRealm\Optionally\Tests\Basic;
+namespace DESTRealm\Optionally\Tests\Phar;
 
 use DESTRealm\Optionally\String;
-use DESTRealm\Optionally\Tests\BasicTest;
+use DESTRealm\Optionally\Tests\PharTestCase;
 
 // Stop PHPUnit's test reports from complaining.
 //date_default_timezone_set('UTC');
@@ -14,7 +14,7 @@ use DESTRealm\Optionally\Tests\BasicTest;
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
-class StringTest extends BasicTest
+class StringTest extends PharTestCase
 {
 
     public function testIndent ()
@@ -32,7 +32,7 @@ class StringTest extends BasicTest
 
     public function testReplaceIndent ()
     {
-        $string = 
+        $string =
 '        Oh, indented text,
         I have to replace your space,
         other random cruft.';
@@ -49,7 +49,7 @@ class StringTest extends BasicTest
 
     public function testBasicStringWrap ()
     {
-        $string = 
+        $string =
             'This string should wrap at or before the 80th column. At this point, a forced new line should appear.';
 
         $this->assertEquals(
@@ -57,7 +57,7 @@ class StringTest extends BasicTest
             String::wrap($string)
         );
 
-        $string = 
+        $string =
             'This string should wrap at or before the 80th column. At this point, a forced-new line should appear.';
 
         $this->assertEquals(
