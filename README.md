@@ -77,7 +77,7 @@ use.
 
 Finally, the latter method involves loading Optionally from a `.phar`. If you're
 just interested in using Optionally or seeking to use a less error-prone method,
-this is the simplest and the recommended method of including it in your project:
+this is the simplest and recommended method of including it in your project:
 
 ```php
 <?php
@@ -97,10 +97,11 @@ some point in the near future
 ## Basic Usage
 
 First, a little warning: Every example in this guide assumes that Optionally has
-already been included using one of the three methods above. Which method you
-choose doesn't matter; you won't see these examples again, but that doesn't mean
-they're not needed, and the code will function identically regardless of which
-method you've chosen.
+been included in your project using one of the three methods above. Which method
+you choose doesn't matter; they'll each work the same and apply in precisely the
+same manner to all of the examples below. However, you won't see any code to
+include optionally from this point forward--it's assumed you've figured that
+part out!
 
 To get started, tell Optionally you'd like to handle your command line arguments
 (we'll deal with options later):
@@ -566,7 +567,7 @@ They're easier to maintain and much less frustrating for your users.
 
 Optionally is an Optimist- (NodeJS) like API and getopt wrapper for PHP.
 Although Optionally isn't a direct decendent of Optimist for reasons mostly
-related to quirks in both PHP and its author, it does adhere to many of the
+related to quirks in both its author and in PHP, it does adhere to many of the
 same principles first introduced in popular usage by Optimist for handling
 command line arguments.
 
