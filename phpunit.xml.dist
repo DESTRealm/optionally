@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    bootstrap="./tests/bootstrap.php"
+    colors="true"
+    processIsolation="true"
+    stopOnFailure="false"
+    syntaxCheck="false"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader">
+
+    <testsuites>
+        <testsuite name="Basic Installation/Autoload (source install)">
+            <directory>./tests/Basic</directory>
+        </testsuite>
+        <testsuite name="Phar and Phar-autoloader (recommended)">
+            <directory>./tests/Phar</directory>
+        </testsuite>
+        <testsuite name="No-autoload, direct inclusion (classic)">
+            <directory>./tests/NoAutoload</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <blacklist>
+        </blacklist>
+    </filter>
+
+</phpunit>
