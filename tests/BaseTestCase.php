@@ -7,7 +7,7 @@ use DESTRealm\Optionally\Optionally;
 /**
  * Master test case class for Optionally tests.
  */
-abstract class OptionallyTestCase extends \PHPUnit_Framework_TestCase
+abstract class BaseTestCase extends \PHPUnit_Framework_TestCase
 {
 
-} // end OptionallyTestCase
+} // end BaseTestCase

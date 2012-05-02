@@ -1,9 +1,9 @@
 <?php
 
-namespace DESTRealm\Optionally\Tests\Basic;
+namespace DESTRealm\Optionally\Tests\Common;
 
 use DESTRealm\Optionally\String;
-use DESTRealm\Optionally\Tests\BasicTest;
+use DESTRealm\Optionally\Tests\BaseTestCase;
 
 // Stop PHPUnit's test reports from complaining.
 //date_default_timezone_set('UTC');
@@ -14,7 +14,7 @@ use DESTRealm\Optionally\Tests\BasicTest;
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
-class StringTest extends BasicTest
+class StringTestCase extends BaseTestCase
 {
 
     public function testIndent ()
@@ -136,4 +136,4 @@ testing.',
 
     } // end testNormalizeWrap ()
 
-} // end StringTest
+} // end StringTestCase

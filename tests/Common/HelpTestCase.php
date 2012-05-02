@@ -1,9 +1,9 @@
 <?php
 
-namespace DESTRealm\Optionally\Tests\Basic;
+namespace DESTRealm\Optionally\Tests\Common;
 
 use DESTRealm\Optionally\Help;
-use DESTRealm\Optionally\Tests\BasicTest;
+use DESTRealm\Optionally\Tests\BaseTestCase;
 
 //error_reporting(E_ALL | E_NOTICE | E_STRICT);
 
@@ -16,7 +16,7 @@ use DESTRealm\Optionally\Tests\BasicTest;
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
-class HelpTest extends BasicTest
+class HelpTestCase extends BaseTestCase
 {
 
     public function testBasicHelp ()
@@ -413,5 +413,5 @@ class HelpTest extends BasicTest
             $help->help());
 
     } // end testManyOptionalNamedArgs ()
-} // end HelpTest
+} // end HelpTestCase
 
