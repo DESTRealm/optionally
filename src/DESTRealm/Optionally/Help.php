@@ -83,12 +83,11 @@ class Help
 
     public function __construct ($scriptName='')
     {
-        $this->scriptName = '';
-
         if ($scriptName === '') {
             $this->scriptName = $_SERVER['argv'][0];
+        } else {
+            $this->scriptName = $scriptName;
         }
-
     } // end constructor
 
     /**

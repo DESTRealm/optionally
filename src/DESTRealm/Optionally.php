@@ -138,11 +138,12 @@ class Optionally
             $args = $_SERVER['argv'];
         }
 
-        $args = array_slice($args, 1);
+        $scriptName = array_shift($args);
+        //$args = array_slice($args, 1);
 
         $this->args = $args;
         $this->getopt = new Getopt();
-        $this->help = new Help($_SERVER['argv'][0]);
+        $this->help = new Help($scriptName);
     } // end constructor
 
     /**
