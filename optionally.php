@@ -30,15 +30,15 @@
 namespace DESTRealm\Optionally;
 
 $path = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.
-    'DESTRealm'.DIRECTORY_SEPARATOR.'Optionally'.DIRECTORY_SEPARATOR;
+    'DESTRealm'.DIRECTORY_SEPARATOR; //.'Optionally'.DIRECTORY_SEPARATOR;
 
-require $path.'Exceptions'.DIRECTORY_SEPARATOR.'OptionallyException.php';
-require $path.'Exceptions'.DIRECTORY_SEPARATOR.'GetoptException.php';
-require $path.'Exceptions'.DIRECTORY_SEPARATOR.'MissingArgvException.php';
-require $path.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsException.php';
-require $path.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsValueException.php';
-require $path.'Getopt'.DIRECTORY_SEPARATOR.'Getopt.php';
-require $path.'Options.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.'OptionallyException.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.'GetoptException.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.'MissingArgvException.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsException.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsValueException.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Getopt'.DIRECTORY_SEPARATOR.'Getopt.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Options.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'Help.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'String.php';
 require $path.'Optionally.php';
-require $path.'Help.php';
-require $path.'String.php';

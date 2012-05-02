@@ -1,9 +1,11 @@
 <?php
 
-namespace DESTRealm\Optionally;
+namespace DESTRealm;
 
 use DESTRealm\Optionally\Getopt\Getopt;
 use DESTRealm\Optionally\Exceptions\MissingArgvException;
+use DESTRealm\Optionally\Help;
+use DESTRealm\Optionally\Options;
 
 /**
  * Optionally is an Optimist- (NodeJS) like API and getopt wrapper for PHP.
