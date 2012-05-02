@@ -9,5 +9,6 @@ class HelpTest extends HelpTestCase
     public function setUp ()
     {
         require 'autoload.php';
+        \DESTRealm\Optionally\Autoloader::load();
     } // end setUp ()
 } // end HelpTest ()

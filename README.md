@@ -23,23 +23,87 @@ Writing useful code.
 Optionally greatly simplifies the chore of handling command line arguments and
 streamlines the process of writing shell scripts in PHP. You'll see why.
 
-## Basic Usage
+## Installation
 
-Using Optionally is trivial. First, simply copy (or clone) the repository into a
-handy spot (like "lib") and include it:
+Installing Optionally is trivial, and it's entirely up to you how to go about
+it. Soon, Optionally will be available via Packagist, but in the interim you
+can go about it by simply cloning the repo into a handy spot:
 
-```php
-require_once 'lib/optionally.php';
-
-use org\destrealm\utilities\optionally\Optionally;
+```
+git clone https://github.com/DESTRealm/optionally.git vendor/optionally
 ```
 
-For every example in this guide, we'll assume that these two lines of code
-already exist; you won't see them again, but that doesn't mean they're not
-needed.
+## Including Optionally
 
-Next, tell Optionally you'd like to handle your command line arguments (we'll
-deal with options later):
+Optionally is easy to use, but you must first decide how you want to include it
+as part of your project. Currently, there's three different ways to make
+Optionally a useful part of your toolset (all examples assume that you've
+cloned Optionally into the `vendor` subdirectory within your project):
+
+### No Autoloader, Classical Use
+
+This is the method most of you will be familiar with if you haven't delved into
+the world of Phing or Phars. To load Optionally without an autoloader, all you
+have to do is simply include the `optionally.php` file at the top level of the
+distribution, and go about your business:
+
+```php
+<?php
+require 'vendor/optionally/optionally.php';
+
+use DESTRealm\Optionally;
+```
+
+### Optionally with Autoloader from Sources
+
+This method is better for more advanced users, but it's also helpful since
+you'll have complete access to the Optionally sources. This uses [jwage's
+SplClassLoader](https://gist.github.com/221634) with contributions from several
+other individuals, and will take care of automatically loading the appropriate
+classes for you:
+
+```php
+<?php
+require 'vendor/optionally/autoload.php';
+DESTRealm\Optionally\Autoloader::load();
+
+use DESTRealm\Optionally;
+```
+
+Once Optionally is pushed to Packagist, this might be the method you'll need to
+use.
+
+### Optionally Loaded from a Phar
+
+Finally, the latter method involves loading Optionally from a `.phar`. If you're
+just interested in using Optionally or seeking to use a less error-prone method,
+this is the simplest and the recommended method of including it in your project:
+
+```php
+<?php
+require 'optionally.phar';
+
+use DESTRealm\Optionally;
+```
+
+Of course, you'll need to have `phar` support enabled in your PHP installation.
+This can usually be toggled in your `php.ini` by adding `extension=phar.so`
+depending on your distribution, how PHP was built, and whether you've installed
+it from sources.
+
+Currently, no `.phar`s are available, but I'll be posting a download link at
+some point in the near future
+
+## Basic Usage
+
+First, a little warning: Every example in this guide assumes that Optionally has
+already been included using one of the three methods above. Which method you
+choose doesn't matter; you won't see these examples again, but that doesn't mean
+they're not needed, and the code will function identically regardless of which
+method you've chosen.
+
+To get started, tell Optionally you'd like to handle your command line arguments
+(we'll deal with options later):
 
 ```php
 $options = Optionally::options()

@@ -2,7 +2,7 @@
 
 namespace DESTRealm\Optionally\Tests\Common;
 
-use DESTRealm\Optionally\Optionally;
+use DESTRealm\Optionally;
 use DESTRealm\Optionally\Tests\BaseTestCase;
 
 // Stop PHPUnit's test reports from complaining.
@@ -10,7 +10,7 @@ use DESTRealm\Optionally\Tests\BaseTestCase;
 
 /**
  * Optionally unit tests.
- * 
+ *
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
@@ -98,7 +98,7 @@ class OptionallyTestCase extends BaseTestCase
      * forgotten.
      * @expectedException DESTRealm\Optionally\Exceptions\MissingArgvException
      * @expectedExceptionMessage Invalid option "debug." Did you forget to call argv()?
-     * @covers DESTRealm\Optionally\Optionally::__get
+     * @covers DESTRealm\Optionally::__get
      */
     public function testForgottenArgvWarning ()
     {
@@ -355,7 +355,7 @@ class OptionallyTestCase extends BaseTestCase
     public function testAliases ()
     {
 
-        $options = Optionally::options(array('test.php', 
+        $options = Optionally::options(array('test.php',
             '--debug', '-o', '-v'
         ))
             ->option('debug')
@@ -571,7 +571,7 @@ class OptionallyTestCase extends BaseTestCase
             ;
 
         //$this->assertTrue($instance);
-        $this->assertInstanceOf('DESTRealm\Optionally\Optionally', $instance);
+        $this->assertInstanceOf('DESTRealm\Optionally', $instance);
 
         $this->assertEquals(
             array(
@@ -616,7 +616,7 @@ class OptionallyTestCase extends BaseTestCase
             ;
 
         //$this->assertTrue($instance);
-        $this->assertInstanceOf('DESTRealm\Optionally\Optionally', $instance);
+        $this->assertInstanceOf('DESTRealm\Optionally', $instance);
 
         $this->assertEquals(
             array(
