@@ -519,6 +519,7 @@ class Optionally
         if ($value !== null) {
             $option['defaults'] = $value;
             $option['ifMissing'] = $value;
+            $option['optionalValue'] = true;
         }
 
         $this->fireCallback('value');
