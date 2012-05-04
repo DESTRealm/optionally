@@ -173,14 +173,6 @@ class Optionally
         $option =& $this->getLastOption();
         $option['aliases'][] = $alias;
 
-        $mangled = $this->mangle($alias);
-        if (!empty($mangled)) {
-            $option['aliases'] = array_merge(
-                $option['aliases'],
-                $mangled
-            );
-        }
-
         $this->fireCallback('alias');
 
         return $this;
@@ -194,6 +186,7 @@ class Optionally
     {
         $this->help->setOptions($this->options);
         $this->help->setUsage($this->usage);
+        $this->mangle();
         $shortOpts = '';
         $longOpts = array();
         $optionMap = array();
@@ -403,14 +396,6 @@ class Optionally
             $this->options[ $option ] = array_merge($this->optionTemplate, $settings);
         }
 
-        $mangled = $this->mangle($option);
-        if (!empty($mangled)) {
-            $this->options[$option]['aliases'] = array_merge(
-                $this->options[$option]['aliases'],
-                $mangled
-            );
-        }
-
         return $this;
     } // end option ()
 
@@ -606,7 +591,28 @@ class Optionally
      * @param  string $option Option.
      * @return string Mangled option.
      */
-    private function mangle ($option)
+    private function mangle ()
+    {
+        foreach ($this->options as $option => $value) {
+
+            $extraAliases = array();
+            if (!empty($value['aliases'])) {
+                foreach ($value['aliases'] as $alias) {
+                    $extraAliases = array_merge($extraAliases,
+                        $this->mangleOption($alias));
+                }
+            }
+
+            $extraAliases = array_merge($extraAliases,
+                $this->mangleOption($option));
+
+            $this->options[$option]['aliases'] = array_merge(
+                $this->options[$option]['aliases'],
+                $extraAliases);
+        }
+    } // end mangle ()
+
+    private function mangleOption ($option)
     {
         $aliases = array();
         if (strpos($option, '-') !== false) {
@@ -619,6 +625,6 @@ class Optionally
         }
 
         return $aliases;
-    } // end mangle ()
+    } // end mangleOption ()
 
 } // end Optionally
