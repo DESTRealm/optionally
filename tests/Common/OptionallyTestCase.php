@@ -120,7 +120,7 @@ class OptionallyTestCase extends BaseTestCase
      */
     public function testCreateOption ()
     {
-        $options = Optionally::options(array('test.php', '-c', 'file', '--file', 'test.txt', 'arg1'))
+        $options = Optionally::options(array('test.php', '--file', '-c', 'file', 'test.txt', 'arg1'))
             ->option('c')
                 ->required()
                 ->describe('Loads a config file.')
@@ -188,6 +188,7 @@ class OptionallyTestCase extends BaseTestCase
 
         $this->assertTrue($options->debug);
         $this->assertFalse($options->disable_fleece);
+        $this->assertFalse($options->disableFleece);
         $this->assertEquals('file', $options->c);
         $this->assertEquals('arg0', $args[0]);
     } // end testBoolean ()
