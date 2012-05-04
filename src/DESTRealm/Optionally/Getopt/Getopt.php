@@ -353,14 +353,6 @@ class Getopt
                         }
                     }
                     break;
-/*                    if (list(,$opt_arg) = each($args)) {
-                        if (Getopt::_isShortOpt($opt_arg) ||
-                            Getopt::_isLongOpt($opt_arg)) { print 'asdf';
-                            $opts[] = array('--'.$opt, null);
-                        } else {
-                            //$opts[] = array('--'.$opt, $opt_arg);
-                        }
-                    }*/
                 }
             } else if ($opt_arg) {
                 throw new GetoptException('Argument not allowed: '.$opt_arg,
