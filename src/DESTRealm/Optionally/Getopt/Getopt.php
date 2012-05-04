@@ -217,6 +217,8 @@ class Getopt
                     } else if (list(, $opt_arg) = each($args)) {
                         if (Getopt::_isShortOpt($opt_arg) ||
                             Getopt::_isLongOpt($opt_arg)) {
+                            $opts[] = array($opt, null);
+                            prev($args);
                             break;
                         }
                     }
@@ -338,6 +340,27 @@ class Getopt
                             $opt, OptionallyException::REQUIRES_ARGUMENT
                         );
                     }
+                } else {
+                    if (Getopt::_isShortOpt(current($args)) ||
+                        Getopt::_isLongOpt(current($args))) {
+                        $opts[] = array('--'.$opt, $opt_arg);
+                    } else {
+                        if ($opt_arg === null) {
+                            $opts[] = array('--'.$opt, current($args));
+                            next($args);
+                        } else {
+                            $opts[] = array('--'.$opt, $opt_arg);
+                        }
+                    }
+                    break;
+/*                    if (list(,$opt_arg) = each($args)) {
+                        if (Getopt::_isShortOpt($opt_arg) ||
+                            Getopt::_isLongOpt($opt_arg)) { print 'asdf';
+                            $opts[] = array('--'.$opt, null);
+                        } else {
+                            //$opts[] = array('--'.$opt, $opt_arg);
+                        }
+                    }*/
                 }
             } else if ($opt_arg) {
                 throw new GetoptException('Argument not allowed: '.$opt_arg,
