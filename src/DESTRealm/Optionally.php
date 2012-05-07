@@ -94,9 +94,10 @@ class Optionally
         'defaults' => null,     /* Option default value(s). */
         'examples' => null,     /* Usage example(s). */
         'ifMissing' => null,    /* Default value if the option is missing. */
-        'value' => false,       /* Value is required. */
-        'optionalValue' => false,   /* Value is optional. */
+        'optionalValue' => true,   /* Value is optional. */
         'argName' => '',        /* Argument name; used for help text. */
+        'isArray' => false,     /* Treat option value as an array. */
+        'isCountable' => false, /* Treat the option as a countable option. */
     );
 
     /**
@@ -217,6 +218,8 @@ class Optionally
             $this->help
         );
 
+        return;
+
         /**
          * Appends the appropriate suffix to either $shortOpts or $longOpts.
          */
@@ -291,6 +294,10 @@ class Optionally
     {
         $option =& $this->getLastOption();
         $option['boolean'] = true;
+
+        // Values won't be possible to specify, but we want to make sure that
+        // the value can't be forcibly required.
+        $option['optionalValue'] = true;
 
         // Boolean options cannot be required options.
         $option['required'] = false;
@@ -399,6 +406,71 @@ class Optionally
     } // end examples ()
 
     /**
+     * Treats the current option as an array. If this is specified, additional
+     * calls to the defined option will result in its value being appended to
+     * previous calls in an array whereas a single call will return a scalar
+     * value. For example, if an option "add-filter" is defined and it is used
+     * once:
+     *
+     * --add-filter=test
+     *
+     * Will return "test" as its value. However:
+     *
+     * --add-filter=one, --add-filter=two, --add-filter=three
+     *
+     * Will return array('one', 'two', 'three') as its value.
+     *
+     * If this is not specified and the option is called multiple times, only
+     * the last value is retained.
+     * @return Optionally Instance ($this).
+     */
+    public function isArray ()
+    {
+        $option =& $this->getLastOption();
+        $option['isArray'] = true;
+
+        $this->fireCallback('isArray');
+
+        return $this;
+    } // end isArray ()
+
+    /**
+     * Specifies that the current option is a countable option. Countable
+     * options have no value when specified on the command line but can be
+     * specified more than once. Their value indicates how many times they
+     * appeared; if the option doesn't appear, its value defaults to 0. For
+     * instance, some applications might flag "--verbose" or "-v" as a countable
+     * option. In this case:
+     *
+     * -v -v
+     *
+     * Would return 2 while:
+     *
+     * -v
+     *
+     * Would return 1.
+     * @return Optionally Instance ($this).
+     */
+    public function isCountable ()
+    {
+        $option =& $this->getLastOption();
+        $option['isCountable'] = true;
+
+        $this->fireCallback('isCountable');
+
+        return $this;
+    } // end isCountable ()
+
+    /**
+     * Alias of Optionally::isCountable.
+     * @return Optionally Instance ($this).
+     */
+    public function countable ()
+    {
+        return $this->isCountable();
+    } // end countable ()
+
+    /**
      * Creates an option. Options may not include a leading dash (-) or trailing
      * getopt suffixes (":" or "=") and must be comprised of a single character
      * or string.
@@ -441,6 +513,9 @@ class Optionally
     {
         $option =& $this->getLastOption();
         $option['optionalValue'] = true;
+
+        // Values that are optional can't be boolean.
+        $option['boolean'] = false;
 
         $this->fireCallback('optional');
 
@@ -502,10 +577,19 @@ class Optionally
     {
         $option =& $this->getLastOption();
         $option['filter'] = $callback;
-        $option['filterFailure'] = $default;
+        $option['filterValue'] = $default;
 
         return $this;
     } // end test ()
+
+    /**
+     * Alias for Optionally::test().
+     * @see  Optionally::test()
+     */
+    public function filter ($callback, $default=null)
+    {
+        return $this->test($callback, $default);
+    } // end filter ()
 
     /**
      * Adds usage text for the script itself, e.g.:
@@ -534,12 +618,16 @@ class Optionally
     public function value ($value=null)
     {
         $option =& $this->getLastOption();
-        $option['value'] = true;
+
+        // Value options can't be boolean.
+        $option['boolean'] = false;
 
         if ($value !== null) {
             $option['defaults'] = $value;
             $option['ifMissing'] = $value;
             $option['optionalValue'] = true;
+        } else {
+            $option['optionalValue'] = false;
         }
 
         $this->fireCallback('value');
