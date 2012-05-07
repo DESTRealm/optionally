@@ -27,27 +27,27 @@ class OptionBuilder
 
     public static function buildOptions ($args, $options, $map, $help)
     {
-        $builder = new self($args, $options, $map);
-        $options = $builder->build();
+        $builder = new self($options, $map);
+        $options = $builder->build($args);
 
-        return new Options($options, $args, $help);
+        return new Options($options, $builder->getArgs(), $help);
     } // end buildOptions ()
 
-    private function __construct ($args, $options, $map)
+    private function __construct ($options, $map)
     {
-        $this->args = $args;
         $this->getopt = new Getopt();
-        //$this->help = $help;
         $this->options = $options;
         $this->optionMap = $map;
     } // end constructor
 
-    public function build ()
+    public function build ($args)
     {
-        $getopt = $this->parseOptions();
+        $getopt = $this->parseOptions($args);
 
         $args = $getopt[1];
         $options = $getopt[0];
+
+        $this->args = $args;
 
         $parsedOptions = $this->assignValues(
             $options,
@@ -57,6 +57,8 @@ class OptionBuilder
         return $this->buildAliases($this->evaluateOptions($parsedOptions));
 
     } // end build ()
+
+    public function getArgs () { return $this->args; }
 
     /**
      * Accepts the output from Getopt and assigns values accordingly. Values
@@ -354,7 +356,7 @@ class OptionBuilder
         return array($name, $underscoreAlias, $camelCaseAlias);
     } // end mangle ()
 
-    private function parseOptions ()
+    private function parseOptions ($args)
     {
         $shortOpts = '';
         $longOpts = array();
@@ -378,7 +380,7 @@ class OptionBuilder
         }
 
         return $this->getopt->getopt2(
-            $this->args,
+            $args,
             $shortOpts,
             $longOpts,
             true

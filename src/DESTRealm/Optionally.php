@@ -164,12 +164,12 @@ class Optionally
      */
     public function __get ($value)
     {
-        /*if (!method_exists($this, $value) && !property_exists($this, $value)) {
+        if (!method_exists($this, $value) && !property_exists($this, $value)) {
             throw new MissingArgvException(
                 sprintf('Invalid option "%s." Did you forget to call argv()?',
                     $value)
             );
-        }*/
+        }
     } // end __get ()
 
     /**
