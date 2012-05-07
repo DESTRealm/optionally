@@ -38,6 +38,7 @@ require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.
 require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsException.php';
 require $path.'Optionally'.DIRECTORY_SEPARATOR.'Exceptions'.DIRECTORY_SEPARATOR.'OptionsValueException.php';
 require $path.'Optionally'.DIRECTORY_SEPARATOR.'Getopt'.DIRECTORY_SEPARATOR.'Getopt.php';
+require $path.'Optionally'.DIRECTORY_SEPARATOR.'OptionBuilder.php';
 require $path.'Optionally'.DIRECTORY_SEPARATOR.'Options.php';
 require $path.'Optionally'.DIRECTORY_SEPARATOR.'Help.php';
 require $path.'Optionally'.DIRECTORY_SEPARATOR.'String.php';
