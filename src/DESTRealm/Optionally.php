@@ -5,6 +5,7 @@ namespace DESTRealm;
 use DESTRealm\Optionally\Getopt\Getopt;
 use DESTRealm\Optionally\Exceptions\MissingArgvException;
 use DESTRealm\Optionally\Help;
+use DESTRealm\Optionally\OptionBuilder;
 use DESTRealm\Optionally\Options;
 
 /**
@@ -162,12 +163,12 @@ class Optionally
      */
     public function __get ($value)
     {
-        if (!method_exists($this, $value) && !property_exists($this, $value)) {
+        /*if (!method_exists($this, $value) && !property_exists($this, $value)) {
             throw new MissingArgvException(
                 sprintf('Invalid option "%s." Did you forget to call argv()?',
                     $value)
             );
-        }
+        }*/
     } // end __get ()
 
     /**
@@ -208,6 +209,13 @@ class Optionally
         $longOpts = array();
 
         $this->fireCallback('pre');
+
+        OptionBuilder::buildOptions(
+            $this->args,
+            $this->options,
+            $this->optionMap,
+            $this->help
+        );
 
         /**
          * Appends the appropriate suffix to either $shortOpts or $longOpts.
