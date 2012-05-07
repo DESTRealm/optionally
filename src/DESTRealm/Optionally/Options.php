@@ -39,7 +39,7 @@ class Options
      * Parsed options.
      * @var array
      */
-    private $_options = array();
+    private $options = array();
 
     /**
      * Arguments; this is anything that wasn't captured by an option.
@@ -72,7 +72,7 @@ class Options
     public function __construct ($options, $settings, $optionMap, $help)
     {
         $this->optionMap = $optionMap;
-        $this->_options = $this->parseOptions($options[0], $settings);
+        $this->options = $this->parseOptions($options[0], $settings);
 
         foreach ($optionMap as $option => $master) {
 
@@ -80,8 +80,8 @@ class Options
 
             // Handle requiredIfNull option. Throws an exception.
             if (!empty($settings[$master]['ifNull']) &&
-                !array_key_exists($settings[$master]['ifNull'], $this->_options) &&
-                !array_key_exists($option, $this->_options)) {
+                !array_key_exists($settings[$master]['ifNull'], $this->options) &&
+                !array_key_exists($option, $this->options)) {
                 throw new OptionsException(
                     sprintf('The option %s is required if %s was not specified.',
                         $option, $settings[$master]['ifNull'])
@@ -89,38 +89,38 @@ class Options
             }
 
             // Handle boolean false if a boolean option is missing.
-            if (!array_key_exists($option, $this->_options) &&
+            if (!array_key_exists($option, $this->options) &&
                 $settings[$master]['boolean'] === true) {
                 foreach ($settings[$option]['aliases'] as $alias) {
-                    $this->_options[$alias] = false;
+                    $this->options[$alias] = false;
                 }
-                $this->_options[$master] = false;
+                $this->options[$master] = false;
             }
 
             // Handle default values assignment if the option has an optional
             // value but none was passed.
-            if (array_key_exists($option, $this->_options) &&
+            if (array_key_exists($option, $this->options) &&
                 $settings[$master]['ifMissing'] === null &&
                 $settings[$master]['value'] &&
                 $settings[$master]['optionalValue'] &&
                 $settings[$master]['defaults'] !== null) {
                 foreach ($settings[$master]['aliases'] as $alias) {
-                    $this->_options[$alias] = $settings[$master]['defaults'];
+                    $this->options[$alias] = $settings[$master]['defaults'];
                 }
-                $this->_options[$master] = $settings[$master]['defaults'];
+                $this->options[$master] = $settings[$master]['defaults'];
             }
 
             // Handle ifMissing value assignment.
-            if (!array_key_exists($option, $this->_options) &&
+            if (!array_key_exists($option, $this->options) &&
                 $settings[$master]['ifMissing'] !== null) {
                 foreach ($settings[$option]['aliases'] as $alias) {
-                    $this->_options[$alias] = $settings[$master]['ifMissing'];
+                    $this->options[$alias] = $settings[$master]['ifMissing'];
                 }
-                $this->_options[$master] = $settings[$master]['ifMissing'];
+                $this->options[$master] = $settings[$master]['ifMissing'];
             }
 
             // Test required arguments.
-            if (!array_key_exists($option, $this->_options) &&
+            if (!array_key_exists($option, $this->options) &&
                 $settings[$master]['required'] === true) {
                 throw new OptionsException(
                     sprintf('Required option "%s" was not provided!', $option)
@@ -135,11 +135,11 @@ class Options
                 if (!$filter && $settings[$master]['filterFailure'] === null) {
                     throw new OptionsValueException(
                         sprintf('Value "%s" mismatch for option "%s".',
-                            (string)$this->_options[$option], $option)
+                            (string)$this->options[$option], $option)
                     );
                 } else if (!$filter &&
                     $settings[$master]['filterFailure'] !== null) {
-                    $this->_options[$master] =
+                    $this->options[$master] =
                         $settings[$master]['filterFailure'];
                 }
 
@@ -186,20 +186,24 @@ class Options
      */
     public function getOption ($option)
     {
-        if (array_key_exists($option, $this->_options)) {
+        if (array_key_exists($option, $this->options)) {
 
-            return $this->_options[$option];
+            return $this->options[$option];
 
         } else if (array_key_exists($option, $this->optionMap) &&
-            array_key_exists($this->optionMap[$option], $this->_options)) {
+            array_key_exists($this->optionMap[$option], $this->options)) {
 
-            return $this->_options[ $this->optionMap[$option] ];
+            return $this->options[ $this->optionMap[$option] ];
 
         }
 
         return null;
     } // end getOption ()
 
+    /**
+     * Generate help text.
+     * @return string Returns the generated help text for all defined options.
+     */
     public function help ()
     {
         return $this->help->help();
