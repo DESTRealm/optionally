@@ -54,8 +54,14 @@ class Options
     private $help = null;
 
     /**
+     * Option map. This maps options and their aliases to a master option.
+     * @var array
+     */
+    private $optionMap = array();
+
+    /**
      * Constructor.
-     * @param array $options   Options processed by Console_Getopt.
+     * @param array $options   Options processed by Getopt.
      * @param array $settings  Option settings defined by Optionally::option and
      * friends.
      * @param array $optionMap Option map mapping options and their aliases to
@@ -65,7 +71,8 @@ class Options
      */
     public function __construct ($options, $settings, $optionMap, $help)
     {
-        $this->_options = $this->parseOptions($options[0], $settings, $optionMap);
+        $this->optionMap = $optionMap;
+        $this->_options = $this->parseOptions($options[0], $settings);
 
         foreach ($optionMap as $option => $master) {
 
@@ -149,17 +156,12 @@ class Options
 
     /**
      * Getter override.
-     * @param  string $value Property to get.
+     * @param  string $option Property to get.
      * @return mixed Retrieves the value of the property defiend by $value.
      */
-    public function __get ($value)
+    public function __get ($option)
     {
-        // Bail early if the option cache exists for this entry.
-        if (array_key_exists($value, $this->_options)) {
-            return $this->_options[$value];
-        }
-
-        return null;
+        return $this->getOption($option);
     } // end __get ()
 
     /**
@@ -174,6 +176,37 @@ class Options
         return array_key_exists($offset, $this->_args) ? $this->_args[ $offset ] : null;
     } // end args ()
 
+    /**
+     * Returns an option $option if it was provided on the command line or
+     * NULL if the option was not specified. Note that certain options might
+     * have default values and may return those defaults instead of null.
+     * @param  string $option Option whose value should be fetched and returned.
+     * @return mixed Returns the option value if set; null otherwise.
+     */
+    public function getOption ($option)
+    {
+        if (array_key_exists($option, $this->_options)) {
+            return $this->_options[$option];
+        } else if (array_key_exists($option, $this->optionMap)) {
+            return $this->_options[ $this->optionMap[$option] ];
+        } else if (strpos($option, '-') !== false) {
+            $parts = explode('-', $option);
+            $underscoreAlias = implode('_', $parts);
+
+            $first = array_shift($parts);
+            $rest = array_map('ucfirst', $parts);
+            $camelCaseAlias = $first.implode('', $rest);
+
+            if (array_key_exists($underscoreAlias, $this->optionMap)) {
+                return $this->_options[ $this->optionMap[$underscoreAlias] ];
+            } else if (array_key_exists($camelCaseAlias, $this->optionMap)) {
+                return $this->_options[ $this->optionMap[$camelCaseAlias] ];
+            }
+        }
+
+        return null;
+    } // end getOption ()
+
     public function help ()
     {
         return $this->help->help();
@@ -184,11 +217,10 @@ class Options
      * $this->options, and returns an array containing the option names as keys
      * and their checked values as values.
      * @param array $options Options to parse.
-     * @param array $optionMap Map containing as keys a list of all known
-     * aliases pointing to values of their parent option.
+     * @param array $settings Option settings, defaults, and aliases.
      * @return array Parsed values.
      */
-    private function parseOptions ($options, $settings, $optionMap)
+    private function parseOptions ($options, $settings)
     {
         $values = array();
 
