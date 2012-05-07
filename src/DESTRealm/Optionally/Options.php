@@ -150,6 +150,7 @@ class Options
         // Add the arguments to our tracker.
         $this->_args = $options[1];
 
+        $this->updateOptionMap();
         $this->help = $help;
 
     } // end constructor
@@ -186,22 +187,14 @@ class Options
     public function getOption ($option)
     {
         if (array_key_exists($option, $this->_options)) {
+
             return $this->_options[$option];
-        } else if (array_key_exists($option, $this->optionMap)) {
+
+        } else if (array_key_exists($option, $this->optionMap) &&
+            array_key_exists($this->optionMap[$option], $this->_options)) {
+
             return $this->_options[ $this->optionMap[$option] ];
-        } else if (strpos($option, '-') !== false) {
-            $parts = explode('-', $option);
-            $underscoreAlias = implode('_', $parts);
 
-            $first = array_shift($parts);
-            $rest = array_map('ucfirst', $parts);
-            $camelCaseAlias = $first.implode('', $rest);
-
-            if (array_key_exists($underscoreAlias, $this->optionMap)) {
-                return $this->_options[ $this->optionMap[$underscoreAlias] ];
-            } else if (array_key_exists($camelCaseAlias, $this->optionMap)) {
-                return $this->_options[ $this->optionMap[$camelCaseAlias] ];
-            }
         }
 
         return null;
@@ -232,8 +225,8 @@ class Options
             // Filter long options.
             $opt = str_replace('--', '', $opt);
 
-            if (array_key_exists($opt, $optionMap)) {
-                $opt = $optionMap[$opt];
+            if (array_key_exists($opt, $this->optionMap)) {
+                $opt = $this->optionMap[$opt];
             }
 
             if (array_key_exists($opt, $settings)) {
@@ -256,5 +249,22 @@ class Options
 
         return $values;
     } // end parseOptions ()
+
+    private function updateOptionMap ()
+    {
+        $keys = array_keys($this->optionMap);
+
+        foreach ($keys as $key) {
+            $parts = explode('-', $key);
+            $underscoreAlias = implode('_', $parts);
+
+            $first = array_shift($parts);
+            $rest = array_map('ucfirst', $parts);
+            $camelCaseAlias = $first.implode('', $rest);
+
+            $this->optionMap[$underscoreAlias] = $this->optionMap[$key];
+            $this->optionMap[$camelCaseAlias] = $this->optionMap[$key];
+        }
+    } // end updateOptionMap ()
 
 } // end Options
