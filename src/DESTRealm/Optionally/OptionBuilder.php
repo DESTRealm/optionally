@@ -44,7 +44,7 @@ class OptionBuilder
 
     public function build ()
     {
-        $getopt = $this->parseOptions(); print_r($getopt);
+        $getopt = $this->parseOptions();
 
         $args = $getopt[1];
         $options = $getopt[0];
@@ -163,7 +163,7 @@ class OptionBuilder
 
     private function evaluateOptions ($parsed)
     {
-        $evaluated = array(); print_r($parsed); print_r($this->options);
+        $evaluated = array();
 
         foreach ($this->options as $option => $defaults) {
 
