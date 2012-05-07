@@ -63,6 +63,13 @@ class Optionally
     private $lastOption = '';
 
     /**
+     * Option map. This maps option aliases to their "master" options. This is
+     * passed on to the options object
+     * @var array
+     */
+    private $optionMap = array();
+
+    /**
      * Option names. This is a key-value store that contains references as
      * defined by Optionally::$optionTemplate.
      * @var array
@@ -171,7 +178,18 @@ class Optionally
     public function alias ($alias)
     {
         $option =& $this->getLastOption();
-        $option['aliases'][] = $alias;
+
+        if ((array)$alias !== $alias) {
+            $option['aliases'][] = $alias;
+        } else {
+            $option['aliases'] = array_merge($option['aliases'], $alias);
+        }
+
+        foreach ($option['aliases'] as $alias) {
+            if (!array_key_exists($alias, $this->optionMap)) {
+                $this->optionMap[$alias] = $this->lastOption;
+            }
+        }
 
         $this->fireCallback('alias');
 
@@ -186,10 +204,8 @@ class Optionally
     {
         $this->help->setOptions($this->options);
         $this->help->setUsage($this->usage);
-        $this->mangle();
         $shortOpts = '';
         $longOpts = array();
-        $optionMap = array();
 
         $this->fireCallback('pre');
 
@@ -247,7 +263,12 @@ class Optionally
 
         $this->fireCallback('post');
 
-        return new Options($options, $this->options, $optionMap, $this->help);
+        return new Options(
+            $options,
+            $this->options,
+            $this->optionMap,
+            $this->help
+        );
     } // end argv ()
 
     /**
@@ -396,6 +417,10 @@ class Optionally
             $this->options[ $option ] = array_merge($this->optionTemplate, $settings);
         }
 
+        if (!array_key_exists($option, $this->optionMap)) {
+            $this->optionMap[$option] = $option;
+        }
+
         return $this;
     } // end option ()
 
@@ -460,6 +485,8 @@ class Optionally
      * If the option passed in was declared as a boolean (exists or not), the
      * values true or false will be passed into $callback depending on whether
      * or not the option was provided by the client code.
+     *
+     * TODO: Implement filter failure default value as filter().
      * @param  function $callback Callback to process option.
      * @return Optionally Instance ($this).
      */
@@ -591,7 +618,7 @@ class Optionally
      * @param  string $option Option.
      * @return string Mangled option.
      */
-    private function mangle ()
+    /*private function mangle ()
     {
         foreach ($this->options as $option => $value) {
 
@@ -625,6 +652,6 @@ class Optionally
         }
 
         return $aliases;
-    } // end mangleOption ()
+    } // end mangleOption ()*/
 
 } // end Optionally
