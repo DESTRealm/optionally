@@ -4,6 +4,8 @@ namespace DESTRealm\Optionally;
 
 use DESTRealm\Optionally\Getopt\Getopt;
 use DESTRealm\Optionally\Options;
+use DESTRealm\Optionally\Exceptions\OptionsException;
+use DESTRealm\Optionally\Exceptions\OptionsValueException;
 
 /**
  * Option builder.
@@ -42,7 +44,7 @@ class OptionBuilder
 
     public function build ()
     {
-        $getopt = $this->parseOptions();
+        $getopt = $this->parseOptions(); print_r($getopt);
 
         $args = $getopt[1];
         $options = $getopt[0];
@@ -161,7 +163,7 @@ class OptionBuilder
 
     private function evaluateOptions ($parsed)
     {
-        $evaluated = array();
+        $evaluated = array(); print_r($parsed); print_r($this->options);
 
         foreach ($this->options as $option => $defaults) {
 
@@ -191,10 +193,19 @@ class OptionBuilder
             // specified, and second if the options were not.
             if (array_key_exists($option, $parsed)) {
 
+                $value = $parsed[$option]['value'];
+
                 // Boolean values. This will immediately bail on match.
                 if ($defaults['boolean']) {
                     $evaluated[$option] = true;
                     continue;
+                }
+
+                // Value options; optional and required.
+                if ((array)$value === $value) {
+                    $evaluated[$option] = $value[count($value)-1];
+                } else {
+                    $evaluated[$option] = $value;
                 }
 
                 // Countable options.
@@ -204,10 +215,20 @@ class OptionBuilder
 
                 // Array options.
                 if ($defaults['isArray']) {
-                    $evaluated[$option] = (array)$parsed[$option]['value'];
+                    $evaluated[$option] = (array)$value;
                 }
 
             } else {
+
+                // Handle required options.
+                if ($defaults['required']) {
+                    throw new OptionsException(
+                        sprintf(
+                            'Required option "%s" was not provided!"',
+                            $option
+                        )
+                    );
+                }
 
                 // Boolean values. This will immediately bail on match.
                 if ($defaults['boolean']) {
@@ -234,20 +255,28 @@ class OptionBuilder
 
 
             // Handle filters.
-            if ($defaults['filter'] !== null &&
-                !call_user_func($defaults['filter'], $evaluated[$option])) {
-                if ($defaults['filterValue']) {
-                    $evaluated[$option] = $defaults['filterValue'];
-                } else if ($defaults['defaults']) {
-                    $evaluated[$option] = $defaults['defaults'];
-                } else {
-                    throw new OptionsValueException(
-                        sprintf(
-                            'Value "%s" mismatch for option "%s".',
-                            $evaluated[$option],
-                            $option
-                        )
-                    );
+            if ($defaults['filter'] !== null) {
+
+                $value = null;
+
+                if (array_key_exists($option, $evaluated)) {
+                    $value = $evaluated[$option];
+                }
+
+                if (!call_user_func($defaults['filter'], $value)) {
+                    if ($defaults['filterValue'] !== null) {
+                        $evaluated[$option] = $defaults['filterValue'];
+                    } else if ($defaults['defaults'] !== null) {
+                        $evaluated[$option] = $defaults['defaults'];
+                    } else {
+                        throw new OptionsValueException(
+                            sprintf(
+                                'Value "%s" mismatch for option "%s".',
+                                print_r($value, true),
+                                $option
+                            )
+                        );
+                    }
                 }
             }
 
@@ -272,11 +301,12 @@ class OptionBuilder
             return '';
         }
 
-        $optional = $this->options[ $this->optionMap[$option] ]['optionalValue'];
-        $boolean  = $this->options[ $this->optionMap[$option] ]['boolean'];
+        $optional  = $this->options[ $this->optionMap[$option] ]['optionalValue'];
+        $boolean   = $this->options[ $this->optionMap[$option] ]['boolean'];
+        $countable = $this->options[ $this->optionMap[$option] ]['isCountable'];
         $suffix = '';
 
-        if ($boolean) {
+        if ($boolean || $countable) {
             return '';
         }
 
@@ -333,7 +363,6 @@ class OptionBuilder
          * Appends the appropriate suffix to either $shortOpts or $longOpts.
          */
         $appendOpts = function ($option, $suffix) use (&$shortOpts, &$longOpts) {
-
             if (strlen($option) === 1) {
                 $shortOpts .= $option.$suffix;
             } else {
@@ -341,7 +370,6 @@ class OptionBuilder
             }
 
         };
-
         // Figure out which options have values or optional values.
         foreach ($this->optionMap as $option => $master) {
 

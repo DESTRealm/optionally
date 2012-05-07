@@ -150,7 +150,7 @@ class Optionally
         $scriptName = array_shift($args);
         //$args = array_slice($args, 1);
 
-        $this->args = $args;
+        $this->args = $args; print_r($args);
         $this->getopt = new Getopt();
         $this->help = new Help($scriptName);
     } // end constructor
@@ -211,12 +211,16 @@ class Optionally
 
         $this->fireCallback('pre');
 
-        return OptionBuilder::buildOptions(
+        $options = OptionBuilder::buildOptions(
             $this->args,
             $this->options,
             $this->optionMap,
             $this->help
         );
+
+        $this->fireCallback('post');
+
+        return $options;
     } // end argv ()
 
     /**
@@ -434,9 +438,7 @@ class Optionally
             $this->options[ $option ] = array_merge($this->optionTemplate, $settings);
         }
 
-        if (!array_key_exists($option, $this->optionMap)) {
-            $this->optionMap[$option] = $option;
-        }
+        $this->optionMap[$option] = $option;
 
         return $this;
     } // end option ()

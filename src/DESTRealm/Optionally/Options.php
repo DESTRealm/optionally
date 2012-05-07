@@ -105,11 +105,6 @@ class Options
 
             return $this->options[$option];
 
-        } else if (array_key_exists($option, $this->optionMap) &&
-            array_key_exists($this->optionMap[$option], $this->options)) {
-
-            return $this->options[ $this->optionMap[$option] ];
-
         }
 
         return null;
