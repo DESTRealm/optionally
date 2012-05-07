@@ -335,10 +335,8 @@ class Help
     private function hasOptionalValue ($option)
     {
         return array_key_exists($option, $this->options) &&
-            !$this->options[$option]['boolean'] && (
-                $this->options[$option]['value'] &&
-                $this->options[$option]['optionalValue']
-            );
+            !$this->options[$option]['boolean'] &&
+            $this->options[$option]['optionalValue'];
     } // end hasOptionalValue ()
 
     /**
@@ -350,10 +348,8 @@ class Help
     private function hasRequiredValue ($option)
     {
         return array_key_exists($option, $this->options) &&
-            !$this->options[$option]['boolean'] && (
-                $this->options[$option]['value'] &&
-                !$this->options[$option]['optionalValue']
-            );
+            !$this->options[$option]['boolean'] &&
+            !$this->options[$option]['optionalValue'];
     } // end hasRequiredValue ()
 
     /**
@@ -427,7 +423,7 @@ class Help
             }
         }
 
-        if ($this->options[$option]['value']) {
+        if (!$this->options[$option]['boolean']) {
             if ($this->options[$option]['optionalValue']) {
                 $replacement = '\\1['.$arg.']';
                 $optional = true;
