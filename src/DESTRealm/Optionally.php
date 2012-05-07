@@ -613,45 +613,4 @@ class Optionally
         return $suffix;
     } // end getSuffixForOption ()
 
-    /**
-     * Mangles an option name so that it's safe to use as a PHP object property.
-     * @param  string $option Option.
-     * @return string Mangled option.
-     */
-    /*private function mangle ()
-    {
-        foreach ($this->options as $option => $value) {
-
-            $extraAliases = array();
-            if (!empty($value['aliases'])) {
-                foreach ($value['aliases'] as $alias) {
-                    $extraAliases = array_merge($extraAliases,
-                        $this->mangleOption($alias));
-                }
-            }
-
-            $extraAliases = array_merge($extraAliases,
-                $this->mangleOption($option));
-
-            $this->options[$option]['aliases'] = array_merge(
-                $this->options[$option]['aliases'],
-                $extraAliases);
-        }
-    } // end mangle ()
-
-    private function mangleOption ($option)
-    {
-        $aliases = array();
-        if (strpos($option, '-') !== false) {
-            $parts = explode('-', $option);
-            $aliases[] = implode('_', $parts);
-
-            $first = array_shift($parts);
-            $rest = array_map('ucfirst', $parts);
-            $aliases[] = implode('', array_merge((array)$first, $rest));
-        }
-
-        return $aliases;
-    } // end mangleOption ()*/
-
 } // end Optionally
