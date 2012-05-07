@@ -211,71 +211,8 @@ class Optionally
 
         $this->fireCallback('pre');
 
-        OptionBuilder::buildOptions(
+        return OptionBuilder::buildOptions(
             $this->args,
-            $this->options,
-            $this->optionMap,
-            $this->help
-        );
-
-        return;
-
-        /**
-         * Appends the appropriate suffix to either $shortOpts or $longOpts.
-         */
-        $appendOpts = function ($option, $suffix) use (&$shortOpts, &$longOpts) {
-
-            if (strlen($option) === 1) {
-                $shortOpts .= $option.$suffix;
-            } else {
-                $longOpts[] = $option.$suffix;
-            }
-
-        };
-
-        // Figure out which options have values or optional values. Also update
-        // their aliases.
-        foreach ($this->options as $option => $prefs) {
-
-            $appendOpts($option,
-                $this->getSuffixForOption(
-                    $option,
-                    $prefs['value'],
-                    $prefs['optionalValue']
-                )
-            );
-
-            $optionMap[$option] = $option;
-
-            if (!empty($prefs['aliases'])) {
-                foreach ($prefs['aliases'] as $alias) {
-
-                    $optionMap[$alias] = $option;
-
-                    $appendOpts($alias,
-                        $this->getSuffixForOption(
-                            $alias,
-                            $prefs['value'],
-                            $prefs['optionalValue']
-                        )
-                    );
-
-                }
-            }
-
-        }
-
-        $options = $this->getopt->getopt2(
-            $this->args,
-            $shortOpts,
-            $longOpts,
-            true
-        );
-
-        $this->fireCallback('post');
-
-        return new Options(
-            $options,
             $this->options,
             $this->optionMap,
             $this->help
@@ -666,47 +603,5 @@ class Optionally
     {
         return $this->options[ $this->lastOption ];
     } // end getLastOption ()
-
-    /**
-     * Retrieves a Getopt suffix for the option $option. Single letter options
-     * will return a suffix of ":" while word options will return a suffix of
-     * "=". Suffixes are returned only if $hasValue is true; double-suffixes
-     * will be returned if both $hasValue is true and $optional is true.
-     * @param  string  $option         Option.
-     * @param  boolean $hasValue=false Option requests a value.
-     * @param  boolean $optional=false Option requests an optional value.
-     * @return string Empty string, ":", "::", "=", or "==".
-     */
-    private function getSuffixForOption ($option, $hasValue=false, $optional=false)
-    {
-        $suffix = '';
-
-        if (strlen($option) === 1) {
-
-            // Option requires a value.
-            if ($hasValue) {
-                $suffix = ':';
-            }
-
-            // Option value is optional. ->optional() has no effect unless
-            // ->value() is also specified.
-            if ($hasValue && $optional) {
-                $suffix = '::';
-            }
-
-        } else {
-
-            if ($hasValue) {
-                $suffix = '=';
-            }
-
-            if ($hasValue && $optional) {
-                $suffix = '==';
-            }
-
-        }
-
-        return $suffix;
-    } // end getSuffixForOption ()
 
 } // end Optionally
