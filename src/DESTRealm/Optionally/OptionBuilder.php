@@ -3,6 +3,7 @@
 namespace DESTRealm\Optionally;
 
 use DESTRealm\Optionally\Getopt\Getopt;
+use DESTRealm\Optionally\Options;
 
 /**
  * Option builder.
@@ -26,6 +27,8 @@ class OptionBuilder
     {
         $builder = new self($args, $options, $map);
         $options = $builder->build();
+
+        return new Options($options, $args, $help);
     } // end buildOptions ()
 
     private function __construct ($args, $options, $map)
@@ -49,13 +52,31 @@ class OptionBuilder
             $this->options
         );
 
-        print_r($parsedOptions);
-
-        //$evaluatedOptions = $this->evaluateOptions($parsedOptions);
+        return $this->buildAliases($this->evaluateOptions($parsedOptions));
 
     } // end build ()
 
-    private function assignValues ($options, $settings)
+    /**
+     * Accepts the output from Getopt and assigns values accordingly. Values
+     * are rearranged according to their master option name (no aliases will
+     * appear in the returned value), how many times they've appeared, and their
+     * value.
+     * @param array $options Getopt options.
+     * @return array Returns an array containing the following:
+     *
+     * array(
+     *   'option_name' => array(
+     *     'count' => number_of_appearances,
+     *     'value' => array(val1, val2, ..., valn+1) OR null
+     *   )
+     * )
+     *
+     * If the option isn't a value option or had no value specified, the "value"
+     * offset will be null, even if further instances of the same option are
+     * provided. The "value" offset is appended to in order of the options'
+     * appearance.
+     */
+    private function assignValues ($options)
     {
         $values = array();
 
@@ -67,52 +88,172 @@ class OptionBuilder
             // Filter long options.
             $opt = str_replace('--', '', $opt);
 
+            // Force all options to their master name.
+            $opt = $this->optionMap[$opt];
+
             if (!array_key_exists($opt, $values)) {
+
+                if ($val !== null) {
+                    $val = array($val);
+                }
+
                 $values[$opt] = array(
                     'count' => 1,
-                    'value' => array($val),
+                    'value' => $val,
                 );
+
             } else {
+
                 $values[$opt]['count'] += 1;
-                $values[$opt]['value'][] = $val;
+
+                // Empy current and former values imply we've nothing to do.
+                if ($val === null && $values[$opt]['value'] === null) {
+                    continue;
+                }
+
+                // We've snagged a value of some sort. If the previous one was
+                // null, we convert it to an array and slap the current value
+                // in there.
+                if ($val !== null && $values[$opt]['value'] === null) {
+                    $values[$opt]['value'] = array($val);
+                } else {
+                    $values[$opt]['value'][] = $val;
+                }
+
             }
 
-            continue;
-
-            if (array_key_exists($opt, $this->optionMap)) {
-                $opt = $this->optionMap[$opt];
-            }
-
-            if (array_key_exists($opt, $settings)) {
-                $attributes = $settings[ $opt ];
-            }
-
-            // Preemptively set the option to our captured value.
-            $values[$opt] = $val;
-
-            // Boolean true. False is handled elsewhere.
-            if ($attributes['boolean'] === true && empty($val)) {
-                $values[$opt] = true;
-            }
-
-            // Assign all aliases to the same value.
-            foreach ($attributes['aliases'] as $alias) {
-                $values[$alias] = $values[$opt];
-            }
         }
 
         return $values;
     } // end assignValues ()
 
-    private function evaluateOptions ($options)
+    /**
+     * Builds aliases for the evaluated values $values.
+     * @param  array $values Evaluated values.
+     * @return array         Evaluated values plus aliases.
+     */
+    private function buildAliases ($values)
+    {
+        foreach ($this->optionMap as $option => $master) {
+
+            $aliases = array_merge(
+                $this->mangle($master),
+                $this->mangle($option)
+            );
+
+            foreach ($aliases as $alias) {
+
+                // Don't overwrite aliases that already exist. If they do,
+                // there's likely a name collision somewhere and we should bail
+                // out.
+                if (array_key_exists($alias, $values)) {
+                    continue;
+                }
+
+                $values[$alias] =& $values[$master];
+
+            }
+
+        }
+
+        return $values;
+    } // end buildAliases ()
+
+    private function evaluateOptions ($parsed)
     {
         $evaluated = array();
 
-        foreach ($this->optionMap as $option => $master) {
+        foreach ($this->options as $option => $defaults) {
 
-            //if (array_key_exists($
+            // Handle ifNull. This first checks to verify that the option is
+            // mappable.
+            if (!empty($defaults['ifNull']) &&
+                array_key_exists($defaults['ifNull'], $this->optionMap)) {
+                $required = $this->optionMap[ $defaults['ifNull'] ];
+                if (!array_key_exists($required, $parsed)) {
+                    throw new OptionsException(
+                        sprintf(
+                            'The option %s is required if %s was not specified.',
+                            $option, $settings[$master]['ifNull']
+                        )
+                    );
+                }
+            }
+
+            // Default value assignments. If the default value is specified,
+            // all options are assigned this at first, and then overwritten if
+            // the option was provided.
+            if ($defaults['defaults'] !== null) {
+                $evaluated[$option] = $defaults['defaults'];
+            }
+
+            // Value assignments; first, values are assigned if the option was
+            // specified, and second if the options were not.
+            if (array_key_exists($option, $parsed)) {
+
+                // Boolean values. This will immediately bail on match.
+                if ($defaults['boolean']) {
+                    $evaluated[$option] = true;
+                    continue;
+                }
+
+                // Countable options.
+                if ($defaults['isCountable']) {
+                    $evaluated[$option] = $parsed[$option]['count'];
+                }
+
+                // Array options.
+                if ($defaults['isArray']) {
+                    $evaluated[$option] = (array)$parsed[$option]['value'];
+                }
+
+            } else {
+
+                // Boolean values. This will immediately bail on match.
+                if ($defaults['boolean']) {
+                    $evaluated[$option] = false;
+                    continue;
+                }
+
+                // Default value assignment, if the option is missing. This
+                // requires using defaultsIfMissing().
+                if ($defaults['ifMissing'] !== null) {
+                    $evaluated[$option] = $defaults['ifMissing'];
+                }
+
+                // Countable options.
+                if ($defaults['isCountable']) {
+                    $evaluated[$option] = 0;
+                }
+
+                // Array options.
+                if ($defaults['isArray']) {
+                    $evaluated[$option] = array();
+                }
+            }
+
+
+            // Handle filters.
+            if ($defaults['filter'] !== null &&
+                !call_user_func($defaults['filter'], $evaluated[$option])) {
+                if ($defaults['filterValue']) {
+                    $evaluated[$option] = $defaults['filterValue'];
+                } else if ($defaults['defaults']) {
+                    $evaluated[$option] = $defaults['defaults'];
+                } else {
+                    throw new OptionsValueException(
+                        sprintf(
+                            'Value "%s" mismatch for option "%s".',
+                            $evaluated[$option],
+                            $option
+                        )
+                    );
+                }
+            }
 
         }
+
+        return $evaluated;
     } // end evaluateOptions ()
 
     /**
@@ -125,37 +266,63 @@ class OptionBuilder
      * @param  boolean $optional=false Option requests an optional value.
      * @return string Empty string, ":", "::", "=", or "==".
      */
-    private function getSuffixForOption ($option, $hasValue=false, $optional=false)
+    private function getSuffixForOption ($option)
     {
+        if (!array_key_exists($option, $this->optionMap)) {
+            return '';
+        }
+
+        $optional = $this->options[ $this->optionMap[$option] ]['optionalValue'];
+        $boolean  = $this->options[ $this->optionMap[$option] ]['boolean'];
         $suffix = '';
+
+        if ($boolean) {
+            return '';
+        }
 
         if (strlen($option) === 1) {
 
-            // Option requires a value.
-            if ($hasValue) {
-                $suffix = ':';
-            }
-
-            // Option value is optional. ->optional() has no effect unless
-            // ->value() is also specified.
-            if ($hasValue && $optional) {
+            if ($optional) {
                 $suffix = '::';
+            } else {
+                $suffix = ':';
             }
 
         } else {
 
-            if ($hasValue) {
-                $suffix = '=';
-            }
-
-            if ($hasValue && $optional) {
+            if ($optional) {
                 $suffix = '==';
+            } else {
+                $suffix = '=';
             }
 
         }
 
         return $suffix;
     } // end getSuffixForOption ()
+
+    /**
+     * Mangles an option name if it contains a dash (-) such that it's
+     * accessible as a PHP property.
+     * @param  string $name Option name.
+     * @return array       Array containing mangled names.
+     */
+    private function mangle ($name)
+    {
+        if (strpos($name, '-') === false) {
+            return array($name);
+        }
+
+        $parts = explode('-', $name);
+        $underscoreAlias = implode('_', $parts);
+
+
+        $first = array_shift($parts);
+        $rest = array_map('ucfirst', $parts);
+        $camelCaseAlias = $first.implode('', $rest);
+
+        return array($name, $underscoreAlias, $camelCaseAlias);
+    } // end mangle ()
 
     private function parseOptions ()
     {
@@ -175,31 +342,10 @@ class OptionBuilder
 
         };
 
-        // Figure out which options have values or optional values. Also update
-        // their aliases.
-        foreach ($this->options as $option => $prefs) {
+        // Figure out which options have values or optional values.
+        foreach ($this->optionMap as $option => $master) {
 
-            $appendOpts($option,
-                $this->getSuffixForOption(
-                    $option,
-                    $prefs['value'],
-                    $prefs['optionalValue']
-                )
-            );
-
-            if (!empty($prefs['aliases'])) {
-                foreach ($prefs['aliases'] as $alias) {
-
-                    $appendOpts($alias,
-                        $this->getSuffixForOption(
-                            $alias,
-                            $prefs['value'],
-                            $prefs['optionalValue']
-                        )
-                    );
-
-                }
-            }
+            $appendOpts($option, $this->getSuffixForOption($option));
 
         }
 
