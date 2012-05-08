@@ -273,7 +273,7 @@ class Getopt
     function _isLongOpt($arg)
     {
         return strlen($arg) > 2 && $arg[0] == '-' && $arg[1] == '-' &&
-               preg_match('/[a-zA-Z]+$/', substr($arg, 2));
+               preg_match('/[a-zA-Z]+/', substr($arg, 2));
     }
 
     /**
