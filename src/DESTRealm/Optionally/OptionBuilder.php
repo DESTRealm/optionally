@@ -279,6 +279,8 @@ class OptionBuilder
                     } else {
                         $evaluated[$option] = null;
                     }
+                    $evaluated = $this->runFilters($option, $defaults,
+                        $evaluated);
                     continue;
                 }
 
@@ -291,6 +293,8 @@ class OptionBuilder
                             )
                         );
                     }
+                    $evaluated = $this->runFilters($option, $defaults,
+                        $evaluated);
                     continue;
                 }
 
@@ -336,33 +340,7 @@ class OptionBuilder
                 }
             }
 
-
-            // Handle filters.
-            if ($defaults['filter'] !== null) {
-
-                $value = null;
-
-                if (array_key_exists($option, $evaluated)) {
-                    $value = $evaluated[$option];
-                }
-
-                if (!call_user_func($defaults['filter'], $value)) {
-                    if ($defaults['filterValue'] !== null) {
-                        $evaluated[$option] = $defaults['filterValue'];
-                    } else if ($defaults['defaults'] !== null) {
-                        $evaluated[$option] = $defaults['defaults'];
-                    } else {
-                        throw new OptionsValueException(
-                            sprintf(
-                                'Value "%s" mismatch for option "%s".',
-                                print_r($value, true),
-                                $option
-                            )
-                        );
-                    }
-                }
-            }
-
+            $evaluated = $this->runFilters($option, $defaults, $evaluated);
         }
 
         return $evaluated;
@@ -475,4 +453,82 @@ class OptionBuilder
             true
         );
     } // end parseArgs ()
+
+    /**
+     * Run filters.
+     * @param  string $option    Option name.
+     * @param  array $defaults  Default settings for the current option.
+     * @param  array $evaluated Evaluated values.
+     * @return array Returns updated, evaluated values.
+     */
+    private function runFilters ($option, $defaults, $evaluated)
+    {
+        if (empty($defaults['filter'])) {
+            return $evaluated;
+        }
+
+        $callback = $defaults['filter'];
+
+        $value = null;
+
+        if (array_key_exists($option, $evaluated)) {
+            $value = $evaluated[$option];
+        }
+
+        // test() was triggered on this option.
+        if ($defaults['isTest']) {
+
+            $callbackRunner = function ($callback, $value) use ($defaults) {
+                // If test() fails, we'll first set the option's value
+                // to filterValue if it's set or defaults. If defaults
+                // isn't set either, we'll raise an exception.
+                if (!call_user_func($callback, $value)) {
+                    if ($defaults['filterValue'] !== null) {
+                        return $defaults['filterValue'];
+                    } else if ($defaults['defaults'] !== null) {
+                        return $defaults['defaults'];
+                    } else {
+                        throw new OptionsValueException(
+                            sprintf(
+                                'Invalid value "%s".',
+                                print_r($value, true)
+                            )
+                        );
+                    }
+                }
+
+                return $value;
+            }; // end callbackRunner ()
+
+        } else {
+
+            $callbackRunner = function ($callback, $value) {
+                // filter() is much simpler than test(); we simply
+                // return whatever it returns.
+                return call_user_func($callback, $value);
+            }; // end callbackRunner ()
+
+        }
+
+        // Now, we'll examine $value to see if it's an array or a
+        // scalar.
+        if ((array)$value !== $value) {
+            $evaluated[$option] = $callbackRunner($callback, $value);
+        } else {
+            $newValue = array();
+            foreach ($value as $element) {
+                $element = $callbackRunner($callback, $element);
+
+                // If we encounter a null, 
+                if ($element === null) {
+                    continue;
+                }
+
+                $newValue[] = $element;
+            }
+            $evaluated[$option] = $newValue;
+        }
+
+        return $evaluated;
+    } // end runFilters ()
 } // end OptionBuilder

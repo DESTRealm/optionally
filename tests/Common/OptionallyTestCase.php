@@ -775,7 +775,7 @@ class OptionallyTestCase extends BaseTestCase
     } // end testCallbackArray ()
 
     /**
-     * Tests value filter/test callback.
+     * Tests value test callback.
      */
     public function testOptionTest ()
     {
@@ -784,7 +784,7 @@ class OptionallyTestCase extends BaseTestCase
             ->option('number')
                 ->value()
                 ->test(function($value){
-                    return (bool)preg_match('#[0-9]+#', $value, $subject) !== false;
+                    return (bool)preg_match('#[0-9]+#', $value, $subject);
                 })
             ->option('t')
                 ->value()
@@ -800,6 +800,62 @@ class OptionallyTestCase extends BaseTestCase
     } // end testOptionTest ()
 
     /**
+     * Tests value filter callback.
+     */
+    public function testOptionFilter ()
+    {
+
+        $options = Optionally::options(array('test.php', '--number=5', '-t', 'testing'))
+            ->option('number')
+                ->value()
+                ->filter(function($value){
+                    if (preg_match('#[0-9]+#', $value, $subject)) {
+                        return (int)$value;
+                    } else {
+                        return 0;
+                    }
+                })
+            ->option('t')
+                ->value()
+                ->filter(function($value){
+                    if ($value === 'testing') {
+                        return $value;
+                    } else {
+                        return 'not testing';
+                    }
+                })
+            ->argv()
+            ;
+        $this->assertEquals(5, $options->number);
+        $this->assertEquals('testing', $options->t);
+
+        $options = Optionally::options(array('test.php', '--number=foo', '-t', 'bar'))
+            ->option('number')
+                ->value()
+                ->filter(function($value){
+                    if (preg_match('#[0-9]+#', $value, $subject)) {
+                        return (int)$value;
+                    } else {
+                        return 0;
+                    }
+                })
+            ->option('t')
+                ->value()
+                ->filter(function($value){
+                    if ($value === 'testing') {
+                        return $value;
+                    } else {
+                        return 'not testing';
+                    }
+                })
+            ->argv()
+            ;
+        $this->assertEquals(0, $options->number);
+        $this->assertEquals('not testing', $options->t);
+
+    } // end testOptionFilter ()
+
+    /**
      * @expectedException DESTRealm\Optionally\Exceptions\OptionsValueException
      */
     public function testOptionTestFailure ()
@@ -813,21 +869,6 @@ class OptionallyTestCase extends BaseTestCase
             ->argv()
             ;
     } // end testOptionTestFailure ()
-
-    /**
-     * @expectedException DESTRealm\Optionally\Exceptions\OptionsValueException
-     */
-    public function testOptionTestFailure2 ()
-    {
-        $options = Optionally::options(array('test.php', '-t', 'blah'))
-            ->option('t')
-                ->value()
-                ->test(function($value){
-                    return $value === 'testing';
-                })
-            ->argv()
-            ;
-    } // end testOptionTestFailure2 ()
 
     /**
      * Tests value filter/test callback; if the test fails, the default value
@@ -871,5 +912,99 @@ class OptionallyTestCase extends BaseTestCase
         $this->assertEquals('testing', $options->t);
 
     } // end testOptionTestValue ()
+
+    /**
+     * Attempts to set test() values for options that have been declared as
+     * countable. The assertions in here should indicate a failure of the
+     * test() to apply the correct values (this is expected).
+     * @return [type] [description]
+     */
+    public function testOptionTestIsCountable ()
+    {
+        $options = Optionally::options(array('test.php'))
+            ->option('c')
+                ->isCountable()
+            ->test(function($value){return false;}, 10)
+            ->argv()
+            ;
+        $this->assertEquals(0, $options->c);
+
+        $options = Optionally::options(array('test.php', '-c', '-c'))
+            ->option('c')
+                ->isCountable()
+            ->test(function($value){return false;}, 10)
+            ->argv()
+            ;
+        $this->assertEquals(2, $options->c);
+    } // end testOptionTestIsCountable ()
+
+    /**
+     * Attempts to set filter() values for options that have been declared as
+     * countable. The assertions in here should indicate a failure of the
+     * filter() to apply the correct values (this is expected).
+     */
+    public function testOptionFilterIsCountable ()
+    {
+        $options = Optionally::options(array('test.php'))
+            ->option('c')
+                ->isCountable()
+            ->filter(function($value){return -100;})
+            ->argv()
+            ;
+        $this->assertEquals(0, $options->c);
+
+        $options = Optionally::options(array('test.php', '-c', '-c'))
+            ->option('c')
+                ->isCountable()
+            ->filter(function($value){return -100;})
+            ->argv()
+            ;
+        $this->assertEquals(2, $options->c);
+    } // end testOptionFilterIsCountable ()
+
+    /**
+     * Tests test() as run on an option array.
+     */
+    public function testOptionTestIsArray ()
+    {
+        $options = Optionally::options(array('test.php', '--array', '1'))
+            ->option('array')
+                ->isArray()
+            ->test(function($value){return is_numeric($value);})
+            ->argv()
+            ;
+        $this->assertEquals(array('1'), $options->array);
+
+        $options = Optionally::options(array('test.php', '--array', '1', '--array', '2', '--array', 'three'))
+            ->option('array')
+                ->isArray()
+            ->test(function($value){return is_numeric($value);}, 0)
+            ->argv()
+            ;
+        $this->assertEquals(array('1', '2', '0'), $options->array);
+
+    } // end testOptionTestArray ()
+
+    /**
+     * Tests filter() as run on an option array.
+     */
+    public function testOptionFilterIsArray ()
+    {
+        $options = Optionally::options(array('test.php', '--array', '1'))
+            ->option('array')
+                ->isArray()
+            ->filter(function($value){return (int)$value;})
+            ->argv()
+            ;
+        $this->assertEquals(array(1), $options->array);
+
+        $options = Optionally::options(array('test.php', '--array', '1', '--array', '2', '--array', 'three'))
+            ->option('array')
+                ->isArray()
+            ->test(function($value){return is_numeric($value);}, 0)
+            ->argv()
+            ;
+        $this->assertEquals(array(1, 2, 0), $options->array);
+    } // end testOptionFilterIsArray ()
 
 } // end OptionallyTestCase

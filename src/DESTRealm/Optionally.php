@@ -89,7 +89,8 @@ class Optionally
         'ifNull' => '',         /* Option is required if ifNull is absent. */
         'boolean' => false,     /* Option is boolean. */
         'callback' => null,     /* Option callbacks. See Optionally::callback(). */
-        'filter' => null,       /* Test filter callbacks. See Optionally::test(). */
+        'filter' => null,       /* Test filter callbacks. See Optionally::filter(). */
+        'isTest' => null,       /* Similar to filter, but returns true/false. */
         'filterValue' => null,  /* Value to use on filter failure. */
         'defaults' => null,     /* Option default value(s). */
         'examples' => null,     /* Usage example(s). */
@@ -242,6 +243,11 @@ class Optionally
 
         // Boolean options cannot be required options.
         $option['required'] = false;
+
+        // Tests and filters cannot (or rather, shouldn't) be set on booleans.
+        $option['isTest'] = null;
+        $option['filter'] = null;
+        $option['filterValue'] = null;
 
         $this->fireCallback('boolean');
 
@@ -397,6 +403,10 @@ class Optionally
         $option =& $this->getLastOption();
         $option['isCountable'] = true;
 
+        $option['isTest'] = null;
+        $option['filter'] = null;
+        $option['filterValue'] = null;
+
         $this->fireCallback('isCountable');
 
         return $this;
@@ -508,19 +518,34 @@ class Optionally
      * Tests the option's value to determine if it is acceptable. $callback
      * must be a function that accepts a single argument and returns a boolean
      * value. The argument passed to $callback will be the value of the current
-     * option.
+     * option. The callback function should return TRUE if the value is valid
+     * and false otherwise.
      *
-     * If the option passed in was declared as a boolean (exists or not), the
-     * values true or false will be passed into $callback depending on whether
-     * or not the option was provided by the client code.
+     * test() is somewhat different from filter(): If a test fails and $default
+     * is set and not null, then the value of the option will be set to that of
+     * $default. Otherwise, if $default is null and the test fails, an
+     * exception will be raised. This exception should be caught in your code
+     * and might be the perfect time to generate help() output.
      *
-     * TODO: Implement filter failure default value as filter().
+     * If the callback function is triggered on an array value and $default is
+     * NULL, that element will be truncated from the final array.
+     *
+     * Tests cannot be set on boolean or countable options for hopefully
+     * obvious reasons.
+     *
+     * test() is mutually exclusive with filter().
      * @param  function $callback Callback to process option.
      * @return Optionally Instance ($this).
      */
     public function test ($callback, $default=null)
     {
         $option =& $this->getLastOption();
+
+        if ($option['isCountable']) {
+            return $this;
+        }
+
+        $option['isTest'] = true;
         $option['filter'] = $callback;
         $option['filterValue'] = $default;
 
@@ -528,12 +553,50 @@ class Optionally
     } // end test ()
 
     /**
-     * Alias for Optionally::test().
+     * Tests and filters the option's value to determine if it is acceptable
+     * and replaces the value with $default if not. $callback must be a function
+     * that accepts a single argument and returns a boolean value. The argument
+     * passed to $callback will be the value of the current option, if scalar,
+     * or the current value offset if it's an array (with isArray()). Be aware
+     * that options with optional values will pass a null value to $callback,
+     * and you'll need to handle that accordingly.
+     *
+     * Filters the option's value to determine if it is acceptable, and triggers
+     * a callback function to replace it if it is not. $callback must be a
+     * function that accepts a single argument and returns either the original
+     * value passed to it or a replacement value if its argument is invalid. If
+     * the option filter() is bound to is an array (with isArray()), the filter
+     * will be called for each value.
+     *
+     * filter() differs from test() in that callback functions called by test()
+     * must return true or false, and their "truthiness" or "falsiness"
+     * determines whether test() will mangle the value or return an exception.
+     * filter() allows the client code to directly manipulate options' values by
+     * accepting them as arguments into its callback function and returning
+     * either the same value or an altered value.
+     *
+     * If the callback function is triggered on an array value and returns NULL,
+     * that element will be truncated from the final array.
+     *
+     * Filters cannot be set on boolean or countable options for hopefully
+     * obvious reasons.
+     *
+     * filter() is mutually exclusive with test().
      * @see  Optionally::test()
      */
-    public function filter ($callback, $default=null)
+    public function filter ($callback)
     {
-        return $this->test($callback, $default);
+        $option =& $this->getLastOption();
+
+        if ($option['isCountable']) {
+            return $this;
+        }
+
+        $option['isTest'] = false;
+        $option['filter'] = $callback;
+        $option['filterValue'] = null;
+
+        return $this;
     } // end filter ()
 
     /**
