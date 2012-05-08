@@ -436,6 +436,12 @@ class Optionally
 
         if (!empty($settings)) {
             $this->options[ $option ] = array_merge($this->optionTemplate, $settings);
+            if (array_key_exists('aliases', $settings) &&
+                !empty($settings['aliases'])) {
+                foreach ($settings['aliases'] as $alias) {
+                    $this->optionMap[$alias] = $option;
+                }
+            }
         }
 
         $this->optionMap[$option] = $option;

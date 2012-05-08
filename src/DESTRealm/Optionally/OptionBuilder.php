@@ -178,7 +178,7 @@ class OptionBuilder
                     throw new OptionsException(
                         sprintf(
                             'The option %s is required if %s was not specified.',
-                            $option, $settings[$master]['ifNull']
+                            $option, $defaults['ifNull']
                         )
                     );
                 }
@@ -203,13 +203,6 @@ class OptionBuilder
                     continue;
                 }
 
-                // Value options; optional and required.
-                if ((array)$value === $value) {
-                    $evaluated[$option] = $value[count($value)-1];
-                } else {
-                    $evaluated[$option] = $value;
-                }
-
                 // Countable options.
                 if ($defaults['isCountable']) {
                     $evaluated[$option] = $parsed[$option]['count'];
@@ -220,13 +213,32 @@ class OptionBuilder
                     $evaluated[$option] = (array)$value;
                 }
 
+                if (empty($value)) {
+                    if (!$defaults['optionalValue']) {
+                        throw new OptionsException(
+                            sprintf(
+                                'Option %s requires a value!',
+                                $option
+                            )
+                        );
+                    }
+                    continue;
+                }
+
+                // Value options; optional and required.
+                if ((array)$value === $value) {
+                    $evaluated[$option] = $value[count($value)-1];
+                } else {
+                    $evaluated[$option] = $value;
+                }
+
             } else {
 
                 // Handle required options.
                 if ($defaults['required']) {
                     throw new OptionsException(
                         sprintf(
-                            'Required option "%s" was not provided!"',
+                            'Required option "%s" was not provided!',
                             $option
                         )
                     );

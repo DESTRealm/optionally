@@ -436,8 +436,6 @@ class OptionallyTestCase extends BaseTestCase
             ->option('v')
                 ->alias('verbose')
                 ->value()
-                    ->optional()
-                ->defaults(2)
             ->argv()
             ;
 
