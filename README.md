@@ -397,11 +397,8 @@ $options = Optionally::options()
 
 if ($options->count === '') {
 
-  // count was specified, but it didn't have a value assigned
-
-} else if ($options->count === NULL) {
-
-  // count wasn't specified on the command line.
+  // count wasn't specified on the command line or it was specified without a
+  // value.
 
 } else {
 
@@ -456,7 +453,7 @@ value has already been set by `value()`. Thus, we must ignore passing a value
 to `value()` and use the extra methods to gain more fine-grained control over
 what we want Optionally to do.
 
-## Really Advanced Options: Countable options and Array Options!
+## Really Advanced Options: Countable Options and Array Options!
 
 For certain use cases, it might be handy to have Optionally count the number of
 times an option was specified on the command line. To illustrate, suppose you
@@ -468,16 +465,23 @@ easy with the `isCountable()` or `countable()` methods:
 ```php
 <?php
 
+// Command line:
+// php -q script.php -v -v file.txt
+
 $options = Optionally::options()
   ->option('verbose')
     ->alias('v')
     ->isCountable() // countable() is an alias to this.
   ->argv()
   ;
+
+var_dump($options->verbose); // outputs string(1) "2"
+var_dump($options->v);       // outputs string(1) "2"
 ```
 
 Now, if someone were to specify `php -q yourscript.php -v -v -v -v`,
-`print $options->v` or `print $options->verbose` would output **4**!
+`print $options->v` or `print $options->verbose` would output **4** instead of
+2 as in our example!
 
 In other situations, you might want to cumulatively gather the values of each
 successive appearance of a command line option rather than counting it. To do
@@ -488,11 +492,16 @@ depending on what the user specifies:
 ```php
 <?php
 
+// Command line:
+// php -q script.php --filter bw --filter mosaic
+
 $options = Optionally::options()
   ->option('filter')
     ->isArray()
   ->argv()
   ;
+
+var_dump($options->filter); // outputs array(2){[0]=> string(2) "bw" [1]=> string(6) "mosaic"}
 ```
 
 Elements that are flagged with `isArray()` will return an array of values if the
