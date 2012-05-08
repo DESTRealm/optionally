@@ -153,7 +153,7 @@ class Getopt
                 break;
             }
 
-            if ($arg{0} != '-' || (strlen($arg) > 1 && $arg{1} == '-' && !$long_options)) {
+            if ($arg{0} != '-') { // || (strlen($arg) > 1 && $arg{1} == '-' && !$long_options)) {
                 $non_opts = array_merge($non_opts, array_slice($args, $i));
                 break;
             } elseif (strlen($arg) > 1 && $arg{1} == '-') {
