@@ -146,6 +146,12 @@ class OptionBuilder
             // Force all options to their master name.
             $opt = $this->optionMap[$opt];
 
+            // Empty arguments to Getopt options are set to false by default.
+            // We correct that here.
+            if ($val === false) {
+                $val = null;
+            }
+
             if (!array_key_exists($opt, $values)) {
 
                 if ($val !== null) {
@@ -169,10 +175,12 @@ class OptionBuilder
                 // We've snagged a value of some sort. If the previous one was
                 // null, we convert it to an array and slap the current value
                 // in there.
-                if ($val !== null && $values[$opt]['value'] === null) {
-                    $values[$opt]['value'] = array($val);
-                } else {
-                    $values[$opt]['value'][] = $val;
+                if ($val !== null) {
+                    if ($values[$opt]['value'] === null) {
+                        $values[$opt]['value'] = array($val);
+                    } else {
+                        $values[$opt]['value'][] = $val;
+                    }
                 }
 
             }
@@ -266,7 +274,12 @@ class OptionBuilder
 
                 // Array options.
                 if ($defaults['isArray']) {
-                    $evaluated[$option] = (array)$value;
+                    if (!empty($value)) {
+                        $evaluated[$option] = (array)$value;
+                    } else {
+                        $evaluated[$option] = null;
+                    }
+                    continue;
                 }
 
                 if (empty($value)) {

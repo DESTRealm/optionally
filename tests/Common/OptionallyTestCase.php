@@ -337,6 +337,116 @@ class OptionallyTestCase extends BaseTestCase
         $this->assertNull($options->args(2));
     } // end testArguments ()
 
+    public function testCountableArguments ()
+    {
+        $_SERVER['argv'] = array('test.php');
+        $options = Optionally::options()
+            ->option('c')
+                ->isCountable()
+            ->argv()
+            ;
+        $this->assertEquals(0, $options->c);
+
+        $_SERVER['argv'] = array('test.php', '-c');
+        $options = Optionally::options()
+            ->option('c')
+                ->isCountable()
+            ->argv()
+            ;
+        $this->assertEquals(1, $options->c);
+
+        $_SERVER['argv'] = array('test.php', 'arg');
+        $options = Optionally::options()
+            ->option('c')
+                ->isCountable()
+            ->argv()
+            ;
+        $this->assertEquals(0, $options->c);
+        $this->assertEquals('arg', $options->args(0));
+
+        $_SERVER['argv'] = array('test.php', '-c', '-c', '-c');
+        $options = Optionally::options()
+            ->option('c')
+                ->isCountable()
+            ->argv()
+            ;
+        $this->assertEquals(3, $options->c);
+
+        $_SERVER['argv'] = array('test.php', '-c', '-c', '-c', '-v', 'arg');
+        $options = Optionally::options()
+            ->option('c')
+                ->isCountable()
+            ->option('v')
+                ->boolean()
+            ->argv()
+            ;
+        $this->assertEquals(3, $options->c);
+        $this->assertTrue($options->v);
+        $this->assertEquals('arg', $options->args(0));
+
+        $_SERVER['argv'] = array('test.php', '-v', '-c', '-c', '-c', 'arg');
+        $options = Optionally::options()
+            ->option('c')
+                ->isCountable()
+            ->option('v')
+                ->boolean()
+            ->argv()
+            ;
+        $this->assertEquals(3, $options->c);
+        $this->assertTrue($options->v);
+        $this->assertEquals('arg', $options->args(0));
+
+    } // end testCountableArguments ()
+
+    public function testArrayArguments ()
+    {
+        // Array arguments with a single argument.
+        $_SERVER['argv'] = array('test.php', '--array', '1');
+        $options = Optionally::options()
+            ->option('array')
+                ->isArray()
+            ->argv()
+            ;
+        $this->assertEquals(array('1'), $options->array);
+
+        // Array arguments with multiple array options.
+        $_SERVER['argv'] = array('test.php', '--array', '1', '--array', '2');
+        $options = Optionally::options()
+            ->option('array')
+                ->isArray()
+            ->argv()
+            ;
+        $this->assertEquals(array('1', '2'), $options->array);
+
+        // Array argument with no value specified.
+        $_SERVER['argv'] = array('test.php', '--array');
+        $options = Optionally::options()
+            ->option('array')
+                ->isArray()
+            ->argv()
+            ;
+        $this->assertNull($options->array);
+
+        // Array arguments with no value specified.
+        $_SERVER['argv'] = array('test.php', '--array', '--array', '--array');
+        $options = Optionally::options()
+            ->option('array')
+                ->isArray()
+            ->argv()
+            ;
+        $this->assertNull($options->array);
+
+        // Array arguments with no value specified, except for the middle
+        // value.
+        $_SERVER['argv'] = array('test.php', '--array', '--array', '1', '--array');
+        $options = Optionally::options()
+            ->option('array')
+                ->isArray()
+            ->argv()
+            ;
+        $this->assertEquals(array('1'), $options->array);
+    } // end testArrayArguments
+
     public function testUnspecifiedOptions ()
     {
         $options = Optionally::options(array('test.php', '-no-such-option', '-d', 'arg1'))
@@ -569,7 +679,6 @@ class OptionallyTestCase extends BaseTestCase
             ->argv()
             ;
 
-        //$this->assertTrue($instance);
         $this->assertInstanceOf('DESTRealm\Optionally', $instance);
 
         $this->assertEquals(
