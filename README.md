@@ -64,6 +64,7 @@ classes for you:
 
 ```php
 <?php
+
 require 'vendor/optionally/autoload.php';
 DESTRealm\Optionally\Autoloader::load();
 
@@ -81,6 +82,7 @@ this is the simplest and recommended method of including it in your project:
 
 ```php
 <?php
+
 require 'optionally.phar';
 
 use DESTRealm\Optionally;
@@ -103,10 +105,16 @@ same manner to all of the examples below. However, you won't see any code to
 include optionally from this point forward--it's assumed you've figured that
 part out!
 
+You should also ignore most opening PHP tags (`<?php`); they're included to
+force Github's syntax highlighter to recognize the sources as PHP code but
+otherwise serve no purpose.
+
 To get started, tell Optionally you'd like to handle your command line arguments
 (we'll deal with options later):
 
 ```php
+<?php
+
 $options = Optionally::options()
   ->argv()
   ;
@@ -123,6 +131,8 @@ Our options object will contain positional data for `file.txt` and
 `output.txt`:
 
 ```php
+<?php
+
 print $options->args(0); // outputs file.txt
 print $options->args(1); // outputs output.txt
 ```
@@ -132,6 +142,8 @@ Of course, if you'd rather manipulate the positional arguments yourself or as an
 array, you can do that, too:
 
 ```php
+<?php
+
 $args = $options->args();
 print $args[0]; // outputs file.txt
 print $args[1]; // outputs output.txt
@@ -173,6 +185,8 @@ We would need to do the following to extract useful information out of
 Optionally:
 
 ```php
+<?php
+
 $options = Optionally::options()
   ->option('test')
     ->value()       // Tells Optionally the option expects a value.
@@ -187,6 +201,8 @@ $options = Optionally::options()
 Now, our `$options` variable will contain:
 
 ```php
+<?php
+
 var_dump($options->test); // outputs string(1) "1"
 var_dump($options->v); // outputs bool(true)
 var_dump($options->debug); // outputs bool(true)
@@ -196,6 +212,7 @@ If, for example, we hadn't passed `--debug` into our script, *boolean* options
 take care of this for us:
 
 ```php
+<?php
 
 // Command line:
 // php -q script.php -v --test=1 file.txt
@@ -218,6 +235,8 @@ var_dump($options->debug); // outputs bool(false)
 Likewise, omitting the `--test=1` option will yield:
 
 ```php
+<?php
+
 var_dump($options->test); // outputs NULL
 ```
 
@@ -230,6 +249,8 @@ options exist as pseudo-properties of the `Options` object, so whenever we
 call something like:
 
 ```php
+<?php
+
 print $options->debug;
 ```
 
@@ -246,6 +267,7 @@ of dealing with these types of options: Camel case or underscores. Whichever you
 use is entirely up to you:
 
 ```php
+<?php
 
 // Command line:
 // php -q script.php --without-foo
@@ -273,6 +295,7 @@ Oftentimes, options will have multiple synonyms or aliases. For most scripts,
 for you for free:
 
 ```php
+<?php
 
 // Command line:
 // php -q script.php -v
@@ -294,6 +317,7 @@ declarations like `boolean()` disrupt Optionally's behavior. As long as you
 remember to declare an option with `option()` first, everything will be fine!
 
 ```php
+<?php
 
 // Command line:
 // php -q script.php --debug
@@ -312,6 +336,7 @@ $options = Optionally::options()
 Incidentally, the same goes for the *Options* object:
 
 ```php
+<?php
 
 var_dump($options->debug); // outputs bool(true)
 var_dump($options->d) ; // alias, outputs bool(true)
@@ -327,6 +352,7 @@ weren't specified. Optional values (and optional options) can be handled rather
 simply:
 
 ```php
+<?php
 
 // Command line:
 // php -q script.php -v --number --count=5
@@ -360,6 +386,7 @@ following code could be used to determine if an option was specified or not and
 if it had a value assigned to it (notice the empty string):
 
 ```php
+<?php
 
 $options = Optionally::options()
   ->option('count')
@@ -411,6 +438,8 @@ to use a new method `optional()` to tell Optionally that our value is now
 an optional one:
 
 ```php
+<?php
+
 $options = Optionally::options()
   ->option('count')
     ->value()
@@ -427,15 +456,124 @@ value has already been set by `value()`. Thus, we must ignore passing a value
 to `value()` and use the extra methods to gain more fine-grained control over
 what we want Optionally to do.
 
+## Really Advanced Options: Countable options and Array Options!
+
+For certain use cases, it might be handy to have Optionally count the number of
+times an option was specified on the command line. To illustrate, suppose you
+have an application that generates increasinly more verbose output for each
+instance the user specifies `-v` on the command line. In this case, you might
+want to have a count of the number of times `-v` appears. Fortunately, this is
+easy with the `isCountable()` or `countable()` methods:
+
+```php
+<?php
+
+$options = Optionally::options()
+  ->option('verbose')
+    ->alias('v')
+    ->isCountable() // countable() is an alias to this.
+  ->argv()
+  ;
+```
+
+Now, if someone were to specify `php -q yourscript.php -v -v -v -v`,
+`print $options->v` or `print $options->verbose` would output **4**!
+
+In other situations, you might want to cumulatively gather the values of each
+successive appearance of a command line option rather than counting it. To do
+this, Optionally provides the `isArray()` method. This might be useful if you're
+writing an ImageMagick script that can run multiple filters on the same image
+depending on what the user specifies:
+
+```php
+<?php
+
+$options = Optionally::options()
+  ->option('filter')
+    ->isArray()
+  ->argv()
+  ;
+```
+
+Elements that are flagged with `isArray()` will return an array of values if the
+option was specified with one or more values or `null` if the user was confused,
+provided the option, but didn't supply an argument.
+
+In most cases, you should be able to squeak by if you simply check to see if
+the option's value is an array (or not) and treat it accordingly:
+
+```php
+<?php
+
+if ((array)$options->filter === $options->filter) {
+    // $options->filter is an array...
+} else {
+    // $options->filter is definitely jacked up.
+}
+```
+
 ## Really Advanced Options: Test Option Values!
 
 Optionally conveniently provides you, dear programmer, with a means of testing
-options supplied by the user and discarding them if they don't match. This
-might be useful if there's a specific option (or two) that must be supplied
-numbers, strings, or other patterns. Anything you can match with a regular
-expression is fair game:
+(or filtering) options supplied by the user for validity and discarding or
+replacing those that happen to fail your validity checks. This might be useful
+if there's a specific option (or two) that must be supplied a number, string, or
+other pattern and there's some chance the user might screw up. Generally
+speaking, anything you can match with a regular expression is fair game.
+
+Currently, there's two methods to filter or test values supplied to your
+options fittingly named `filter()` and `test()`. While `filter()` and `test()`
+are just a means to the same end, don't be lulled into believing they operate
+identically! Both accept a single argument, your callback function, but the
+similarities end there!
+
+The callback function you supply to `filter()` accepts one (and only one!)
+argument: That's the value for the option it's attached to. This function must
+then examine the value it's passed and either return it unscathed or alter it
+until it matches something you want.
+
+In contrast, the callback function you supply to `test()` is a bit more
+complicated: It accepts one or two values, depending on whether you need a
+default, and can raise an exception if you don't. Furthermore, the callback
+function you supply must return a boolean--either `true` or `false`--indicating
+that the value it was passed matches what your code expects or doesn't and needs
+to be handled accordingly. The second argument instructs Optionally to replace
+those values that fail with something more appropriate.
+
+Since `filter()` is the more simplistic of the two, we'll first examine an
+example of it in action. We'll demonstrate an argument that expects integers
+*only* and converts everything that isn't an integer *to* an integer:
 
 ```php
+<?php
+
+$options = Optionally::options()
+  ->option('number')
+  ->filter(function($value){
+    if (is_int($value)) {
+      return (int)$value;
+    }
+    return 0;
+  })
+  ->argv()
+  ;
+```
+
+As you can see, `filter()` accepts a function that itself takes a single
+argument, `$value`, examines the value to determine if it's an integer (and
+helpfully casts it just in case), or returns 0 for those values that aren't. If
+we were to supply `--number=5.0` on the command line, Optionally would convert
+the value of `$options->number` to 0.
+
+Although `test()` is somewhat more complicated in that it accepts two arguments,
+its behavior may be more straightforward than `filter()`'s.  Here's an
+illustration of a very basic `test()` to match numbers similarly to what we did
+in the previous example; anything that doesn't match will cause Optionally to
+throw an `OptionsValueException`:
+
+```php
+<?php
+
 $options = Optionally::options()
   ->option('number')
     ->value(0)
@@ -446,17 +584,20 @@ $options = Optionally::options()
   ;
 ```
 
-In this example, if `--number` is supplied anything but a number (an integer at
-that!), Optionally will throw an OptionsValueException. You'll need to catch
-this exception and do something useful with it, such as printing out the
-script's usage text or perhaps a descriptive error so the user has an idea what
-went wrong.
+Again, in this example, if `--number` is supplied anything but a number (an
+integer at that!), Optionally will throw an `OptionsValueException`. You'll need
+to catch this exception and do something useful with it, such as printing out
+the script's usage text or perhaps a descriptive error so the user has an idea
+what went wrong.
 
 Testing option values can be much more useful if you decide to use a default
 value in those circumstances where the value supplied fails your test. `test()`
-lets you do that by supplying the default as its second argument:
+lets you do that by supplying the default as its second argument in a manner
+that matches almost identically with out `filter()` example above:
 
 ```php
+<?php
+
 $options = Optionally::options()
   ->option('number')
     ->value(0)
@@ -471,9 +612,67 @@ var_dump($options->number); // outputs int(0)
 ```
 
 Now, if the user supplies anything but an integer, the value of
-`$options->number` will be pegged at 0.
+`$options->number` will be pegged at 0, just like what what happened in our
+`filter()` example!
 
-## Really Advanced Options: Require a Value if Another is Null!
+Incidentally, both `filter()` and `test()` will work on array options as
+specified by `isArray()`, but **they will not work** on `boolean()` or
+`isCountable()` options. Here's an example using test on an option array:
+
+```php
+<?php
+
+$options = Optionally::options()
+  ->option('filter')
+    ->isArray()
+    ->test(function($value){return function_exists($value);}, 'scale')
+    ->argv()
+    ;
+```
+
+In this example, **each element** of the options array `filter` will be tested
+against the anonymous function supplied to `test()`. This function checks to
+see whether each value is a function that exists, and if it's not, it will force
+that value to "scale".
+
+Of course, for some functions, simply `filter()`ing the data might be more
+appropriate. The following example demonstrates how to convert every argument
+supplied to an option array to an integer:
+
+```php
+<?php
+
+$options = Optionally::options()
+  ->option('filter')
+    ->isArray()
+    ->filter(function($value){return (int)$value;})
+    ->argv()
+    ;
+```
+
+Of course, anything you can stick in a function can be used to filter the array.
+Don't forget that PHP 5.3 now has closures:
+
+```php
+<?php
+
+class Converter
+{
+  public function toInt ($i) { return (int)$i; }
+}
+
+$converter = new Converter();
+
+$options = Optionally::options()
+  ->option('filter')
+    ->isArray()
+    ->filter(function($value) use ($converter){return $converter->toInt($value);})
+    ->argv()
+    ;
+
+```
+
+## Really Advanced Options (but Mostly Useless): Require a Value if Another is Null!
 
 Although the use case for this feature is arguably slim, there might be some
 circumstances where you must specify one option if another one wasn't supplied.
@@ -484,6 +683,8 @@ a nonsense example of toggle options where one must be specified if the other is
 not:
 
 ```php
+<?php
+
 $options = Optionally::options()
     ->option('on')
         ->boolean()
@@ -517,6 +718,8 @@ Handling exceptions is easy, and once the help generator is finished, it'll be
 even easier:
 
 ```php
+<?php
+
 try {
   $options = Optionally::options()
     // Setup options.
@@ -548,6 +751,8 @@ it'll eventually leak out, and you'll send it to someone), you can make sure
 that an option *absolutely must be supplied*:
 
 ```php
+<?php
+
 $options = Optionally::options()
   ->option('require-me')
     ->alias('r')
