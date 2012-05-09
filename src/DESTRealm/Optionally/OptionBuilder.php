@@ -343,10 +343,6 @@ class OptionBuilder
      */
     private function getSuffixForOption ($option)
     {
-        if (!array_key_exists($option, $this->optionMap)) {
-            return '';
-        }
-
         $optional  = $this->options[ $this->optionMap[$option] ]['optionalValue'];
         $boolean   = $this->options[ $this->optionMap[$option] ]['boolean'];
         $countable = $this->options[ $this->optionMap[$option] ]['isCountable'];
@@ -503,12 +499,6 @@ class OptionBuilder
             $newValue = array();
             foreach ($value as $element) {
                 $element = $callbackRunner($callback, $element);
-
-                // If we encounter a null, 
-                if ($element === null) {
-                    continue;
-                }
-
                 $newValue[] = $element;
             }
             $evaluated[$option] = $newValue;
