@@ -595,7 +595,7 @@ class Optionally
      */
     public function usage ($usage)
     {
-        $this->help->setUsage($usage);
+        $this->usage = $usage;
 
         return $this;
     } // end usage ()
