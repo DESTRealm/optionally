@@ -10,6 +10,14 @@
     convertWarningsToExceptions="true"
     testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader">
 
+    <!--<logging>
+        <log
+            type="coverage-html"
+            target="./reports"
+            charset="UTF-8"
+            />
+    </logging>-->
+
     <testsuites>
         <testsuite name="Basic Installation/Autoload (source install)">
             <directory>./tests/Basic</directory>
