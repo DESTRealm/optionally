@@ -280,25 +280,25 @@ class OptionBuilder
                 }
 
                 if (empty($value)) {
-                    if (!$defaults['optionalValue']) {
+                    // This code is never executed because Getopt will throw
+                    // an exception before required values can be handled here.
+                    // However, because current plans are to replace Getopt
+                    // with Optionally-specific code, this is being retained.
+                    /*if (!$defaults['optionalValue']) {
                         throw new OptionsException(
                             sprintf(
                                 'Option %s requires a value!',
                                 $option
                             )
                         );
-                    }
+                    }*/
                     $evaluated = $this->runFilters($option, $defaults,
                         $evaluated);
                     continue;
                 }
 
-                // Value options; optional and required.
-                if ((array)$value === $value) {
-                    $evaluated[$option] = $value[count($value)-1];
-                } else {
-                    $evaluated[$option] = $value;
-                }
+                // Set value if we haven't already bailed out.
+                $evaluated[$option] = $value[count($value)-1];
 
             } else {
 
