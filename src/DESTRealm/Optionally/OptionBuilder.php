@@ -233,26 +233,21 @@ class OptionBuilder
 
         foreach ($this->options as $option => $defaults) {
 
-            // Handle ifNull. This first checks to verify that the option is
-            // mappable.
-            if (!empty($defaults['ifNull']) &&
-                array_key_exists($defaults['ifNull'], $this->optionMap)) {
-                $required = $this->optionMap[ $defaults['ifNull'] ];
-                if (!array_key_exists($required, $parsed)) {
-                    throw new OptionsException(
-                        sprintf(
-                            'The option %s is required if %s was not specified.',
-                            $option, $defaults['ifNull']
-                        )
-                    );
-                }
-            }
-
             // Default value assignments. If the default value is specified,
             // all options are assigned this at first, and then overwritten if
             // the option was provided.
             if ($defaults['defaults'] !== null) {
                 $evaluated[$option] = $defaults['defaults'];
+            }
+
+            // Handle required options.
+            if ($defaults['required'] && !array_key_exists($option, $parsed)) {
+                throw new OptionsException(
+                    sprintf(
+                        'Required option "%s" was not provided!',
+                        $option
+                    )
+                );
             }
 
             // Value assignments; first, values are assigned if the option was
@@ -306,16 +301,6 @@ class OptionBuilder
                 }
 
             } else {
-
-                // Handle required options.
-                if ($defaults['required']) {
-                    throw new OptionsException(
-                        sprintf(
-                            'Required option "%s" was not provided!',
-                            $option
-                        )
-                    );
-                }
 
                 // Boolean values. This will immediately bail on match.
                 if ($defaults['boolean']) {
