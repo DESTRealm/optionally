@@ -18,6 +18,7 @@ namespace DESTRealm\External;
  * @author Matthew Weier O'Phinney <matthew@zend.com>
  * @author Kris Wallsmith <kris.wallsmith@gmail.com>
  * @author Fabien Potencier <fabien.potencier@symfony-project.org>
+ * @codeCoverageIgnore
  */
 class SplClassLoader
 {
