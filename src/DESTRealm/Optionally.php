@@ -86,7 +86,6 @@ class Optionally
     private $optionTemplate = array(
         'aliases' => array(),   /* Aliases for a given option. */
         'required' => false,    /* Option is required. */
-        'ifNull' => '',         /* Option is required if ifNull is absent. */
         'boolean' => false,     /* Option is boolean. */
         'callback' => null,     /* Option callbacks. See Optionally::callback(). */
         'filter' => null,       /* Test filter callbacks. See Optionally::filter(). */
@@ -496,23 +495,6 @@ class Optionally
 
         return $this;
     } // end required ()
-
-    /**
-     * Indicates that the current option is required if (and only if) $name
-     * was not provided. This can be useful for providing toggle options.
-     * @param  string $name Option.
-     * @return Optionally Instance ($this).
-     */
-    public function requiredIfNull ($name)
-    {
-        $name = (string)$name;
-        $option =& $this->getLastOption();
-        $option['ifNull'] = $name;
-
-        $this->fireCallback('requiredIfNull');
-
-        return $this;
-    } // end requiredIfNull ()
 
     /**
      * Tests the option's value to determine if it is acceptable. $callback
