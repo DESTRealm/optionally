@@ -20,7 +20,6 @@ use DESTRealm\Optionally\Tests\BaseTestCase;
  */
 class ReadmeTestCase extends BaseTestCase
 {
-
     /**
      * Basic Usage
      */
@@ -270,5 +269,173 @@ class ReadmeTestCase extends BaseTestCase
           ;
         $this->assertEquals(array('bw', 'mosaic'), $options->filter);
     } // end testAdvancedOptionsCountableArrays ()
+
+    /**
+     * Really Advanced Options: Test Option Values
+     * @return [type] [description]
+     */
+    public function testAdvancedOptionsTestOptionValues ()
+    {
+        $triggered = false;
+        $_SERVER['argv'] = array('script.php', '--number', '100');
+        $options = Optionally::options()
+            ->option('number')
+                ->filter(function($value) use (&$triggered){
+                    if (is_numeric($value)) {
+                        $triggered = true;
+                        return (int)$value;
+                    }
+                    return 0;
+                })
+            ->argv()
+            ;
+        $this->assertTrue($triggered);
+        $this->assertEquals(100, $options->number);
+
+        $triggered = false;
+        $_SERVER['argv'] = array('script.php', '--number', 'blah');
+        $options = Optionally::options()
+            ->option('number')
+                ->filter(function($value) use (&$triggered){
+                    if (is_numeric($value)) {
+                        return (int)$value;
+                    }
+                    $triggered = true;
+                    return 0;
+                })
+            ->argv()
+            ;
+        $this->assertTrue($triggered);
+        $this->assertEquals(0, $options->number);
+
+        $_SERVER['argv'] = array('script.php', '--number', '100');
+        $options = Optionally::options()
+            ->option('number')
+                ->value(0)
+                ->test(function($value){
+                    return (bool)preg_match('#[0-9]+#', $value) !== false;
+                })
+            ->argv()
+            ;
+        $this->assertEquals('100', $options->number);
+
+        $_SERVER['argv'] = array('script.php', '--number', '100');
+        $options = Optionally::options()
+            ->option('number')
+                ->value(0)
+                ->test(function($value){
+                    return (bool)preg_match('#[0-9]+#', $value) !== false;
+                })
+            ->argv()
+            ;
+        $this->assertEquals('100', $options->number);
+
+        $_SERVER['argv'] = array('script.php', '--number', 'blah');
+        $options = Optionally::options()
+            ->option('number')
+                ->value(0) // The 0 here ensures that an exception will not be
+                           // thrown.
+                ->test(function($value){
+                    return (bool)preg_match('#[0-9]+#', $value) !== false;
+                })
+            ->argv()
+            ;
+        $this->assertEquals('0', $options->number);
+
+        $_SERVER['argv'] = array('script.php', '--number', 'blah');
+        $options = Optionally::options()
+            ->option('number')
+                ->value(0) // The 0 here ensures that an exception will not be
+                           // thrown.
+                ->test(function($value){
+                    return (bool)preg_match('#[0-9]+#', $value) !== false;
+                },
+                0)
+            ->argv()
+            ;
+        $this->assertEquals('0', $options->number);
+
+        $_SERVER['argv'] = array('script.php', '--filter', 'imageExpand', '--filter', 'imageScale', '--filter', 'undefined');
+        $options = Optionally::options()
+            ->option('filter')
+                ->isArray()
+                ->test(function($value){return in_array($value, array('imageExpand', 'imageScale'));}, 'scale')
+            ->argv()
+            ;
+        $this->assertEquals(array('imageExpand', 'imageScale', 'scale'), $options->filter);
+
+        $_SERVER['argv'] = array('script.php', '--filter', '1', '--filter', '100', '--filter', 'foobar');
+        $options = Optionally::options()
+            ->option('filter')
+                ->isArray()
+                ->filter(function($value){return (int)$value;})
+            ->argv()
+            ;
+        $this->assertEquals(array(1, 100, 0), $options->filter);
+    } // end testAdvancedOptionsTestOptionValues ()
+
+    /**
+     * Really Advanced Options: Test Option Values (exception handling)
+     * @expectedException DESTRealm\Optionally\Exceptions\OptionsValueException
+     */
+    public function testAdvancedOptionsTestOptionValues2 ()
+    {
+        $_SERVER['argv'] = array('script.php', '--number', 'blah');
+        $options = Optionally::options()
+            ->option('number')
+                ->value()
+                ->test(function($value){
+                    return (bool)preg_match('#[0-9]+#', $value) !== false;
+                })
+            ->argv()
+            ;
+    } // end testAdvancedOptionsTestOptionValues2 ()
+
+    /**
+     * Advanced (but stupid) Options: Required Options!
+     */
+    public function testAdvancedStupidity ()
+    {
+        $_SERVER['argv'] = array('script.php', '--require-me');
+        $options = Optionally::options()
+            ->option('require-me')
+                ->alias('r')
+                ->value(100)
+                ->required()    // don't do this
+            ->argv()
+            ;
+        $this->assertEquals(100, $options->requireMe);
+        $this->assertEquals(100, $options->require_me);
+        $this->assertEquals(100, $options->r);
+
+        $_SERVER['argv'] = array('script.php', '-r');
+        $options = Optionally::options()
+            ->option('require-me')
+                ->alias('r')
+                ->value(100)
+                ->required()    // don't do this
+            ->argv()
+            ;
+        $this->assertEquals(100, $options->requireMe);
+        $this->assertEquals(100, $options->require_me);
+        $this->assertEquals(100, $options->r);
+    } // end testAdvancedStupidity ()
+
+    /**
+     * Advanced (but stupid) Options: Required Options!
+     * @expectedException DESTRealm\Optionally\Exceptions\OptionsException
+     */
+    public function testAdvancedStupidity2 ()
+    {
+        $_SERVER['argv'] = array('script.php');
+        $options = Optionally::options()
+            ->option('require-me')
+                ->alias('r')
+                ->value(100)
+                ->required()    // don't do this
+            ->argv()
+            ;
+    } // end testAdvancedStupidity2 ()
+
 
 } // end ReadmeTestCase
