@@ -46,6 +46,7 @@ use DESTRealm\Optionally\Exceptions\GetoptException;
  * @author   Andrei Zmievski <andrei@php.net>
  * @license  http://www.php.net/license/3_0.txt PHP 3.0
  * @link     http://pear.php.net/package/Console_Getopt
+ * @codeCoverageIgnore
  */
 class Getopt
 {
