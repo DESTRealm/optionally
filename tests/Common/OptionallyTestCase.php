@@ -395,6 +395,19 @@ class OptionallyTestCase extends BaseTestCase
         $this->assertTrue($options->v);
         $this->assertEquals('arg', $options->args(0));
 
+        // Countable alias.
+        $_SERVER['argv'] = array('test.php', '-v', '-c', '-c', '-c', 'arg');
+        $options = Optionally::options()
+            ->option('c')
+                ->countable()
+            ->option('v')
+                ->boolean()
+            ->argv()
+            ;
+        $this->assertEquals(3, $options->c);
+        $this->assertTrue($options->v);
+        $this->assertEquals('arg', $options->args(0));
+
     } // end testCountableArguments ()
 
     public function testArrayArguments ()
@@ -464,7 +477,39 @@ class OptionallyTestCase extends BaseTestCase
      */
     public function testAliases ()
     {
+        // Simple alias setting.
+        $options = Optionally::options(array('test.php', '--debug', '-v'))
+            ->option('debug')
+                ->alias('d')
+                ->boolean()
+            ->option('verbose')
+                ->alias('v')
+                ->boolean()
+            ->argv()
+            ;
+        $this->assertTrue($options->debug);
+        $this->assertTrue($options->d);
+        $this->assertTrue($options->verbose);
+        $this->assertTrue($options->v);
 
+        // Setting aliases with an array.
+        $options = Optionally::options(array('test.php', '--debug', '-v'))
+            ->option('debug')
+                ->alias(array('d', 'D'))
+                ->boolean()
+            ->option('verbose')
+                ->alias(array('v', 'V'))
+                ->boolean()
+            ->argv()
+            ;
+        $this->assertTrue($options->debug);
+        $this->assertTrue($options->d);
+        $this->assertTrue($options->D);
+        $this->assertTrue($options->verbose);
+        $this->assertTrue($options->v);
+        $this->assertTrue($options->V);
+
+        // Advanced aliases.
         $options = Optionally::options(array('test.php',
             '--debug', '-o', '-v'
         ))

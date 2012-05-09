@@ -26,6 +26,25 @@ class HelpUsageTestCase extends BaseTestCase
         );
     } // end testSimpleUsage ()
 
+    public function testChangingUsageText ()
+    {
+        $options = Optionally::options(array('./script.php', '--debug'))
+            ->usage('%script usage: %script [options]')
+            ->option('debug')
+                ->boolean()
+                ->describe('This option will attempt to enable debugging.')
+            ->argv()
+            ;
+
+        $this->assertEquals(
+'./script.php usage: ./script.php [options]
+
+--debug  This option will attempt to enable debugging.
+',
+            $options->help()
+        );
+    } // end testChangingUsageText ()
+
     public function testMultipleOptions ()
     {
         $options = Optionally::options(array(

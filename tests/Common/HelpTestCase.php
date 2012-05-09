@@ -100,6 +100,183 @@ class HelpTestCase extends BaseTestCase
         );
     } // end testHelpWordWrap ()
 
+    public function testSetAliasIndentation ()
+    {
+        $_SERVER['argv'] = array('./script.php');
+
+        $help = new Help();
+
+        $help->addDescription('debug', 'This option will attempt to enable
+            debugging. Debugging mode enables additional output that may be of
+            some use to developers. Debugging mode is rather chatty and may only
+            be of use in circumstances where the default output is not enough to
+            diagnose a problem.');
+
+        $help->setOptions(
+            array(
+                'debug' => array(
+                    'aliases' => array('d'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => false,
+                    'optionalValue' => false,
+                ),
+            )
+        );
+        $help->setAliasIndentation(2);
+
+        $this->assertEquals(
+'Usage: ./script.php [options]
+
+--debug  This option will attempt to enable debugging. Debugging mode enables
+  -d     additional output that may be of some use to developers. Debugging mode
+         is rather chatty and may only be of use in circumstances where the
+         default output is not enough to diagnose a problem.
+',
+            $help->help()
+        );
+    } // end testSetAliasIndentation ()
+
+    public function testSetMaxColumns ()
+    {
+        $_SERVER['argv'] = array('./script.php');
+
+        $help = new Help();
+
+        $help->addDescription('debug', 'This option will attempt to enable
+            debugging. Debugging mode enables additional output that may be of
+            some use to developers. Debugging mode is rather chatty and may only
+            be of use in circumstances where the default output is not enough to
+            diagnose a problem.');
+
+        $help->setOptions(
+            array(
+                'debug' => array(
+                    'aliases' => array('d'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => false,
+                    'optionalValue' => false,
+                ),
+            )
+        );
+        $help->setMaxColumns(100);
+
+        $this->assertEquals(
+'Usage: ./script.php [options]
+
+--debug  This option will attempt to enable debugging. Debugging mode enables additional output that
+    -d   may be of some use to developers. Debugging mode is rather chatty and may only be of use in
+         circumstances where the default output is not enough to diagnose a problem.
+',
+            $help->help()
+        );
+    } // end testSetMaxColumns ()
+
+    public function testSetOptionBuffer ()
+    {
+        $_SERVER['argv'] = array('./script.php');
+
+        $help = new Help();
+
+        $help->addDescription('debug', 'This option will attempt to enable
+            debugging. Debugging mode enables additional output that may be of
+            some use to developers. Debugging mode is rather chatty and may only
+            be of use in circumstances where the default output is not enough to
+            diagnose a problem.');
+
+        $help->setOptions(
+            array(
+                'debug' => array(
+                    'aliases' => array('d'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => false,
+                    'optionalValue' => false,
+                ),
+            )
+        );
+        $help->setOptionBuffer(4);
+
+        $this->assertEquals(
+'Usage: ./script.php [options]
+
+--debug    This option will attempt to enable debugging. Debugging mode enables
+    -d     additional output that may be of some use to developers. Debugging
+           mode is rather chatty and may only be of use in circumstances where
+           the default output is not enough to diagnose a problem.
+',
+            $help->help()
+        );
+    } // end testSetOptionBuffer ()
+
+    public function testSetOptionCutoff ()
+    {
+        $_SERVER['argv'] = array('./script.php');
+
+        $help = new Help();
+
+        $help->addDescription('this-is-a-really-long-argument', 'This option
+            will attempt to enable debugging. Debugging mode enables additional
+            output that may be of some use to developers. Debugging mode is
+            rather chatty and may only be of use in circumstances where the
+            default output is not enough to diagnose a problem.');
+
+        $help->setOptions(
+            array(
+                'this-is-a-really-long-argument' => array(
+                    'aliases' => array(),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => true,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'value' => false,
+                    'optionalValue' => false,
+                ),
+            )
+        );
+        $help->setOptionCutoff(40);
+
+        $this->assertEquals(
+'Usage: ./script.php [options]
+
+--this-is-a-really-long-argument  This option will attempt to enable debugging.
+                                  Debugging mode enables additional output that
+                                  may be of some use to developers. Debugging
+                                  mode is rather chatty and may only be of use
+                                  in circumstances where the default output is
+                                  not enough to diagnose a problem.
+',
+            $help->help()
+        );
+    } // end testSetOptionCutoff
+
     public function testLongArgument ()
     {
         $_SERVER['argv'] = array('./script.php');
