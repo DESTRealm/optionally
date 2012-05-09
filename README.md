@@ -407,6 +407,135 @@ if ($options->count === '') {
 }
 ```
 
+## Mostly Advanced Feature: Self Documenting!
+
+Optionally will also, optionally (see what I did there?), generate usage
+documentation that can be printed under whatever conditions you desire. Perhaps
+you want your script to generate usage text whenever it's run without any
+arguments or if the user provides `--help` or `-h` options. This is really easy
+to do, and the best part is that the documentation is built-in as a feature that
+also helps remind *you* what options are intended to do what! Here's an example:
+
+```php
+<?php
+
+$options = Optionally::options()
+    ->option('debug')
+        ->alias('d')
+        ->describe('Enables debugging mode for the script. This will generate
+            extra output that might be useful for diagnosing problems')
+    ->option('verbose')
+        ->alias('v')
+        ->describe('Enables verbose output. Verbose output is a little more
+            chatty than regular output but might also provide useful
+            information!')
+    ->argv()
+    ;
+
+// Generate the help if no arguments are specified:
+$args = $options->args();
+if (count($args) === 0) {
+    print $options->help();
+}
+```
+
+This will generate the following text:
+
+```
+Usage: test2.php [options]
+
+--debug    Enables debugging mode for the script. This will generate extra
+    -d     output that might be useful for diagnosing problems
+
+--verbose  Enables verbose output. Verbose output is a little more chatty than
+    -v     regular output but might also provide useful information!
+```
+
+As you can see, both your options *and* their aliases are provided in the
+generated help output. Moreover, though, options with arguments can also be
+provided!
+
+```php
+<?php
+
+$options = Optionally::options()
+    ->option('config')
+        ->value() // Require argument.
+        ->describe('Reads the configuration file from %arg.')
+    ->option('output')
+        ->value('')
+        ->describe('Prints output to STDIN or to %arg, if provided.')
+    ->argv()
+    ;
+```
+
+This snippet of code will generate the following help text:
+
+```
+Usage: test2.php [options]
+
+--config[=]<value>  Reads the configuration file from <value>.
+
+--output[=][value]  Prints output to STDIN or to [value], if provided.
+```
+
+As you can see, options that accept require or optional arguments will generate
+slightly different help text indicating that they require options. Square
+brackets indicate optional items; angle brackets indicate required items. In
+both cases, the equal signs can be omitted (`--config=value` is just as valid
+as `--config value`), but in the former case, `--config` requires an argument
+whle `--output` does not.
+
+Note that by default, if you don't name an argument, the string `value` will be
+used in its place. Fortunately, naming arguments is easy! The previous example
+demonstrates that `%arg` makes a useful placeholder for printing the argument's
+name (you can also use `%@` as a placeholder to save some typing). Incidentally,
+you can also use a special shortcut to act as both a text placeholder and as a
+means of naming your options with `%@<name>`. Here's an example:
+
+```php
+<?php
+
+$options = Optionally::options()
+    ->option('config')
+        ->value() // Require argument.
+        ->describe('Reads the configuration file from %@file.')
+    ->option('output')
+        ->value('')
+        ->describe('Prints output to STDIN or to %@file, if provided.')
+    ->argv()
+    ;
+```
+
+Now our output reads:
+
+```
+Usage: test2.php [options]
+
+--config[=]<file>  Reads the configuration file from <file>.
+
+--output[=][file]  Prints output to STDIN or to [file], if provided.
+```
+
+Of course, if the `%@<name>` convention is too awkward for you, the `describe()`
+method will also accept the argument name as its second argument:
+
+```php
+<?php
+
+$options = Optionally::options()
+    ->option('config')
+        ->value() // Require argument.
+        ->describe('Reads the configuration file from %@.', 'file')
+    ->option('output')
+        ->value('')
+        ->describe('Prints output to STDIN or to %@, if provided.', 'file')
+    ->argv()
+    ;
+```
+
+This will generate the same output as the previous example.
+
 ## Really Advanced Options: Mostly Optional Values with Different Defaults!
 
 `value()` isn't the only way to specify defaults but it is the easiest.
