@@ -438,13 +438,13 @@ an optional one:
 <?php
 
 $options = Optionally::options()
-  ->option('count')
-    ->value()
-      ->optional()    // tells Optionally that this value is optional; required for this example
-      ->defaults(0)   // sets default to 0
-      ->defaultsIfMissing(false)    // sets default to false if --count is missing
-  ->argv()
-  ;
+    ->option('count')
+        ->value()
+            ->optional()    // tells Optionally that this value is optional; required for this example
+            ->defaults(0)   // sets default to 0
+            ->defaultsIfMissing(false)    // sets default to false if --count is missing
+    ->argv()
+    ;
 ```
 
 We can't specify `0` or `false` when we call `value()`, because
@@ -469,11 +469,11 @@ easy with the `isCountable()` or `countable()` methods:
 // php -q script.php -v -v file.txt
 
 $options = Optionally::options()
-  ->option('verbose')
-    ->alias('v')
-    ->isCountable() // countable() is an alias to this.
-  ->argv()
-  ;
+    ->option('verbose')
+        ->alias('v')
+        ->isCountable() // countable() is an alias to this.
+    ->argv()
+    ;
 
 var_dump($options->verbose); // outputs string(1) "2"
 var_dump($options->v);       // outputs string(1) "2"
@@ -496,10 +496,10 @@ depending on what the user specifies:
 // php -q script.php --filter bw --filter mosaic
 
 $options = Optionally::options()
-  ->option('filter')
-    ->isArray()
-  ->argv()
-  ;
+    ->option('filter')
+        ->isArray()
+    ->argv()
+    ;
 
 var_dump($options->filter); // outputs array(2){[0]=> string(2) "bw" [1]=> string(6) "mosaic"}
 ```
@@ -549,7 +549,7 @@ that the value it was passed matches what your code expects or doesn't and needs
 to be handled accordingly. The second argument instructs Optionally to replace
 those values that fail with something more appropriate.
 
-Since `filter()` is the more simplistic of the two, we'll first examine an
+Since `filter()` is the most simplistic of the two, we'll first examine an
 example of it in action. We'll demonstrate an argument that expects integers
 *only* and converts everything that isn't an integer *to* an integer:
 
@@ -557,15 +557,15 @@ example of it in action. We'll demonstrate an argument that expects integers
 <?php
 
 $options = Optionally::options()
-  ->option('number')
-  ->filter(function($value){
-    if (is_int($value)) {
-      return (int)$value;
-    }
-    return 0;
-  })
-  ->argv()
-  ;
+    ->option('number')
+        ->filter(function($value){
+          if (is_numeric($value)) {
+            return (int)$value;
+          }
+          return 0;
+        })
+    ->argv()
+    ;
 ```
 
 As you can see, `filter()` accepts a function that itself takes a single
@@ -584,13 +584,13 @@ throw an `OptionsValueException`:
 <?php
 
 $options = Optionally::options()
-  ->option('number')
-    ->value(0)
-    ->test(function($value){
-      return (bool)preg_match('#[0-9]+#', $value) !== false;
-    })
-  ->argv()
-  ;
+    ->option('number')
+        ->value() // Passing a value here will also prevent throwing an OptionsValueException
+        ->test(function($value){
+          return (bool)preg_match('#[0-9]+#', $value) !== false;
+        })
+    ->argv()
+    ;
 ```
 
 Again, in this example, if `--number` is supplied anything but a number (an
@@ -608,14 +608,14 @@ that matches almost identically with out `filter()` example above:
 <?php
 
 $options = Optionally::options()
-  ->option('number')
-    ->value(0)
-    ->test(function($value){
-      return (bool)preg_match('#[0-9]+#', $value) !== false;
-      },
-      0)
-  ->argv()
-  ;
+    ->option('number')
+        ->value()
+        ->test(function($value){
+          return (bool)preg_match('#[0-9]+#', $value) !== false;
+          },
+          0)
+    ->argv()
+    ;
 
 var_dump($options->number); // outputs int(0)
 ```
@@ -632,9 +632,9 @@ specified by `isArray()`, but **they will not work** on `boolean()` or
 <?php
 
 $options = Optionally::options()
-  ->option('filter')
-    ->isArray()
-    ->test(function($value){return function_exists($value);}, 'scale')
+    ->option('filter')
+        ->isArray()
+        ->test(function($value){return function_exists($value);}, 'scale')
     ->argv()
     ;
 ```
@@ -652,9 +652,9 @@ supplied to an option array to an integer:
 <?php
 
 $options = Optionally::options()
-  ->option('filter')
-    ->isArray()
-    ->filter(function($value){return (int)$value;})
+    ->option('filter')
+        ->isArray()
+        ->filter(function($value){return (int)$value;})
     ->argv()
     ;
 ```
@@ -680,35 +680,6 @@ $options = Optionally::options()
     ;
 
 ```
-
-## Really Advanced Options (but Mostly Useless): Require a Value if Another is Null!
-
-Although the use case for this feature is arguably slim, there might be some
-circumstances where you must specify one option if another one wasn't supplied.
-Though this mostly works with boolean options, it *should* work with value-based
-options if you haven't supplied a default (and if you *did* supply a default,
-why would you need to force the user to supply another option anyway?). Here's
-a nonsense example of toggle options where one must be specified if the other is
-not:
-
-```php
-<?php
-
-$options = Optionally::options()
-    ->option('on')
-        ->boolean()
-        ->requiredIfNull('off')
-    ->option('off')
-        ->boolean()
-        ->requiredIfNull('on')
-    ->argv()
-    ;
-```
-
-Optionally handles this particular case by throwing an exception if only one of
-the two options was specified.
-
-This leads us to...
 
 ## Really, Really Advanced Options: Error Handling!
 
@@ -765,6 +736,7 @@ that an option *absolutely must be supplied*:
 $options = Optionally::options()
   ->option('require-me')
     ->alias('r')
+    ->boolean()
     ->required()    // don't do this
   ->argv()
   ;
