@@ -45,6 +45,10 @@ class StringTestCase extends BaseTestCase
                 '        ', '--debug', $string
             )
         );
+
+        $this->assertFalse(
+            String::replaceIndent('    ', '--debug', 'String without indentation.')
+        );
     } // end testReplaceIndent ()
 
     public function testBasicStringWrap ()
@@ -121,6 +125,16 @@ Multiple newlines are retained.',
             String::normalize($string)
         );
     } // end testNormalize ()
+
+    public function testNormalizeLineEndings ()
+    {
+        $string = "String with\r\nmixed line endings.\r";
+
+        $this->assertEquals(
+            "String with\nmixed line endings.\n",
+            String::normalizeLineEndings($string)
+        );
+    } // end testNormalizeLineEndings ()
 
     public function testNormalizeWrap ()
     {

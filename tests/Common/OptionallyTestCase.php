@@ -145,6 +145,21 @@ class OptionallyTestCase extends BaseTestCase
     } // end testCreateOption ()
 
     /**
+     * Tests attempting to grab an invalid option from the generated Options
+     * object. This should always return null.
+     */
+    public function testGettingInvalidOption ()
+    {
+        $options = Optionally::options(array('script.php', '--debug'))
+            ->option('debug')
+                ->alias('d')
+                ->boolean()
+            ->argv()
+            ;
+        $this->assertNull($options->noSuchOption);
+    } // end testGettingInvalidOption ()
+
+    /**
      * Tests the creation of an option with its settings passed in as an array.
      * This is likely a lesser-used option since using method chaining is much
      * easier to read but might result in more compact code.
