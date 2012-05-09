@@ -151,24 +151,6 @@ class Help
     } // end addDescription ()
 
     /**
-     * Adds example usage to options. Normally, you shouldn't need this if your
-     * options are well-explained, but it can be useful for certain things.
-     * Option examples will appear below the usage and will be indented.
-     *
-     * If you specify aliases, each example $example will be generated for every
-     * option.
-     * @param string $option          Option.
-     * @param string $example         Option example.
-     * @param array  $aliases=array() Option aliases, if any.
-     */
-    public function addExamples ($option, $example, $aliases=array())
-    {
-        if ((array)$aliases !== $aliases) {
-            $aliases = array($aliases);
-        }
-    } // end addExamples ()
-
-    /**
      * Generates help output.
      * @return string Generated help output.
      */
@@ -282,19 +264,18 @@ class Help
         $maxLength = 0;
         foreach ($options as $option) {
 
-            $option = $this->toOption(
+            $optionized = $this->toOption(
                 $option,
                 $this->help[$option]['arg'],
                 $this->help[$option]['argIsOptional']
             );
 
-            if (strlen($option) <= $this->cutoff) {
+            if (strlen($optionized) <= $this->cutoff) {
                 $maxLength = max(
                     $maxLength,
-                    strlen($option)
+                    strlen($optionized)
                 );
             }
-
             if (!empty($this->options[$option]['aliases'])) {
                 foreach ($this->options[$option]['aliases'] as $alias) {
 
@@ -325,32 +306,6 @@ class Help
 
         return $maxLength;
     } // end calculateMaxLength ()
-
-    /**
-     * Determines if the option $option has an optional value or not.
-     * @param string $option Option to check.
-     * @return boolean Returns true if the option has an optional value, false
-     * otherwise.
-     */
-    private function hasOptionalValue ($option)
-    {
-        return array_key_exists($option, $this->options) &&
-            !$this->options[$option]['boolean'] &&
-            $this->options[$option]['optionalValue'];
-    } // end hasOptionalValue ()
-
-    /**
-     * Determines if the option $option has a required value or not.
-     * @param  string  $option Option to check.
-     * @return boolean Returns true if the option has a required value, false
-     * otherwise.
-     */
-    private function hasRequiredValue ($option)
-    {
-        return array_key_exists($option, $this->options) &&
-            !$this->options[$option]['boolean'] &&
-            !$this->options[$option]['optionalValue'];
-    } // end hasRequiredValue ()
 
     /**
      * Generates a line of help text concatenated together with the option
