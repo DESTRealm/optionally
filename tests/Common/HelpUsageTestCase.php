@@ -77,7 +77,6 @@ class HelpUsageTestCase extends BaseTestCase
                 ->describe('Disable STDERR output.')
             ->argv()
             ;
-            print $options->help();
 
         $this->assertEquals(
 'Usage: ./script.php [options]
@@ -99,4 +98,42 @@ class HelpUsageTestCase extends BaseTestCase
             $options->help()
         );
     } // end testMultipleOptions ()
+
+    public function testLengthyOptions ()
+    {
+        $options = Optionally::options(array(
+            'script.php',
+            '--this-is-a-long-option-one'
+        ))
+            ->option('this-is-a-long-option-one')
+                ->boolean()
+                ->alias('this-is-a-long-option-1')
+                ->describe('This option tests lengthy options, their wordwrap,
+                    and ensures that the output should be generated as expected.
+                ')
+            ->option('this-is-a-long-option-two')
+                ->boolean()
+                ->alias('this-is-a-long-option-2')
+                ->describe('This option tests lengthy options, their wordwrap,
+                    and ensures that the output should be generated as expected.
+                ')
+            ->argv()
+            ;
+
+        $this->assertEquals(
+'Usage: script.php [options]
+
+--this-is-a-long-option-one
+    This option tests lengthy options, their wordwrap, and ensures that the
+--this-is-a-long-option-1
+    output should be generated as expected.
+
+--this-is-a-long-option-two
+    This option tests lengthy options, their wordwrap, and ensures that the
+--this-is-a-long-option-2
+    output should be generated as expected.
+',
+            $options->help()
+        );
+    } // testLengthyOptions ()
 } // end HelpUsageTestCase

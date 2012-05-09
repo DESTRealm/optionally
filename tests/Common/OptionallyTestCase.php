@@ -993,6 +993,15 @@ class OptionallyTestCase extends BaseTestCase
             ;
         $this->assertEquals(array('1', '2', '0'), $options->array);
 
+        // No option specified; this should generate an empty array.
+        $options = Optionally::options(array('test.php'))
+            ->option('array')
+                ->isArray()
+            ->test(function($value){return is_numeric($value);}, 0)
+            ->argv()
+            ;
+        $this->assertEquals(array(), $options->array);
+
     } // end testOptionTestArray ()
 
     /**
