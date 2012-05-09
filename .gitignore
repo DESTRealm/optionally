@@ -1,4 +1,5 @@
 *.phar
 composer.lock
 phpunit.xml
+reports
 vendor
