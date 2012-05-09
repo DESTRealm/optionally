@@ -116,8 +116,8 @@ To get started, tell Optionally you'd like to handle your command line arguments
 <?php
 
 $options = Optionally::options()
-  ->argv()
-  ;
+    ->argv()
+    ;
 ```
 
 This will create an `$options` object that can be used to to get positional
@@ -188,14 +188,14 @@ Optionally:
 <?php
 
 $options = Optionally::options()
-  ->option('test')
-    ->value()       // Tells Optionally the option expects a value.
-  ->option('v')
-    ->boolean()     // Tells Optionally that the option is boolean (true/false).
-  ->option('debug')
-    ->boolean()
-  ->argv()          // Get the options object.
-  ;
+    ->option('test')
+        ->value()       // Tells Optionally the option expects a value.
+    ->option('v')
+        ->boolean()     // Tells Optionally that the option is boolean (true/false).
+    ->option('debug')
+        ->boolean()
+    ->argv()            // Get the options object.
+    ;
 ```
 
 Now, our `$options` variable will contain:
@@ -218,14 +218,14 @@ take care of this for us:
 // php -q script.php -v --test=1 file.txt
 
 $options = Optionally::options()
-  ->option('test')
-    ->value()
-  ->option('v')
-    ->boolean()
-  ->option('debug')
-    ->boolean()
-  ->argv()
-  ;
+    ->option('test')
+        ->value()
+    ->option('v')
+        ->boolean()
+    ->option('debug')
+        ->boolean()
+    ->argv()
+    ;
 
 var_dump($options->test); // outputs string(1) "1"
 var_dump($options->v); // outputs bool(true)
@@ -273,12 +273,12 @@ use is entirely up to you:
 // php -q script.php --without-foo
 
 $options = Optionally::options()
-  ->option('with-bar')
-    ->boolean()
-  ->option('without-foo')
-    ->boolean()
-  ->argv()
-  ;
+    ->option('with-bar')
+        ->boolean()
+    ->option('without-foo')
+        ->boolean()
+    ->argv()
+    ;
 
 var_dump($options->withoutFoo); // outputs bool(true)
 var_dump($options->without_foo); // outputs bool(true)
@@ -301,11 +301,11 @@ for you for free:
 // php -q script.php -v
 
 $options = Optionally::options()
-  ->option('v')
-    ->boolean()
-    ->alias('verbose')
-  ->argv()
-  ;
+    ->option('v')
+        ->boolean()
+        ->alias('verbose')
+    ->argv()
+    ;
 
 var_dump($options->v); // outputs bool(true)
 var_dump($options->verbose); // outputs bool(true)
@@ -323,14 +323,14 @@ remember to declare an option with `option()` first, everything will be fine!
 // php -q script.php --debug
 
 $options = Optionally::options()
-  ->option('debug')
-    ->alias('d')
-    ->boolean()
-  ->option('v')
-    ->boolean()
-    ->alias('verbose')
-  ->argv()
-  ;
+    ->option('debug')
+        ->alias('d')
+        ->boolean()
+    ->option('v')
+        ->boolean()
+        ->alias('verbose')
+    ->argv()
+    ;
 ```
 
 Incidentally, the same goes for the *Options* object:
@@ -358,18 +358,18 @@ simply:
 // php -q script.php -v --number --count=5
 
 $options = Optionally::options()
-  ->option('v')
-    ->alias('verbose')
-    ->boolean()
-  ->option('number')
-    ->alias('n')
-    ->value(0)
-  ->option('count')
-    ->value(0)
-  ->option('max')
-    ->value(0)
-  ->argv()
-  ;
+    ->option('v')
+        ->alias('verbose')
+        ->boolean()
+    ->option('number')
+        ->alias('n')
+        ->value(0)
+    ->option('count')
+        ->value(0)
+    ->option('max')
+        ->value(0)
+    ->argv()
+    ;
 
 var_dump($options->v); // outputs bool(true)
 var_dump($options->verbose); // outputs bool(true)
@@ -389,20 +389,20 @@ if it had a value assigned to it (notice the empty string):
 <?php
 
 $options = Optionally::options()
-  ->option('count')
-    ->alias('c')
-    ->value('')
-  ->argv()
-  ;
+    ->option('count')
+        ->alias('c')
+        ->value('')
+    ->argv()
+    ;
 
 if ($options->count === '') {
 
-  // count wasn't specified on the command line or it was specified without a
-  // value.
+    // count wasn't specified on the command line or it was specified without a
+    // value.
 
 } else {
 
-  // count was specified and it has a value assigned.
+    // count was specified and it has a value assigned.
 
 }
 ```
@@ -559,10 +559,10 @@ example of it in action. We'll demonstrate an argument that expects integers
 $options = Optionally::options()
     ->option('number')
         ->filter(function($value){
-          if (is_numeric($value)) {
-            return (int)$value;
-          }
-          return 0;
+            if (is_numeric($value)) {
+                return (int)$value;
+            }
+            return 0;
         })
     ->argv()
     ;
@@ -587,7 +587,7 @@ $options = Optionally::options()
     ->option('number')
         ->value() // Passing a value here will also prevent throwing an OptionsValueException
         ->test(function($value){
-          return (bool)preg_match('#[0-9]+#', $value) !== false;
+            return (bool)preg_match('#[0-9]+#', $value) !== false;
         })
     ->argv()
     ;
@@ -611,9 +611,9 @@ $options = Optionally::options()
     ->option('number')
         ->value()
         ->test(function($value){
-          return (bool)preg_match('#[0-9]+#', $value) !== false;
-          },
-          0)
+                return (bool)preg_match('#[0-9]+#', $value) !== false;
+            },
+            0)
     ->argv()
     ;
 
@@ -673,9 +673,9 @@ class Converter
 $converter = new Converter();
 
 $options = Optionally::options()
-  ->option('filter')
-    ->isArray()
-    ->filter(function($value) use ($converter){return $converter->toInt($value);})
+    ->option('filter')
+        ->isArray()
+        ->filter(function($value) use ($converter){return $converter->toInt($value);})
     ->argv()
     ;
 
@@ -701,12 +701,12 @@ even easier:
 <?php
 
 try {
-  $options = Optionally::options()
-    // Setup options.
-    ->argv()
-    ;
+    $options = Optionally::options()
+        // Setup options.
+        ->argv()
+        ;
 } catch (OptionallyException $e) {
-  // Handle the error.
+    // Handle the error.
 }
 ```
 
@@ -734,12 +734,12 @@ that an option *absolutely must be supplied*:
 <?php
 
 $options = Optionally::options()
-  ->option('require-me')
-    ->alias('r')
-    ->boolean()
-    ->required()    // don't do this
-  ->argv()
-  ;
+    ->option('require-me')
+        ->alias('r')
+        ->boolean()
+        ->required()    // don't do this
+    ->argv()
+    ;
 ```
 
 This will throw an `OptionsException`. You shouldn't be doing this (did I repeat
