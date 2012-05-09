@@ -122,7 +122,6 @@ class OptionallyTestCase extends BaseTestCase
     {
         $options = Optionally::options(array('test.php', '--file', '-c', 'file', 'test.txt', 'arg1'))
             ->option('c')
-                ->required()
                 ->describe('Loads a config file.')
                 ->alias('config')
                 ->value()
@@ -622,39 +621,6 @@ class OptionallyTestCase extends BaseTestCase
     } // end testDefaultsIfMissing ()
 
     /**
-     * Tests requiredIfNull.
-     * @expectedException DESTRealm\Optionally\Exceptions\OptionsException
-     * @return [type]
-     */
-    public function testRequiredIfNull ()
-    {
-
-        $options = Optionally::options(array('test.php', '--on'))
-            ->option('on')
-                ->boolean()
-                ->requiredIfNull('off')
-            ->option('off')
-                ->boolean()
-                ->requiredIfNull('on')
-            ->argv()
-            ;
-
-        $this->assertTrue($options->on);
-        $this->assertFalse($options->off);
-
-        $options = Optionally::options(array('test.php'))
-            ->option('on')
-                ->boolean()
-                ->requiredIfNull('off')
-            ->option('off')
-                ->boolean()
-                ->requiredIfNull('on')
-            ->argv()
-            ;
-
-    } // end testRequiredIfNull ()
-
-    /**
      * Tests option handling callbacks.
      */
     public function testCallbacks ()
@@ -711,13 +677,13 @@ class OptionallyTestCase extends BaseTestCase
         };
 
         $options = Optionally::options(array('test.php', '-v'))
+            ->option('c')
             ->option('v')
                 ->callback($callback)
                 ->alias('verbose')
                 ->defaults(5)
                 ->defaultsIfMissing(10)
                 ->required()
-                ->requiredIfNull('c')
                 ->value()
                  ->optional()
             ->argv()
@@ -732,7 +698,6 @@ class OptionallyTestCase extends BaseTestCase
                 'defaults',
                 'defaultsIfMissing',
                 'required',
-                'requiredIfNull',
                 'value',
                 'optional',
                 'pre',
