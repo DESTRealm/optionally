@@ -93,6 +93,10 @@ This can usually be toggled in your `php.ini` by adding `extension=phar.so`
 depending on your distribution, how PHP was built, and whether you've installed
 it from sources.
 
+You can download the [Optionally PHAR from Github](https://github.com/DESTRealm/binaries/raw/dfbad593e1a681511bfacad4f5233bdae095e732/phars/optionally.phar) or clone the sources and build it yourself using [Composer](http://getcomposer.org)
+for collecting development dependencies and [Phing](http://www.phing.info/trac/)
+for building the distribution.
+
 Currently, no `.phar`s are available, but I'll be posting a download link at
 some point in the near future
 

@@ -1,9 +1,10 @@
 {
   "name": "destrealm/optionally",
   "type": "library",
-  "description": "A simple, Optimist- (NodeJS) like command line options and arguments handler.",
+  "description": "Optionally is a simple, Optimist- (NodeJS-) like command line options and arguments handler.",
   "keywords": ["command", "line", "commandline", "options", "arguments", "optimist"],
   "homepage": "http://github.com/DESTRealm/optionally",
+  "version": "0.1.0",
   "license": "MIT",
   "authors": [
     {
