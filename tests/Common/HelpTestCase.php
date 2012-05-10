@@ -399,6 +399,46 @@ class HelpTestCase extends BaseTestCase
         );
     } // end testMultipleOptions ()
 
+    public function testDefaultArg ()
+    {
+        $_SERVER['argv'] = array('./script.php');
+
+        $help = new Help();
+
+        $help->addDescription('config', 'Loads the configuration specified by
+            %arg. %arg is required.');
+
+        $help->setOptions(
+            array(
+                'config' => array(
+                    'aliases' => array('c'),
+                    'required' => false,
+                    'ifNull' => '',
+                    'boolean' => false,
+                    'callback' => null,
+                    'filter' => null,
+                    'filterValue' => null,
+                    'defaults' => null,
+                    'examples' => null,
+                    'ifMissing' => null,
+                    'optionalValue' => false,
+                    'argName' => '',
+                    'isArray' => false,
+                    'isCountable' => false,
+                )
+            )
+        );
+
+        $this->assertEquals(
+'Usage: ./script.php [options]
+
+--config[=]<value>  Loads the configuration specified by <value>. <value> is
+    -c <value>      required.
+',
+            $help->help()
+        );
+    } // end testDefaultArg ()
+
     public function testRequiredNamedArg ()
     {
         $_SERVER['argv'] = array('./script.php');
