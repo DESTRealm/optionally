@@ -105,6 +105,37 @@ culpa qui officia deserunt mollit anim id est laborum.',
 
     } // end testAdvancedStringWrap ()
 
+    public function testIndentStringWrap ()
+    {
+        $string = 'Bacon ipsum dolor sit amet <file> chuck turkey dolore pork
+chop duis. Commodo meatloaf quis brisket culpa. Veniam
+shoulder filet mignon ut, laboris in beef ribs adipisicing
+culpa pastrami pork belly minim sirloin ea jowl. Irure
+<file> pariatur in, pork belly frankfurter tri-tip
+hamburger ut deserunt meatball minim boudin sunt.
+Exercitation minim tongue, corned beef short loin pig
+meatloaf shankle andouille aute filet mignon hamburger
+voluptate drumstick ut. Deserunt pork proident, turkey
+pariatur bacon anim biltong velit magna ex occaecat <file>.
+';
+        $this->assertEquals(
+'            Bacon ipsum dolor sit amet <file> chuck turkey dolore pork
+            chop duis. Commodo meatloaf quis brisket culpa. Veniam
+            shoulder filet mignon ut, laboris in beef ribs adipisicing
+            culpa pastrami pork belly minim sirloin ea jowl. Irure
+            <file> pariatur in, pork belly frankfurter tri-tip
+            hamburger ut deserunt meatball minim boudin sunt.
+            Exercitation minim tongue, corned beef short loin pig
+            meatloaf shankle andouille aute filet mignon hamburger
+            voluptate drumstick ut. Deserunt pork proident, turkey
+            pariatur bacon anim biltong velit magna ex occaecat <file>.
+',
+            String::indent($string, 12)
+        );
+
+
+    } // end testIndentStringWrap ()
+
     public function testNormalize ()
     {
         $string =

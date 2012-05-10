@@ -135,5 +135,117 @@ class HelpUsageTestCase extends BaseTestCase
 ',
             $options->help()
         );
+
+        $this->assertTrue($options->thisIsALongOptionOne);
+        $this->assertTrue($options->this_is_a_long_option_one);
+        $this->assertTrue($options->thisIsALongOption1);
+        $this->assertTrue($options->this_is_a_long_option_1);
     } // testLengthyOptions ()
+
+    public function testLengthyDescriptions ()
+    {
+        $options = Optionally::options(array('script.php'))
+            ->option('debug')
+                ->alias('d')
+                ->boolean()
+                ->describe('Bacon ipsum dolor sit amet chuck turkey dolore pork
+                    chop duis. Commodo meatloaf quis brisket culpa. Veniam
+                    shoulder filet mignon ut, laboris in beef ribs adipisicing
+                    culpa pastrami pork belly minim sirloin ea jowl. Irure
+                    pariatur in, pork belly frankfurter tri-tip hamburger ut
+                    deserunt meatball minim boudin sunt. Exercitation minim
+                    tongue, corned beef short loin pig meatloaf shankle
+                    andouille aute filet mignon hamburger voluptate drumstick
+                    ut. Deserunt pork proident, turkey pariatur bacon anim
+                    biltong velit magna ex occaecat.')
+            ->option('config')
+                ->alias('c')
+                ->value()
+                ->describe('Bacon ipsum dolor sit amet %@file chuck turkey
+                    dolore pork chop duis. Commodo meatloaf quis brisket culpa.
+                    Veniam shoulder filet mignon ut, laboris in beef ribs
+                    adipisicing culpa pastrami pork belly minim sirloin ea jowl.
+                    Irure %@ pariatur in, pork belly frankfurter tri-tip
+                    hamburger ut deserunt meatball minim boudin sunt.
+                    Exercitation minim tongue, corned beef short loin pig
+                    meatloaf shankle andouille aute filet mignon hamburger
+                    voluptate drumstick ut. Deserunt pork proident, turkey
+                    pariatur bacon anim biltong velit magna ex occaecat %@.')
+            ->option('file')
+                ->value()
+                ->describe('Bacon ipsum dolor sit amet %@file chuck turkey
+                    dolore pork chop duis. Commodo meatloaf quis brisket culpa.
+                    Veniam shoulder filet mignon ut, laboris in beef ribs
+                    adipisicing culpa pastrami pork belly minim sirloin ea jowl.
+                    Irure %@ pariatur in, pork belly frankfurter tri-tip
+                    hamburger ut deserunt meatball minim boudin sunt.
+                    Exercitation minim tongue, corned beef short loin pig
+                    meatloaf shankle andouille aute filet mignon hamburger
+                    voluptate drumstick ut. Deserunt pork proident, turkey
+                    pariatur bacon anim biltong velit magna ex occaecat %@.')
+            ->option('test-file')
+                ->value()
+                ->describe('Bacon ipsum dolor sit amet %@file chuck turkey
+                    dolore pork chop duis. Commodo meatloaf quis brisket culpa.
+                    Veniam shoulder filet mignon ut, laboris in beef ribs
+                    adipisicing culpa pastrami pork belly minim sirloin ea jowl.
+                    Irure %@ pariatur in, pork belly frankfurter tri-tip
+                    hamburger ut deserunt meatball minim boudin sunt.
+                    Exercitation minim tongue, corned beef short loin pig
+                    meatloaf shankle andouille aute filet mignon hamburger
+                    voluptate drumstick ut. Deserunt pork proident, turkey
+                    pariatur bacon anim biltong velit magna ex occaecat %@.')
+            ->argv()
+            ;
+
+        $this->assertEquals(
+'Usage: script.php [options]
+
+--config[=]<file>     Bacon ipsum dolor sit amet <file> chuck turkey dolore pork
+    -c <file>         chop duis. Commodo meatloaf quis brisket culpa. Veniam
+                      shoulder filet mignon ut, laboris in beef ribs adipisicing
+                      culpa pastrami pork belly minim sirloin ea jowl. Irure
+                      <file> pariatur in, pork belly frankfurter tri-tip
+                      hamburger ut deserunt meatball minim boudin sunt.
+                      Exercitation minim tongue, corned beef short loin pig
+                      meatloaf shankle andouille aute filet mignon hamburger
+                      voluptate drumstick ut. Deserunt pork proident, turkey
+                      pariatur bacon anim biltong velit magna ex occaecat <file>.
+
+--debug               Bacon ipsum dolor sit amet chuck turkey dolore pork chop
+    -d                duis. Commodo meatloaf quis brisket culpa. Veniam shoulder
+                      filet mignon ut, laboris in beef ribs adipisicing culpa
+                      pastrami pork belly minim sirloin ea jowl. Irure pariatur
+                      in, pork belly frankfurter tri-tip hamburger ut deserunt
+                      meatball minim boudin sunt. Exercitation minim tongue,
+                      corned beef short loin pig meatloaf shankle andouille aute
+                      filet mignon hamburger voluptate drumstick ut. Deserunt
+                      pork proident, turkey pariatur bacon anim biltong velit
+                      magna ex occaecat.
+
+--file[=]<file>       Bacon ipsum dolor sit amet <file> chuck turkey dolore pork
+                      chop duis. Commodo meatloaf quis brisket culpa. Veniam
+                      shoulder filet mignon ut, laboris in beef ribs adipisicing
+                      culpa pastrami pork belly minim sirloin ea jowl. Irure
+                      <file> pariatur in, pork belly frankfurter tri-tip
+                      hamburger ut deserunt meatball minim boudin sunt.
+                      Exercitation minim tongue, corned beef short loin pig
+                      meatloaf shankle andouille aute filet mignon hamburger
+                      voluptate drumstick ut. Deserunt pork proident, turkey
+                      pariatur bacon anim biltong velit magna ex occaecat <file>.
+
+--test-file[=]<file>  Bacon ipsum dolor sit amet <file> chuck turkey dolore pork
+                      chop duis. Commodo meatloaf quis brisket culpa. Veniam
+                      shoulder filet mignon ut, laboris in beef ribs adipisicing
+                      culpa pastrami pork belly minim sirloin ea jowl. Irure
+                      <file> pariatur in, pork belly frankfurter tri-tip
+                      hamburger ut deserunt meatball minim boudin sunt.
+                      Exercitation minim tongue, corned beef short loin pig
+                      meatloaf shankle andouille aute filet mignon hamburger
+                      voluptate drumstick ut. Deserunt pork proident, turkey
+                      pariatur bacon anim biltong velit magna ex occaecat <file>.
+',
+            $options->help()
+        );
+    } // end testLengthyDescriptions ()
 } // end HelpUsageTestCase
