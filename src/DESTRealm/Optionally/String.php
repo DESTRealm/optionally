@@ -19,14 +19,11 @@ class String
         $indent = str_repeat(' ', $spaces);
 
         return preg_replace(
-            '#^(\b)#',
+            '#^([^\s]+)#m',
             $indent.'\\1',
-            preg_replace(
-                '#(\v)\h?(\b)#',
-                '\\1'.$indent.'\\2',
-                $text
-            )
+            $text
         );
+
     } // end indent ()
 
     /**
