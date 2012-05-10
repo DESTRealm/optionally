@@ -379,12 +379,18 @@ class Help
         }
 
         if (!$this->options[$option]['boolean']) {
+
+            if ($arg === '') {
+                $arg = 'value';
+            }
+
             if ($this->options[$option]['optionalValue']) {
                 $replacement = '\\1['.$arg.']';
                 $optional = true;
             } else {
                 $replacement = '\\1<'.$arg.'>';
             }
+
         }
 
         // Replace %@argName
