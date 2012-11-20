@@ -20,6 +20,6 @@
     "symfony/class-loader": "*"
   },
   "autoload": {
-    "psr-0": {"Optionally": "src/"}
+    "psr-0": {"DESTRealm": "src/"}
   }
 }
