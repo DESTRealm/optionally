@@ -1,14 +1,6 @@
 <?php
 
-namespace DESTRealm\Optionally\Tests\Common;
-
-use DESTRealm\Optionally;
-use DESTRealm\Optionally\Tests\BaseTestCase;
-
-//error_reporting(E_ALL | E_NOTICE | E_STRICT);
-
-// Stop PHPUnit's test reports from complaining.
-//date_default_timezone_set('UTC');
+namespace DESTRealm\Optionally\Tests;
 
 /**
  * Optionally unit tests for README validation.
@@ -18,7 +10,7 @@ use DESTRealm\Optionally\Tests\BaseTestCase;
  * asynchronous changes can crop up, this test case may lag behind the README
  * by a few commits.
  */
-class ReadmeTestCase extends BaseTestCase
+class ReadmeTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * Basic Usage

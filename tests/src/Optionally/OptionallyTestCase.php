@@ -1,12 +1,6 @@
 <?php
 
-namespace DESTRealm\Optionally\Tests\Common;
-
-use DESTRealm\Optionally;
-use DESTRealm\Optionally\Tests\BaseTestCase;
-
-// Stop PHPUnit's test reports from complaining.
-//date_default_timezone_set('UTC');
+namespace DESTRealm\Optionally\Tests;
 
 /**
  * Optionally unit tests.
@@ -14,7 +8,7 @@ use DESTRealm\Optionally\Tests\BaseTestCase;
  * While these unit tests are fairly simple, they serve to demonstrate much of
  * the common use cases Optionally is intended to fulfill.
  */
-class OptionallyTestCase extends BaseTestCase
+class OptionallyTest extends \PHPUnit_Framework_TestCase
 {
 
     /**

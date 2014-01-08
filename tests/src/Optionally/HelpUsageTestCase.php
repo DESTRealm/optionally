@@ -1,11 +1,8 @@
 <?php
 
-namespace DESTRealm\Optionally\Tests\Common;
+namespace DESTRealm\Optionally\Tests;
 
-use DESTRealm\Optionally\Tests\BaseTestCase;
-use DESTRealm\Optionally;
-
-class HelpUsageTestCase extends BaseTestCase
+class HelpUsageTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testSimpleUsage ()
