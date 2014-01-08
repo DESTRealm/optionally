@@ -25,109 +25,62 @@ streamlines the process of writing shell scripts in PHP. You'll see why.
 
 ## Installation
 
-Installing Optionally is trivial, and it's entirely up to you how to go about
-it. Soon, Optionally will be available via Packagist, but in the interim you
-can go about it by simply cloning the repo into a handy spot:
+If you're using Composer (which you should), simply add
+`"destrealm/optionally": ">=0.2.0"` or `"destrealm/optionally": "dev-master"` to
+your `composer.json`'s `require` and follow the remained of this guide.
 
-```
-git clone https://github.com/DESTRealm/optionally.git vendor/optionally
-```
+Other means of installation, including more manual ones, are left as an exercise
+to the reader.
 
-## Including Optionally
+## Prepare Yourselves
 
-Optionally is easy to use, but you must first decide how you want to include it
-as part of your project. Currently, there's three different ways to make
-Optionally a useful part of your toolset (all examples assume that you've
-cloned Optionally into the `vendor` subdirectory within your project):
-
-### No Autoloader, Classical Use
-
-This is the method most of you will be familiar with if you haven't delved into
-the world of Phing or Phars. To load Optionally without an autoloader, all you
-have to do is simply include the `optionally.php` file at the top level of the
-distribution, and go about your business:
-
-```php
-<?php
-require 'vendor/optionally/optionally.php';
-
-use DESTRealm\Optionally;
-```
-
-### Optionally with Autoloader from Sources
-
-This method is better for more advanced users, but it's also helpful since
-you'll have complete access to the Optionally sources. This uses [jwage's
-SplClassLoader](https://gist.github.com/221634) with contributions from several
-other individuals, and will take care of automatically loading the appropriate
-classes for you:
+To get Optionally working, all you have to do is this:
 
 ```php
 <?php
 
-require 'vendor/optionally/autoload.php';
-DESTRealm\Optionally\Autoloader::load();
-
 use DESTRealm\Optionally;
+
+$optionally = new Optionally();
+$options = $optionally
+    ->argv();
+
+// Or via static members...
+
+$options = Optionally::options()
+    ->argv();
 ```
 
-Once Optionally is pushed to Packagist, this might be the method you'll need to
-use.
+...and that's it!
 
-### Optionally Loaded from a Phar
-
-Finally, the latter method involves loading Optionally from a `.phar`. If you're
-just interested in using Optionally or seeking to use a less error-prone method,
-this is the simplest and recommended method of including it in your project:
-
-```php
-<?php
-
-require 'optionally.phar';
-
-use DESTRealm\Optionally;
-```
-
-Of course, you'll need to have `phar` support enabled in your PHP installation.
-This can usually be toggled in your `php.ini` by adding `extension=phar.so`
-depending on your distribution, how PHP was built, and whether you've installed
-it from sources.
-
-You can download the [Optionally Phar from Github](https://github.com/DESTRealm/binaries/raw/dfbad593e1a681511bfacad4f5233bdae095e732/phars/optionally.phar) or clone the sources and build it yourself using [Composer](http://getcomposer.org)
-for collecting development dependencies and [Phing](http://www.phing.info/trac/)
-for building the distribution.
+Well, okay. That's not *quite* everything. You'll probably want to do something
+fancy like process your command line arguments and such. Read on!
 
 ## Basic Usage
 
-First, a little warning: Every example in this guide assumes that Optionally has
-been included in your project using one of the three methods above. Which method
-you choose doesn't matter; they'll each work the same and apply in precisely the
-same manner to all of the examples below. However, you won't see any code to
-include optionally from this point forward--it's assumed you've figured that
-part out!
+First, something to note. In each of these examples, we'll be grabbing the
+command line arguments by calling Optionally's static method `options()`. You
+don't have to do this--it's perfectly reasonable to instantiate a new
+`Optionally` object and call the `argv()` method directly, retrieving an
+`Options` object that way.
 
-You should also ignore most opening PHP tags (`<?php`); they're included to
-force Github's syntax highlighter to recognize the sources as PHP code but
-otherwise serve no purpose.
-
-To get started, tell Optionally you'd like to handle your command line arguments
-(we'll deal with options later):
-
-```php
-<?php
-
-$options = Optionally::options()
-    ->argv()
-    ;
-```
-
-This will create an `$options` object that can be used to to get positional
-arguments and options. Assuming we ran our script as:
+For the following examples, let's assume we have a script that we've run
+accordingly:
 
 ```
 php -q script.php --test=1 -v --debug file.txt output.txt
 ```
 
+Now, if we grab the `Options` object by doing this:
+
+```php
+<?php
+
+use DESTRealm\Optionally;
+
+$options = Optionally::options()
+    ->argv();
+```
 Our options object will contain positional data for `file.txt` and
 `output.txt`:
 
@@ -150,20 +103,24 @@ print $args[0]; // outputs file.txt
 print $args[1]; // outputs output.txt
 ```
 
-The astute reader might have noticed the `argv()` method call at the end of our
-earlier example code. This instructs optionally that it shouldn't expect
-anything more from your code and that it's OK to return an `Options` object. You
-must call `argv()` when you're finished setting Optionally up, no excuses. The
-reason for this is mostly a mix of asthetics and internal infrastructure;
-calling `argv()` when you're finished setting up options front-loads the
-processing and makes capturing exceptions (seen later in this README) easier.
+Note: Optionally will probably use the appropriate `Spl*` classes in a future
+revision to make it easier to access the `Options` object as an array.
+
+At this juncture, an astute reader might have noticed the `argv()` method call
+at the end of our earlier example code. This instructs Optionally that it
+shouldn't expect anything more from your code and that it's OK to return an
+`Options` object. You must call `argv()` when you're finished setting Optionally
+up, no excuses. The reason for this is mostly a mix of asthetics and internal infrastructure (okay, it's mostly internal infrastructure); calling `argv()`
+when you're finished setting up options front-loads the processing and makes
+capturing exceptions (seen later in this README) easier.
 
 You've probably also taken note that I didn't do anything with the options yet,
 and there's a reason: Optionally doesn't know anything about them! Optionally
 uses a modified version of PEAR's `Console_GetOpt internally` and puts absolutely
 no effort into parsing the command line for options--beyond what you've told it.
 
-Let's give it some options.
+Let's give it some options. All of the following examples will assume that
+you've made the appropriate declarations to include Optionally in your code.
 
 ## Optionally and Options
 
