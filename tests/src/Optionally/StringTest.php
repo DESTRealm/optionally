@@ -2,6 +2,8 @@
 
 namespace DESTRealm\Optionally\Tests;
 
+use DESTRealm\Optionally\String;
+
 /**
  * Optionally unit tests.
  *
@@ -175,4 +177,4 @@ testing.',
 
     } // end testNormalizeWrap ()
 
-} // end StringTestCase
+} // end StringTest

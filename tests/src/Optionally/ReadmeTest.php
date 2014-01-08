@@ -2,6 +2,8 @@
 
 namespace DESTRealm\Optionally\Tests;
 
+use DESTRealm\Optionally;
+
 /**
  * Optionally unit tests for README validation.
  *
@@ -430,4 +432,4 @@ class ReadmeTest extends \PHPUnit_Framework_TestCase
     } // end testAdvancedStupidity2 ()
 
 
-} // end ReadmeTestCase
+} // end ReadmeTest

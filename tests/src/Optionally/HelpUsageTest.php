@@ -2,6 +2,8 @@
 
 namespace DESTRealm\Optionally\Tests;
 
+use DESTRealm\Optionally;
+
 class HelpUsageTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -245,4 +247,4 @@ class HelpUsageTest extends \PHPUnit_Framework_TestCase
             $options->help()
         );
     } // end testLengthyDescriptions ()
-} // end HelpUsageTestCase
+} // end HelpUsageTest

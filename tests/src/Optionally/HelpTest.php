@@ -2,6 +2,8 @@
 
 namespace DESTRealm\Optionally\Tests;
 
+use DESTRealm\Optionally\Help;
+
 /**
  * Optionally unit tests.
  *
@@ -634,5 +636,5 @@ class HelpTest extends \PHPUnit_Framework_TestCase
             $help->help());
 
     } // end testManyOptionalNamedArgs ()
-} // end HelpTestCase
+} // end HelpTest
 
