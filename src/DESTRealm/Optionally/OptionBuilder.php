@@ -96,10 +96,7 @@ class OptionBuilder
 
         $this->args = $args;
 
-        $parsedOptions = $this->assignValues(
-            $options,
-            $this->options
-        );
+        $parsedOptions = $this->assignValues($options);
 
         return $this->buildAliases($this->evaluateOptions($parsedOptions));
 

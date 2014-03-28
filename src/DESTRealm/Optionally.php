@@ -57,6 +57,12 @@ class Optionally
     private $getopt = null;
 
     /**
+     * Help text manager.
+     * @var DESTRealm\Optionally\Help
+     */
+    private $help = null;
+
+    /**
      * Last option. This is used to apply modifications to options via method
      * chaining.
      * @var string
